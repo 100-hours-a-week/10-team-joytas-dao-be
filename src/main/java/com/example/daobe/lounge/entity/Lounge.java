@@ -45,6 +45,9 @@ public class Lounge {
     @Column(name = "reason")
     private String reason;
 
+    @Column(columnDefinition = "TEXT", name = "reason_detail")
+    private String reasonDetail;
+
     @OneToMany(mappedBy = "lounge")
     private List<Objet> objets;
 

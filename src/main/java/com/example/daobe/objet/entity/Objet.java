@@ -53,4 +53,7 @@ public class Objet extends BaseTimeEntity {
 
     @Column(name = "reason")
     private String reason;
+
+    @Column(columnDefinition = "TEXT", name = "reason_detail")
+    private String reasonDetail;
 }

@@ -36,6 +36,6 @@ public class User extends BaseTimeEntity {
     private String reason;
 
     // 비활성화 사유
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
 }

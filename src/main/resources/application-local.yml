@@ -1,0 +1,22 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  cors:
+    allowed-methods: ${ALLOWED_METHODS}
+    allowed-origins: ${ALLOWED_ORIGINS}
+
+  datasource:
+    url: jdbc:h2:mem:dao-local-db
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+    show-sql: true

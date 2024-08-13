@@ -2,6 +2,7 @@ package com.example.daobe.lounge.service;
 
 import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeStatus;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LoungeService {
+
+    private static final String NOT_EXISTS_LOUNGE_EXCEPTION = "NOT_EXISTS_LOUNGE_EXCEPTION";
 
     private final LoungeRepository loungeRepository;
 
@@ -36,5 +39,25 @@ public class LoungeService {
         return loungeRepository.findLoungeByUserId(userId).stream()
                 .map(LoungeInfoDto::of)
                 .toList();
+    }
+
+    public Lounge findLoungeById(Long loungeId) {
+        return loungeRepository.findById(loungeId)
+                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_LOUNGE_EXCEPTION));
+    }
+
+    public LoungeDetailInfoDto createLoungeDetailInfo(
+            Long loungeId,
+            List<LoungeDetailInfoDto.ObjetInfo> objetInfos
+    ) {
+        Lounge findLounge = loungeRepository.findById(loungeId)
+                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_LOUNGE_EXCEPTION));
+        return LoungeDetailInfoDto.builder()
+                .loungeId(loungeId)
+                .name(findLounge.getName())
+                .type(findLounge.getType().getTypeName())
+                .userId(findLounge.getUser().getId())
+                .objets(objetInfos)
+                .build();
     }
 }

@@ -1,7 +1,6 @@
 package com.example.daobe.lounge.dto;
 
 import com.example.daobe.lounge.entity.Lounge;
-import com.example.daobe.lounge.entity.LoungeType;
 import lombok.Builder;
 
 @Builder

@@ -5,9 +5,10 @@ import lombok.Getter;
 
 @Getter
 public enum LoungeType {
-    L0001("l0001"),
-    L0002("l0002"),
-    L0003("l0003");
+
+    L0001("L0001"),
+    L0002("L0002"),
+    L0003("L0003");
 
     private final String type;
 

@@ -3,7 +3,9 @@ package com.example.daobe.lounge.controller;
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.dto.LoungeInfoDto;
+import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.service.LoungeFacadeService;
 import com.example.daobe.user.entity.User;
 import java.util.List;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,13 +42,20 @@ public class LoungeController {
 
     // TODO: @AuthenticationPrincipal 적용 -> 유저 인증
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> findAllLounges() {
-        // FIXME: MockUser 제거
-        User mockUser = loungeFacadeService.findUserById(2L);
-
+    public ResponseEntity<ApiResponse<List<LoungeInfoDto>>> getAllLounges() {
         ApiResponse<List<LoungeInfoDto>> response = new ApiResponse<>(
                 "LOUNGE_LIST_LOADED_SUCCESS",
-                loungeFacadeService.findLoungeByUserId(mockUser.getId())
+                loungeFacadeService.findLoungeByUserId(2L)  // FIXME: Security 적용 후 userId로 변경
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/{loungeId}")
+    public ResponseEntity<ApiResponse<LoungeDetailInfoDto>> getLoungeDetail(
+            @PathVariable(name = "loungeId") Long loungeId) {
+        ApiResponse<LoungeDetailInfoDto> response = new ApiResponse<>(
+                "LOUNGE_INFO_LOADED_SUCCESS",
+                loungeFacadeService.getLoungeDetail(loungeId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

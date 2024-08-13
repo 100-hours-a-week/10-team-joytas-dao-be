@@ -6,6 +6,13 @@ spring:
     allowed-methods: ${ALLOWED_METHODS}
     allowed-origins: ${ALLOWED_ORIGINS}
 
+  cookie:
+    max-age: 1234567890
+    path: /
+    same-site: Lax
+    secure: false
+    http-only: true
+
   datasource:
     url: ${H2_DATABASE_URL}
     username: ${H2_DATABASE_USERNAME}

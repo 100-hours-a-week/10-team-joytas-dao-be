@@ -60,20 +60,10 @@ public class Lounge {
     private List<UserLounge> userLounges;
 
     @Builder
-    public Lounge(User user, String name, LoungeType type, LoungeStatus status, String reason, String reasonDetail) {
+    public Lounge(User user, String name, LoungeType type, LoungeStatus status) {
         this.user = user;
         this.name = name;
         this.type = type;
         this.status = status;
-        this.reason = reason;
-        this.reasonDetail = reasonDetail;
-    }
-
-    public LoungeCreateResponseDto toLoungeCreateResponseDto() {
-        return new LoungeCreateResponseDto(loungeId);
-    }
-
-    public LoungeInfoDto toLoungeInfoDto() {
-        return new LoungeInfoDto(loungeId, name, type.getType());
     }
 }

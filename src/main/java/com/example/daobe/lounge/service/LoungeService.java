@@ -24,19 +24,17 @@ public class LoungeService {
         Lounge lounge = Lounge.builder()
                 .user(user)
                 .name(request.name())
-                .type(LoungeType.from(request.type()))
+                .type(LoungeType.from(request.type()))  // 라운지 타입
                 .status(LoungeStatus.ACTIVE)    // 라운지 활성화
-                .reason(null)
-                .reasonDetail(null)
                 .build();
 
-        Lounge savedLounge = loungeRepository.save(lounge);
-        return savedLounge.toLoungeCreateResponseDto();
+        loungeRepository.save(lounge);
+        return LoungeCreateResponseDto.of(lounge);
     }
 
     public List<LoungeInfoDto> findLoungeByUserId(Long userId) {
         return loungeRepository.findLoungeByUserId(userId).stream()
-                .map(Lounge::toLoungeInfoDto)
+                .map(LoungeInfoDto::of)
                 .toList();
     }
 }

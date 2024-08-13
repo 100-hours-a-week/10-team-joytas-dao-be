@@ -10,15 +10,15 @@ public enum LoungeType {
     L0002("L0002"),
     L0003("L0003");
 
-    private final String type;
+    private final String typeName;
 
-    LoungeType(String type) {
-        this.type = type;
+    LoungeType(String typeName) {
+        this.typeName = typeName;
     }
 
     public static LoungeType from(String type) {
         return Arrays.stream(values())
-                .filter(loungeType -> loungeType.getType().equals(type))
+                .filter(loungeType -> loungeType.getTypeName().equals(type))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("NOT_EXISTS_LOUNGE_TYPE_EXCEPTION"));
     }

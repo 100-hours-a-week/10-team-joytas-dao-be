@@ -24,7 +24,7 @@ public class User extends BaseTimeEntity {
     private Long id;
 
     @Column(name = "kakao_id")
-    private Long kakaoId;
+    private String kakaoId;
 
     private String nickname;
 
@@ -41,7 +41,7 @@ public class User extends BaseTimeEntity {
     private String reasonDetail;
 
     @Builder
-    public User(Long kakaoId, String nickname, String profileUrl) {
+    public User(String kakaoId, String nickname, String profileUrl) {
         this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.profileUrl = profileUrl;

@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,4 +34,10 @@ public class UserObjet {
     @JoinColumn(name = "objet_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Objet objet;
+
+    @Builder
+    public UserObjet(User user, Objet objet) {
+        this.user = user;
+        this.objet = objet;
+    }
 }

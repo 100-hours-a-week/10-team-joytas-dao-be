@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: redis7
+    command: redis-server --port 6379
+    restart: always
+    hostname: root
+    labels:
+      - "mode:standalone"
+    ports:
+      - "6379:6379"

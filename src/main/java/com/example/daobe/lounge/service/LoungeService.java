@@ -2,11 +2,13 @@ package com.example.daobe.lounge.service;
 
 import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeStatus;
 import com.example.daobe.lounge.entity.LoungeType;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.user.entity.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,5 +32,11 @@ public class LoungeService {
 
         Lounge savedLounge = loungeRepository.save(lounge);
         return savedLounge.toLoungeCreateResponseDto();
+    }
+
+    public List<LoungeInfoDto> findLoungeByUserId(Long userId) {
+        return loungeRepository.findLoungeByUserId(userId).stream()
+                .map(Lounge::toLoungeInfoDto)
+                .toList();
     }
 }

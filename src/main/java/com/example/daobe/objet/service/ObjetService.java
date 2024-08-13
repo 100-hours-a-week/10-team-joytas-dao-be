@@ -12,7 +12,6 @@ import com.example.daobe.shared.entity.UserObjet;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.repository.UserRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ public class ObjetService {
     private final UserRepository userRepository;
 
     public ObjetCreateResponseDto create(ObjetCreateRequestDto request) {
-        Lounge lounge = loungeRepository.findById(request.getLoungeId())
+        Lounge lounge = loungeRepository.findById(request.loungeId())
                 // TODO : custom exception 만들어서 처리
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Lounge ID"));
 
@@ -35,7 +34,7 @@ public class ObjetService {
                             .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
                     return UserObjet.builder()
                             .user(user)
-                            .objet(null)
+                            .objet(objet)
                             .build();
                 })
                 .collect(Collectors.toList());

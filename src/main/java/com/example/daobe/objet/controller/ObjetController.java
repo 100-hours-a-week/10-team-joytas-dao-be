@@ -10,23 +10,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/objets")
 @RequiredArgsConstructor
 public class ObjetController {
 
+    private static final String OBJET_CREATED_SUCCESS = "OBJET_CREATED_SUCCESS";
+
     private final ObjetService objetService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
-            @RequestBody ObjetCreateRequestDto request,
-            @RequestPart(value = "objet_image", required = true) MultipartFile image) {
+            @RequestBody ObjetCreateRequestDto request
+    ) {
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(request);
-        ApiResponse<ObjetCreateResponseDto> response = new ApiResponse<>("OBJET_CREATED_SUCCESS", ObjetCreateResponse);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
     }
 }

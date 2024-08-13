@@ -40,8 +40,8 @@ public class Lounge {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private LoungeType type;
 
     @Enumerated(EnumType.STRING)
     private LoungeStatus status;
@@ -59,7 +59,7 @@ public class Lounge {
     private List<UserLounge> userLounges;
 
     @Builder
-    public Lounge(User user, String name, String type, LoungeStatus status, String reason, String reasonDetail) {
+    public Lounge(User user, String name, LoungeType type, LoungeStatus status, String reason, String reasonDetail) {
         this.user = user;
         this.name = name;
         this.type = type;

@@ -4,6 +4,7 @@ import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeStatus;
+import com.example.daobe.lounge.entity.LoungeType;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class LoungeService {
         Lounge lounge = Lounge.builder()
                 .user(user)
                 .name(request.name())
-                .type(request.type())
+                .type(LoungeType.from(request.type()))
                 .status(LoungeStatus.ACTIVE)    // 라운지 활성화
                 .reason(null)
                 .reasonDetail(null)

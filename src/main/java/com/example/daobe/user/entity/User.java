@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +39,11 @@ public class User extends BaseTimeEntity {
     // 비활성화 사유
     @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
+
+    @Builder
+    public User(Long kakaoId, String nickname, String profileUrl) {
+        this.kakaoId = kakaoId;
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+    }
 }

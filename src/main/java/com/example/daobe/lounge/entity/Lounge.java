@@ -1,6 +1,7 @@
 package com.example.daobe.lounge.entity;
 
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.objet.entity.Objet;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.user.entity.User;
@@ -70,5 +71,9 @@ public class Lounge {
 
     public LoungeCreateResponseDto toLoungeCreateResponseDto() {
         return new LoungeCreateResponseDto(loungeId);
+    }
+
+    public LoungeInfoDto toLoungeInfoDto() {
+        return new LoungeInfoDto(loungeId, name, type.getType());
     }
 }

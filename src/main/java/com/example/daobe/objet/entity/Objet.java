@@ -64,21 +64,27 @@ public class Objet extends BaseTimeEntity {
     private String reasonDetail;
 
     @Builder
-    public Objet(Long objetId, Lounge lounge, List<UserObjet> userObjets, String name, String imageUrl,
-                 String explanation, ObjetType type, ObjectStatus status, String reason, String reasonDetail) {
-        this.objetId = objetId;
+    public Objet(
+            Lounge lounge,
+            String name,
+            String imageUrl,
+            String explanation,
+            ObjetType type,
+            ObjectStatus status
+    ) {
         this.lounge = lounge;
-        this.userObjets = userObjets;
         this.name = name;
         this.imageUrl = imageUrl;
         this.explanation = explanation;
         this.type = type;
         this.status = status;
-        this.reason = reason;
-        this.reasonDetail = reasonDetail;
     }
 
     public ObjetCreateResponseDto toObjetCreateResponseDto() {
         return new ObjetCreateResponseDto(objetId);
+    }
+
+    public void updateUserObjets(List<UserObjet> userObjets) {
+        this.userObjets = userObjets;
     }
 }

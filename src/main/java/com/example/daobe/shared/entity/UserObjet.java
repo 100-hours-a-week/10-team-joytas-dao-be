@@ -34,4 +34,10 @@ public class UserObjet {
     @JoinColumn(name = "objet_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Objet objet;
+
+    @Builder
+    public UserObjet(User user, Objet objet) {
+        this.user = user;
+        this.objet = objet;
+    }
 }

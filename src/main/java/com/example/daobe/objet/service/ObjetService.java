@@ -28,7 +28,15 @@ public class ObjetService {
                 // TODO : custom exception 만들어서 처리
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Lounge ID"));
 
-        List<UserObjet> userObjets = request.getOwners().stream()
+        Objet objet = Objet.builder()
+                .name(request.name())
+                .explanation(request.description())
+                .type(ObjetType.from(request.type()))
+                .status(ObjectStatus.ACTIVE)
+                .lounge(lounge)
+                .build();
+
+        List<UserObjet> userObjets = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
                             .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
@@ -37,20 +45,11 @@ public class ObjetService {
                             .objet(objet)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-        Objet objet = Objet.builder()
-                .name(request.getName())
-                .explanation(request.getDescription())
-                .type(ObjetType.from(request.getType()))
-                .status(ObjectStatus.ACTIVE)
-                .lounge(lounge)
-                .userObjets(userObjets)
-                .build();
+        objet.updateUserObjets(userObjets);
+        objetRepository.save(objet);
 
-        userObjets.forEach(userObjet -> userObjet.setObjet(objet));
-        
-        Objet savedObjet = objetRepository.save(objet);
-        return savedObjet.toObjetCreateResponseDto();
+        return ObjetCreateResponseDto.of(objet);
     }
 }

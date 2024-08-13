@@ -12,11 +12,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LoungeFacadeService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final LoungeService loungeService;
 
     public LoungeCreateResponseDto create(LoungeCreateRequestDto request) {
-        User findUser = userService.findById(request.userId());
+        User findUser = userRepository.findById(request.userId())
+                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_USER_EXCEPTION"));
         return loungeService.create(request, findUser);
     }
 }

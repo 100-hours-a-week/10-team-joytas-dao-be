@@ -50,6 +50,9 @@ dependencies {
 
     // JUnit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // AWS
+    implementation 'software.amazon.awssdk:s3:2.25.13'
 }
 
 tasks.named('test') {

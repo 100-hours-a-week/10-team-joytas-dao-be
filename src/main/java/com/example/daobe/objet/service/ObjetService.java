@@ -23,7 +23,7 @@ public class ObjetService {
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
 
-    public ObjetCreateResponseDto create(ObjetCreateRequestDto request) {
+    public ObjetCreateResponseDto create(ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
                 // TODO : custom exception 만들어서 처리
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Lounge ID"));
@@ -34,6 +34,7 @@ public class ObjetService {
                 .type(ObjetType.from(request.type()))
                 .status(ObjectStatus.ACTIVE)
                 .lounge(lounge)
+                .imageUrl((imageUrl))
                 .build();
 
         List<UserObjet> userObjets = request.owners().stream()

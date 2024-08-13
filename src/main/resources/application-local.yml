@@ -64,3 +64,12 @@ security:
 logging:
   level:
     org.hibernate.SQL: debug
+
+cloud:
+  aws:
+    s3:
+      bucket-name: ${S3_BUCKET_NAME}
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+      region: ${S3_REGION}
+      image-url: ${S3_IMAGE_URL}

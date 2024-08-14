@@ -1,11 +1,9 @@
-package com.example.daobe.common.advice;
+package com.example.daobe.common.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
-import com.example.daobe.common.exception.BaseException;
-import com.example.daobe.common.exception.BaseExceptionType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;

@@ -4,6 +4,7 @@ import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.objet.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.dto.ObjetInfoDto;
 import com.example.daobe.objet.entity.Objet;
 import com.example.daobe.objet.entity.ObjetStatus;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ObjetService {
+
+    private static final String NOT_EXISTS_OBJET_EXCEPTION = "NOT_EXISTS_OBJET_EXCEPTION";
 
     private final ObjetRepository objetRepository;
     private final LoungeRepository loungeRepository;
@@ -78,4 +81,26 @@ public class ObjetService {
                     .toList();
         }
     }
+
+    public ObjetDetailInfoDto getObjetDetail(Long objetId) {
+        Objet findObjet = objetRepository.findById(objetId)
+                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_OBJET_EXCEPTION));
+        return ObjetDetailInfoDto.builder()
+                .objetId(objetId)
+                .name(findObjet.getName())
+                .userId(findObjet.getUser().getId())
+                .nickname(findObjet.getUser().getNickname())
+                .objetImage(findObjet.getImageUrl())
+                .description(findObjet.getExplanation())
+                // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
+                .isActive(true)
+                // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
+                .viewers(null)
+                // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
+                .chattings(null)
+                // TODO : 오브제 음성 채팅 참가자 수 로직 구현 후 변경
+                .CallingUserNum(3L)
+                .build();
+    }
+
 }

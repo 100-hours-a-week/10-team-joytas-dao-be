@@ -10,6 +10,7 @@ import com.example.daobe.objet.entity.ObjetStatus;
 import com.example.daobe.objet.entity.ObjetType;
 import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserObjet;
+import com.example.daobe.shared.repository.UserObjetRepository;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.repository.UserRepository;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ObjetService {
     private final ObjetRepository objetRepository;
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
+    private final UserObjetRepository userObjetRepository;
 
     public ObjetCreateResponseDto create(ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
@@ -38,6 +40,8 @@ public class ObjetService {
                 .imageUrl((imageUrl))
                 .build();
 
+        objetRepository.save(objet);
+
         List<UserObjet> userObjets = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
@@ -49,8 +53,9 @@ public class ObjetService {
                 })
                 .toList();
 
+        userObjetRepository.saveAll(userObjets);
+        
         objet.updateUserObjets(userObjets);
-        objetRepository.save(objet);
 
         return ObjetCreateResponseDto.of(objet);
     }
@@ -58,9 +63,15 @@ public class ObjetService {
     public List<ObjetInfoDto> getObjetList(Long lounge_id, Boolean owner) {
         // NOTE : owner == true 이면, 본인을 대상으로 한 오브제 목록 조회
         // TODO : 인증 추가 후, 본인을 대상으로 한 오브제 목록 조회 기능 추가
-        return objetRepository.findObjetList(lounge_id, owner).stream()
-                .map(ObjetInfoDto::of)
-                .toList();
+        if (Boolean.TRUE.equals(owner)) {
+            return objetRepository.findObjetListForOwner(lounge_id).stream()
+                    .map(ObjetInfoDto::of)
+                    .toList();
+        } else {
+            return objetRepository.findObjetList(lounge_id).stream()
+                    .map(ObjetInfoDto::of)
+                    .toList();
+        }
 
 
     }

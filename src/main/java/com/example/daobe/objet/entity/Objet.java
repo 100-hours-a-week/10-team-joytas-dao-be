@@ -55,7 +55,7 @@ public class Objet extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private ObjectStatus status;
+    private ObjetStatus status;
 
     @Column(name = "reason")
     private String reason;
@@ -70,7 +70,7 @@ public class Objet extends BaseTimeEntity {
             String imageUrl,
             String explanation,
             ObjetType type,
-            ObjectStatus status
+            ObjetStatus status
     ) {
         this.lounge = lounge;
         this.name = name;

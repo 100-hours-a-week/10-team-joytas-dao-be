@@ -1,6 +1,6 @@
 package com.example.daobe.objet.entity;
 
-public enum ObjectStatus {
+public enum ObjetStatus {
     ACTIVE,     // 사용 중인 상태
     DELETED,    // 삭제된 상태
     INACTIVE;   // 비활성화된 상태 -> 변경 가능

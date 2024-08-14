@@ -4,8 +4,9 @@ import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.objet.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.dto.ObjetCreateResponseDto;
-import com.example.daobe.objet.entity.ObjectStatus;
+import com.example.daobe.objet.dto.ObjetInfoDto;
 import com.example.daobe.objet.entity.Objet;
+import com.example.daobe.objet.entity.ObjetStatus;
 import com.example.daobe.objet.entity.ObjetType;
 import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserObjet;
@@ -32,7 +33,7 @@ public class ObjetService {
                 .name(request.name())
                 .explanation(request.description())
                 .type(ObjetType.from(request.type()))
-                .status(ObjectStatus.ACTIVE)
+                .status(ObjetStatus.ACTIVE)
                 .lounge(lounge)
                 .imageUrl((imageUrl))
                 .build();
@@ -52,5 +53,15 @@ public class ObjetService {
         objetRepository.save(objet);
 
         return ObjetCreateResponseDto.of(objet);
+    }
+
+    public List<ObjetInfoDto> getObjetList(Long lounge_id, Boolean owner) {
+        // NOTE : owner == true 이면, 본인을 대상으로 한 오브제 목록 조회
+        // TODO : 인증 추가 후, 본인을 대상으로 한 오브제 목록 조회 기능 추가
+        return objetRepository.findObjetList(lounge_id, owner).stream()
+                .map(ObjetInfoDto::of)
+                .toList();
+
+
     }
 }

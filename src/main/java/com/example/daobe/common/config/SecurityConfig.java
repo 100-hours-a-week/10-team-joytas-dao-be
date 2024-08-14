@@ -5,6 +5,8 @@ import com.example.daobe.auth.oauth.OAuthService;
 import com.example.daobe.auth.oauth.OAuthSuccessHandler;
 import com.example.daobe.auth.security.JwtAuthenticationFilter;
 import com.example.daobe.auth.security.JwtAuthenticationProvider;
+import com.example.daobe.auth.security.handler.CustomAccessDeniedHandler;
+import com.example.daobe.auth.security.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -29,7 +32,9 @@ public class SecurityConfig {
 
     private final OAuthService oAuthService;
     private final OAuthSuccessHandler oAuthSuccessHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
     @Bean
@@ -44,6 +49,9 @@ public class SecurityConfig {
         RequestMatcher requestMatcher = generatedRequestMatcher();
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(requestMatcher);
         filter.setAuthenticationManager(authenticationManager);
+        filter.setAuthenticationFailureHandler(
+                new AuthenticationEntryPointFailureHandler(authenticationEntryPoint)
+        );
         return filter;
     }
 
@@ -89,6 +97,9 @@ public class SecurityConfig {
                 .addFilterBefore(
                         jwtAuthenticationFilter(authenticationManager),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(handler -> handler
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authenticationProvider(jwtAuthenticationProvider)
                 .build();

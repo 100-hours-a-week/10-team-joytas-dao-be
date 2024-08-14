@@ -1,12 +1,14 @@
 package com.example.daobe.auth.security;
 
+import static com.example.daobe.auth.security.exception.SecurityExceptionType.UNAUTHORIZED;
+
+import com.example.daobe.auth.security.exception.SecurityException;
 import com.example.daobe.auth.support.AuthHeaderExtractor;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -14,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-@Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public JwtAuthenticationFilter(RequestMatcher requestMatcher) {
@@ -27,7 +28,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             HttpServletResponse response
     ) throws AuthenticationException, IOException, ServletException {
         String accessToken = AuthHeaderExtractor.extract(request)
-                .orElseThrow(() -> new RuntimeException("attemptAuthentication"));
+                .orElseThrow(() -> new SecurityException(UNAUTHORIZED));
 
         // 인증에 필요한 데이터 (인증 전의 토큰 객체)
         JwtAuthenticationToken beforeToken = JwtAuthenticationToken.beforeOf(accessToken);

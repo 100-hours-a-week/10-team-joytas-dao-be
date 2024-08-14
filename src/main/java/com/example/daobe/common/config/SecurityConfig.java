@@ -5,6 +5,8 @@ import com.example.daobe.auth.oauth.OAuthService;
 import com.example.daobe.auth.oauth.OAuthSuccessHandler;
 import com.example.daobe.auth.security.JwtAuthenticationFilter;
 import com.example.daobe.auth.security.JwtAuthenticationProvider;
+import com.example.daobe.auth.security.handler.CustomAccessDeniedHandler;
+import com.example.daobe.auth.security.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +18,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +32,9 @@ public class SecurityConfig {
 
     private final OAuthService oAuthService;
     private final OAuthSuccessHandler oAuthSuccessHandler;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
     @Bean
@@ -39,15 +46,22 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
-        OrRequestMatcher requestMatcher = generatedRequestMatcher();
+        RequestMatcher requestMatcher = generatedRequestMatcher();
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(requestMatcher);
         filter.setAuthenticationManager(authenticationManager);
+        filter.setAuthenticationFailureHandler(
+                new AuthenticationEntryPointFailureHandler(authenticationEntryPoint)
+        );
         return filter;
     }
 
-    private OrRequestMatcher generatedRequestMatcher() {
-        return new OrRequestMatcher(
-                new AntPathRequestMatcher("/")
+    private RequestMatcher generatedRequestMatcher() {
+        return new NegatedRequestMatcher(
+                new OrRequestMatcher(
+                        new AntPathRequestMatcher("/api/v1/health"),
+                        new AntPathRequestMatcher("/api/v1/auth/reissue"),
+                        new AntPathRequestMatcher("/oauth2/authorization/kakao")
+                )
         );
     }
 
@@ -63,7 +77,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/api/v1/health").permitAll()
+                        .requestMatchers("/api/v1/auth/reissue").permitAll()
+                        .requestMatchers("/oauth2/authorization/kakao").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -81,6 +97,9 @@ public class SecurityConfig {
                 .addFilterBefore(
                         jwtAuthenticationFilter(authenticationManager),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(handler -> handler
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authenticationProvider(jwtAuthenticationProvider)
                 .build();

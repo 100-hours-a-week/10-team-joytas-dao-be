@@ -1,5 +1,8 @@
 package com.example.daobe.auth.security;
 
+import static com.example.daobe.auth.security.exception.SecurityExceptionType.INVALID_TOKEN;
+
+import com.example.daobe.auth.security.exception.SecurityException;
 import com.example.daobe.auth.security.jwt.JwtExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -24,7 +27,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             Long memberId = jwtExtractor.extractAccessToken(accessToken);
             return JwtAuthenticationToken.afterOf(memberId);
         } catch (RuntimeException ex) {
-            throw new RuntimeException("dd");
+            throw new SecurityException(INVALID_TOKEN);
         }
     }
 

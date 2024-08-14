@@ -11,7 +11,7 @@ public record LoungeInfoDto(
 ) {
     public static LoungeInfoDto of(Lounge lounge) {
         return LoungeInfoDto.builder()
-                .loungeId(lounge.getLoungeId())
+                .loungeId(lounge.getId())
                 .name(lounge.getName())
                 .type(lounge.getType().getTypeName())
                 .build();

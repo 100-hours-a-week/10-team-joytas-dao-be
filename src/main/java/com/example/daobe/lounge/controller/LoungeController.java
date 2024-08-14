@@ -5,9 +5,9 @@ import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.dto.LoungeInfoDto;
-import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.dto.LoungeInviteDto;
+import com.example.daobe.lounge.entity.InviteStatus;
 import com.example.daobe.lounge.service.LoungeFacadeService;
-import com.example.daobe.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,11 +52,21 @@ public class LoungeController {
 
     @GetMapping("/{loungeId}")
     public ResponseEntity<ApiResponse<LoungeDetailInfoDto>> getLoungeDetail(
-            @PathVariable(name = "loungeId") Long loungeId) {
+            @PathVariable(name = "loungeId") Long loungeId
+    ) {
         ApiResponse<LoungeDetailInfoDto> response = new ApiResponse<>(
                 "LOUNGE_INFO_LOADED_SUCCESS",
                 loungeFacadeService.getLoungeDetail(loungeId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<ApiResponse<LoungeInviteDto>> inviteUser(
+            @RequestBody LoungeInviteDto request
+    ) {
+        InviteStatus inviteStatus = loungeFacadeService.inviteUser(request);
+        return ResponseEntity.status(inviteStatus.getHttpStatus())
+                .body(new ApiResponse<>(inviteStatus.getMessage(), null));
     }
 }

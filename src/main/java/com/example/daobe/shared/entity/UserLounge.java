@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,4 +34,10 @@ public class UserLounge {
     @JoinColumn(name = "lounge_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Lounge lounge;
+
+    @Builder
+    public UserLounge(User user, Lounge lounge) {
+        this.user = user;
+        this.lounge = lounge;
+    }
 }

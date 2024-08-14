@@ -13,9 +13,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoungeService {
 
@@ -23,7 +25,8 @@ public class LoungeService {
 
     private final LoungeRepository loungeRepository;
 
-    public LoungeCreateResponseDto create(LoungeCreateRequestDto request, User user) {
+    @Transactional
+    public LoungeCreateResponseDto createLounge(LoungeCreateRequestDto request, User user) {
         Lounge lounge = Lounge.builder()
                 .user(user)
                 .name(request.name())

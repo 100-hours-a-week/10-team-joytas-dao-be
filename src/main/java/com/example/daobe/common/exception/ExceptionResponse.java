@@ -1,4 +1,4 @@
-package com.example.daobe.common.advice;
+package com.example.daobe.common.exception;
 
 public record ExceptionResponse(
         int status,

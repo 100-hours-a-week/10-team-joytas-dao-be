@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: 리포지토리 체크아웃
         uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.ACTIONS_TOKEN }}
 
       - name: JDK 17 버전 설치
         uses: actions/setup-java@v3

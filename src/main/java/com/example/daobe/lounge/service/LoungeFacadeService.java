@@ -28,8 +28,8 @@ public class LoungeFacadeService {
     private final ObjetRepository objetRepository;
     private final UserLoungeRepository userLoungeRepository;
 
-    public LoungeCreateResponseDto create(LoungeCreateRequestDto request) {
-        User findUser = findUserById(request.userId());
+    public LoungeCreateResponseDto create(LoungeCreateRequestDto request, Long userId) {
+        User findUser = findUserById(userId);
         return loungeService.createLounge(request, findUser);
     }
 
@@ -45,6 +45,7 @@ public class LoungeFacadeService {
         User findUser = findUserById(request.userId());
         Lounge findLounge = findLoungeById(request.loungeId());
 
+        // TODO: 알림 기능 구현 이후 유저가 초대 수락시 해당 메서드 실행
         // 해당 라운지에 이미 소속되어 있는지 확인
         if (isNotExistUserInLounge(findUser, findLounge)) {
             UserLounge userLounge = UserLounge.builder()

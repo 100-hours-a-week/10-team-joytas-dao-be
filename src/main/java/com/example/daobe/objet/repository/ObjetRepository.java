@@ -15,7 +15,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             + "from Objet o "
             + "join o.userObjets uo "
             + "join uo.user u "
-            + "where o.lounge.loungeId = :loungeId "
+            + "where o.lounge.id = :loungeId "
             + "and o.deletedAt is null "
             + "and o.status = 'ACTIVE' "
             // TODO : 요청을 보낸 user의 id로 변경 필요
@@ -26,7 +26,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
     // 라운지별 오브제 목록 조회
     @Query("select o "
             + "from Objet o "
-            + "where o.lounge.loungeId=:loungeId "
+            + "where o.lounge.id=:loungeId "
             + "and o.deletedAt is null "
             + "and o.status = 'ACTIVE'")
     List<Objet> findObjetList(@Param("loungeId") Long loungeId);

@@ -15,12 +15,14 @@ public record LoungeDetailInfoDto(
     @Builder
     public record ObjetInfo(
             Long objectId,
-            String type
+            String type,
+            String name
     ) {
         public static ObjetInfo of(Objet objet) {
             return ObjetInfo.builder()
                     .objectId(objet.getObjetId())
                     .type(objet.getType().getType())
+                    .name(objet.getName())
                     .build();
         }
     }

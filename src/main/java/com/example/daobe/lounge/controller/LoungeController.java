@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,21 +32,23 @@ public class LoungeController {
     // TODO: ApiResponse 응답 메시지 Enum 으로 관리 하도록 구현
     @PostMapping
     public ResponseEntity<ApiResponse<LoungeCreateResponseDto>> createLounge(
+            @AuthenticationPrincipal Long userId,
             @RequestBody LoungeCreateRequestDto request
     ) {
         ApiResponse<LoungeCreateResponseDto> response = new ApiResponse<>(
                 "LOUNGE_CREATED_SUCCESS",
-                loungeFacadeService.create(request)
+                loungeFacadeService.create(request, userId)
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // TODO: @AuthenticationPrincipal 적용 -> 유저 인증
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LoungeInfoDto>>> getAllLounges() {
+    public ResponseEntity<ApiResponse<List<LoungeInfoDto>>> getAllLounges(
+            @AuthenticationPrincipal Long userId
+    ) {
         ApiResponse<List<LoungeInfoDto>> response = new ApiResponse<>(
                 "LOUNGE_LIST_LOADED_SUCCESS",
-                loungeFacadeService.findLoungeByUserId(2L)  // FIXME: Security 적용 후 userId로 변경
+                loungeFacadeService.findLoungeByUserId(userId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

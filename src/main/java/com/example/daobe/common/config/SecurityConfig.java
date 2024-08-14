@@ -18,7 +18,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -39,15 +41,19 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
-        OrRequestMatcher requestMatcher = generatedRequestMatcher();
+        RequestMatcher requestMatcher = generatedRequestMatcher();
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(requestMatcher);
         filter.setAuthenticationManager(authenticationManager);
         return filter;
     }
 
-    private OrRequestMatcher generatedRequestMatcher() {
-        return new OrRequestMatcher(
-                new AntPathRequestMatcher("/")
+    private RequestMatcher generatedRequestMatcher() {
+        return new NegatedRequestMatcher(
+                new OrRequestMatcher(
+                        new AntPathRequestMatcher("/api/v1/health"),
+                        new AntPathRequestMatcher("/api/v1/auth/reissue"),
+                        new AntPathRequestMatcher("/oauth2/authorization/kakao")
+                )
         );
     }
 
@@ -63,7 +69,9 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/api/v1/health").permitAll()
+                        .requestMatchers("/api/v1/auth/reissue").permitAll()
+                        .requestMatchers("/oauth2/authorization/kakao").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

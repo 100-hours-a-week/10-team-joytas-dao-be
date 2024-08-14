@@ -32,7 +32,7 @@ public class Lounge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lounge_id")
-    private Long loungeId;
+    private Long id;
 
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)

@@ -48,10 +48,14 @@ public class AuthService {
         return TokenResponseDto.of(accessToken, refreshToken);
     }
 
-    public void logout(String currentToken) {
+    public void logout(Long userId, String currentToken) {
         String tokenId = tokenExtractor.extractRefreshToken(currentToken);
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new RuntimeException("유효하지 않은 토큰"));
+
+        if (!findToken.isMatchMemberId(userId)) {
+            throw new RuntimeException("일치하지 않는 유저입니다");
+        }
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,10 +43,11 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
+            @AuthenticationPrincipal Long userId,
             @CookieValue(COOKIE_REFRESH_TOKEN) String refreshToken,
             HttpServletResponse response
     ) {
-        authService.logout(refreshToken);
+        authService.logout(userId, refreshToken);
         ResponseCookie cookie = cookieHandler.deleteCookie(COOKIE_REFRESH_TOKEN);
         response.addHeader(SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new ApiResponse<>(

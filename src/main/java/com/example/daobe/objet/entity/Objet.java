@@ -4,6 +4,7 @@ import com.example.daobe.common.entity.BaseTimeEntity;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.objet.dto.ObjetCreateResponseDto;
 import com.example.daobe.shared.entity.UserObjet;
+import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,6 +38,10 @@ public class Objet extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Lounge lounge;
 
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
     @OneToMany(mappedBy = "objet")
     private List<UserObjet> userObjets;
 
@@ -66,13 +71,16 @@ public class Objet extends BaseTimeEntity {
     @Builder
     public Objet(
             Lounge lounge,
+            User user,
             String name,
             String imageUrl,
             String explanation,
             ObjetType type,
             ObjetStatus status
+
     ) {
         this.lounge = lounge;
+        this.user = user;
         this.name = name;
         this.imageUrl = imageUrl;
         this.explanation = explanation;

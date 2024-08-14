@@ -31,11 +31,16 @@ public class ObjetService {
                 // TODO : custom exception 만들어서 처리
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Lounge ID"));
 
+        // TODO : 요청 보낸 유저의 ID로 변경
+        User creator = userRepository.findById(1001L)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
+
         Objet objet = Objet.builder()
                 .name(request.name())
                 .explanation(request.description())
                 .type(ObjetType.from(request.type()))
                 .status(ObjetStatus.ACTIVE)
+                .user(creator)
                 .lounge(lounge)
                 .imageUrl((imageUrl))
                 .build();
@@ -54,7 +59,7 @@ public class ObjetService {
                 .toList();
 
         userObjetRepository.saveAll(userObjets);
-        
+
         objet.updateUserObjets(userObjets);
 
         return ObjetCreateResponseDto.of(objet);
@@ -72,7 +77,5 @@ public class ObjetService {
                     .map(ObjetInfoDto::of)
                     .toList();
         }
-
-
     }
 }

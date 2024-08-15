@@ -1,7 +1,5 @@
 package com.example.daobe.lounge.entity;
 
-import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.objet.entity.Objet;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.user.entity.User;
@@ -65,5 +63,9 @@ public class Lounge {
         this.name = name;
         this.type = type;
         this.status = status;
+    }
+
+    public void softDelete() {
+        this.status = LoungeStatus.DELETED;
     }
 }

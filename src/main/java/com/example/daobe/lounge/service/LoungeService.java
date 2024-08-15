@@ -40,6 +40,7 @@ public class LoungeService {
 
     public List<LoungeInfoDto> findLoungeByUserId(Long userId) {
         return loungeRepository.findLoungeByUserId(userId).stream()
+                .filter(lounge -> lounge.getStatus().isActive())
                 .map(LoungeInfoDto::of)
                 .toList();
     }

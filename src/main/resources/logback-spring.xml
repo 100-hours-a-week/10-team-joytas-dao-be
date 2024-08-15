@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="[%X{request_id:-application}] %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%5.5level) ${PID:-} --- [%20thread] %-40.40logger{36} : %msg%n"/>
+    <property name="FILE_LOG_PATTERN"
+              value="[%X{request_id:-application}] %d{yyyy-MM-dd HH:mm:ss.SSS} %5.5level ${PID:-} --- [%20thread] %-40.40logger{36} : %msg%n"/>
+
+    <property name="INFO_FILE_PATH" value="logs/backend/info"/>
+    <property name="ERROR_FILE_PATH" value="logs/backend/error"/>
+
+    <property name="BASE_FILE_NAME_PATTERN" value="%d{yyyy-MM-dd}_%i.log"/>
+
+    <springProfile name="local, test, dev">
+        <include resource="logs/console-appender.xml"/>
+
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev, prod">
+        <include resource="logs/file/info-appender.xml"/>
+        <include resource="logs/file/error-appender.xml"/>
+
+        <root level="info">
+            <appender-ref ref="INFO-FILE"/>
+            <appender-ref ref="ERROR-FILE"/>
+        </root>
+    </springProfile>
+</configuration>

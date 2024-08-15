@@ -39,4 +39,3 @@ out/
 ### local ###
 *.env
 src/main/generated/
-logs/

@@ -10,6 +10,7 @@ spring:
     max-age: 1234567890
     path: /
     same-site: Lax
+    domain: localhost
     secure: false
     http-only: true
 

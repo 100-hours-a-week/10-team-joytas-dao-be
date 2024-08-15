@@ -56,6 +56,7 @@ public class CookieHandler {
                 .sameSite(properties.sameSite())
                 .secure(properties.secure())
                 .httpOnly(properties.httpOnly())
+                .domain(properties.domain())
                 .build();
     }
 }

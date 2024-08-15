@@ -7,7 +7,6 @@ import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.lounge.dto.LoungeInviteDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeResult;
-import com.example.daobe.lounge.entity.LoungeStatus;
 import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.shared.repository.UserLoungeRepository;
@@ -40,16 +39,14 @@ public class LoungeFacadeService {
                 .lounge(findLounge)
                 .build();
         userLoungeRepository.save(userLounge);
-        return response;
+        return LoungeCreateResponseDto.of(findLounge);
     }
 
     public LoungeDetailInfoDto getLoungeDetail(Long loungeId) {
         Lounge findLounge = findLoungeById(loungeId);
-        LoungeStatus status = findLounge.getStatus();
 
-        if (status.isDeleted() || status.isInactive()) {
-            throw new RuntimeException("NOT_ACTIVE_LOUNGE_EXCEPTION");
-        }
+        // ACTIVE 상태가 아닌 라운지라면 예외 발생
+        validateLoungeStatus(findLounge);
 
         List<LoungeDetailInfoDto.ObjetInfo> objetInfos = objetRepository.findAll().stream()
                 .map(LoungeDetailInfoDto.ObjetInfo::of)
@@ -70,9 +67,9 @@ public class LoungeFacadeService {
                     .lounge(findLounge)
                     .build();
             userLoungeRepository.save(userLounge);
-            return LoungeResult.SUCCESS;
+            return LoungeResult.LOUNGE_INVITE_SUCCESS;
         }
-        return LoungeResult.ALREADY_EXISTS;
+        return LoungeResult.LOUNGE_ALREADY_EXISTS_USER;
     }
 
     @Transactional
@@ -107,6 +104,12 @@ public class LoungeFacadeService {
 
     private boolean isNotExistUserInLounge(User user, Lounge lounge) {
         return !userLoungeRepository.existsByUserIdAndLoungeId(user.getId(), lounge.getId());
+    }
+
+    private void validateLoungeStatus(Lounge lounge) {
+        if (lounge.getStatus().isDeleted() || lounge.getStatus().isInactive()) {
+            throw new RuntimeException("NOT_ACTIVE_LOUNGE_EXCEPTION");
+        }
     }
 
     private void validateLoungeOwner(User user, Lounge lounge) {

@@ -95,4 +95,15 @@ public class Objet extends BaseTimeEntity {
     public void updateUserObjets(List<UserObjet> userObjets) {
         this.userObjets = userObjets;
     }
+
+    public void updateDetails(String name, String description) {
+        this.name = name;
+        this.explanation = description;
+    }
+
+    public void updateDetailsWithImage(String name, String description, String imageUrl) {
+        this.name = name;
+        this.explanation = description;
+        this.imageUrl = imageUrl;
+    }
 }

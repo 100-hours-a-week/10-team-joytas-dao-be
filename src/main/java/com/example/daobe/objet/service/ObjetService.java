@@ -230,8 +230,10 @@ public class ObjetService {
         validateObjetOwner(findObjet, userId);
 
         // 오브제 삭제 - status 변경
-        findObjet.softDelete();
+        findObjet.updateStatus(ObjetStatus.DELETED);
+
         objetRepository.save(findObjet);
+
         return ObjetCreateResponseDto.of(findObjet);
     }
 

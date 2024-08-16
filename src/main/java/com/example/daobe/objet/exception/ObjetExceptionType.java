@@ -4,8 +4,8 @@ import com.example.daobe.common.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum ObjetExceptionType implements BaseExceptionType {
-    NOT_EXIST_USER("존재하지 않는 유저입니다", HttpStatus.NOT_FOUND),
-    ;
+    INVALID_OBJET_ID_EXCEPTION("유효하지 않은 오브제 ID입니다.", HttpStatus.NOT_FOUND),
+    NO_PERMISSIONS_ON_OBJET("오브제에 대한 권한이 없습니다.", HttpStatus.UNAUTHORIZED);
 
     private String message;
     private HttpStatus status;

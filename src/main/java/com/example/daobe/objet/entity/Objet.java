@@ -106,4 +106,8 @@ public class Objet extends BaseTimeEntity {
         this.explanation = description;
         this.imageUrl = imageUrl;
     }
+
+    public void updateStatus(ObjetStatus status) {
+        this.status = status;
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.daobe.auth.repository;
+package com.example.daobe.auth.domain.repository;
 
 import com.example.daobe.auth.domain.Token;
 import java.util.Optional;

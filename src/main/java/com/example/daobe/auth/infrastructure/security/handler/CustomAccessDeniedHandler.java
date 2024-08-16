@@ -1,7 +1,7 @@
-package com.example.daobe.auth.security.handler;
+package com.example.daobe.auth.infrastructure.security.handler;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 import com.example.daobe.common.exception.ExceptionResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,28 +11,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(
+    public void handle(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException failed
+            AccessDeniedException accessDeniedException
     ) throws IOException, ServletException {
-        response.setStatus(UNAUTHORIZED.value());
+        response.setStatus(FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(UTF_8.name());
 
         ExceptionResponse errorResponse = new ExceptionResponse(
-                UNAUTHORIZED.value(), failed.getMessage()
+                FORBIDDEN.value(), accessDeniedException.getMessage()
         );
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }

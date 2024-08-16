@@ -1,4 +1,4 @@
-package com.example.daobe.auth.security.exception;
+package com.example.daobe.auth.infrastructure.security.exception;
 
 public enum SecurityExceptionType {
     UNAUTHORIZED("인증 정보가 제공되지 않았습니다."),

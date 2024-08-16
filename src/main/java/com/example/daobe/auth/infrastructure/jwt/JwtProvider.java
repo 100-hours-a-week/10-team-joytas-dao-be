@@ -1,6 +1,6 @@
-package com.example.daobe.auth.security.jwt;
+package com.example.daobe.auth.infrastructure.jwt;
 
-import com.example.daobe.auth.service.TokenProvider;
+import com.example.daobe.auth.application.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

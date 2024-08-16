@@ -1,4 +1,4 @@
-package com.example.daobe.auth.security.exception;
+package com.example.daobe.auth.infrastructure.security.exception;
 
 import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;

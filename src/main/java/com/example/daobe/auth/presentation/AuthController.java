@@ -1,9 +1,9 @@
-package com.example.daobe.auth.controller;
+package com.example.daobe.auth.presentation;
 
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
-import com.example.daobe.auth.dto.TokenResponseDto;
-import com.example.daobe.auth.service.AuthService;
+import com.example.daobe.auth.application.AuthService;
+import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.common.controller.cookie.CookieHandler;
 import com.example.daobe.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;

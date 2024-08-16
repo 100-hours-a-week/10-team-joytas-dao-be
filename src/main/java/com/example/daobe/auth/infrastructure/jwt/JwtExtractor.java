@@ -1,6 +1,6 @@
-package com.example.daobe.auth.security.jwt;
+package com.example.daobe.auth.infrastructure.jwt;
 
-import com.example.daobe.auth.service.TokenExtractor;
+import com.example.daobe.auth.application.TokenExtractor;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtParser;

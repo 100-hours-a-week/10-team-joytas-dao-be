@@ -1,4 +1,4 @@
-package com.example.daobe.auth.security.jwt;
+package com.example.daobe.auth.infrastructure.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

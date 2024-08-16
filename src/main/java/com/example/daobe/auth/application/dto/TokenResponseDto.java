@@ -1,4 +1,4 @@
-package com.example.daobe.auth.dto;
+package com.example.daobe.auth.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

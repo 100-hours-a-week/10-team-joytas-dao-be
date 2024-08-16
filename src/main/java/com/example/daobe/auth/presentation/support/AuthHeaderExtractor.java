@@ -1,4 +1,4 @@
-package com.example.daobe.auth.support;
+package com.example.daobe.auth.presentation.support;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;

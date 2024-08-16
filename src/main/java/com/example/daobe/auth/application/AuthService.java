@@ -1,8 +1,8 @@
-package com.example.daobe.auth.service;
+package com.example.daobe.auth.application;
 
+import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.domain.Token;
-import com.example.daobe.auth.dto.TokenResponseDto;
-import com.example.daobe.auth.repository.TokenRepository;
+import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final TokenProvider tokenProvider;
-    private final TokenRepository tokenRepository;
-    private final UserRepository userRepository;
     private final TokenExtractor tokenExtractor;
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
     public TokenResponseDto loginOrRegister(String oAuthId) {
         User findUser = userRepository.findByKakaoId(oAuthId)

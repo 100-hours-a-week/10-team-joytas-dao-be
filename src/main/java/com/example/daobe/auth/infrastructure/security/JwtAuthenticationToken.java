@@ -1,4 +1,4 @@
-package com.example.daobe.auth.security;
+package com.example.daobe.auth.infrastructure.security;
 
 import java.util.Collection;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

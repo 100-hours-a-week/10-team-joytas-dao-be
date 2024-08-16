@@ -1,4 +1,4 @@
-package com.example.daobe.auth.oauth;
+package com.example.daobe.auth.infrastructure.security.oauth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

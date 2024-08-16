@@ -1,9 +1,8 @@
-package com.example.daobe.auth.security;
+package com.example.daobe.auth.infrastructure.security;
 
-import static com.example.daobe.auth.security.exception.SecurityExceptionType.UNAUTHORIZED;
-
-import com.example.daobe.auth.security.exception.SecurityException;
-import com.example.daobe.auth.support.AuthHeaderExtractor;
+import com.example.daobe.auth.infrastructure.security.exception.SecurityException;
+import com.example.daobe.auth.infrastructure.security.exception.SecurityExceptionType;
+import com.example.daobe.auth.presentation.support.AuthHeaderExtractor;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             HttpServletResponse response
     ) throws AuthenticationException, IOException, ServletException {
         String accessToken = AuthHeaderExtractor.extract(request)
-                .orElseThrow(() -> new SecurityException(UNAUTHORIZED));
+                .orElseThrow(() -> new SecurityException(SecurityExceptionType.UNAUTHORIZED));
 
         // 인증에 필요한 데이터 (인증 전의 토큰 객체)
         JwtAuthenticationToken beforeToken = JwtAuthenticationToken.beforeOf(accessToken);

@@ -1,11 +1,11 @@
 package com.example.daobe.common.config;
 
-import com.example.daobe.auth.oauth.CustomAuthorizationRequestRepository;
-import com.example.daobe.auth.oauth.OAuthSuccessHandler;
-import com.example.daobe.auth.security.JwtAuthenticationFilter;
-import com.example.daobe.auth.security.JwtAuthenticationProvider;
-import com.example.daobe.auth.security.handler.CustomAccessDeniedHandler;
-import com.example.daobe.auth.security.handler.CustomAuthenticationEntryPoint;
+import com.example.daobe.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.example.daobe.auth.infrastructure.security.JwtAuthenticationProvider;
+import com.example.daobe.auth.infrastructure.security.handler.CustomAccessDeniedHandler;
+import com.example.daobe.auth.infrastructure.security.handler.CustomAuthenticationEntryPoint;
+import com.example.daobe.auth.infrastructure.security.oauth.CustomAuthorizationRequestRepository;
+import com.example.daobe.auth.infrastructure.security.oauth.OAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

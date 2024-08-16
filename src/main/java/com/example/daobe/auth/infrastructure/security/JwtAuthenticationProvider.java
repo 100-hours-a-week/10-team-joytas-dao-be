@@ -1,9 +1,9 @@
-package com.example.daobe.auth.security;
+package com.example.daobe.auth.infrastructure.security;
 
-import static com.example.daobe.auth.security.exception.SecurityExceptionType.INVALID_TOKEN;
+import static com.example.daobe.auth.infrastructure.security.exception.SecurityExceptionType.INVALID_TOKEN;
 
-import com.example.daobe.auth.security.exception.SecurityException;
-import com.example.daobe.auth.security.jwt.JwtExtractor;
+import com.example.daobe.auth.infrastructure.jwt.JwtExtractor;
+import com.example.daobe.auth.infrastructure.security.exception.SecurityException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;

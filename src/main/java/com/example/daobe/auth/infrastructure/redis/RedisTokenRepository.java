@@ -1,10 +1,10 @@
-package com.example.daobe.auth.repository.redis;
+package com.example.daobe.auth.infrastructure.redis;
 
 import static com.example.daobe.common.exception.redis.RedisExceptionType.DESERIALIZE_ERROR;
 import static com.example.daobe.common.exception.redis.RedisExceptionType.SERIALIZE_ERROR;
 
 import com.example.daobe.auth.domain.Token;
-import com.example.daobe.auth.repository.TokenRepository;
+import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.common.exception.redis.RedisException;
 import com.example.daobe.common.utils.DaoStringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;

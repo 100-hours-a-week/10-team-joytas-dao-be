@@ -1,4 +1,4 @@
-package com.example.daobe.auth.service;
+package com.example.daobe.auth.application;
 
 public interface TokenProvider {
 

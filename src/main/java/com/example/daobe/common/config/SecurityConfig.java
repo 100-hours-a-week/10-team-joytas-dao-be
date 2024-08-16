@@ -1,7 +1,6 @@
 package com.example.daobe.common.config;
 
 import com.example.daobe.auth.oauth.CustomAuthorizationRequestRepository;
-import com.example.daobe.auth.oauth.OAuthService;
 import com.example.daobe.auth.oauth.OAuthSuccessHandler;
 import com.example.daobe.auth.security.JwtAuthenticationFilter;
 import com.example.daobe.auth.security.JwtAuthenticationProvider;
@@ -17,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,7 +30,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuthService oAuthService;
     private final OAuthSuccessHandler oAuthSuccessHandler;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
@@ -87,7 +86,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(oAuthService)
+                                .userService(new DefaultOAuth2UserService())
                         )
                         .authorizationEndpoint(
                                 authorizationEndpointConfig -> authorizationEndpointConfig.authorizationRequestRepository(

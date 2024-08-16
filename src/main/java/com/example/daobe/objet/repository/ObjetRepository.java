@@ -18,10 +18,9 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             + "where o.lounge.id = :loungeId "
             + "and o.deletedAt is null "
             + "and o.status = 'ACTIVE' "
-            // TODO : 요청을 보낸 user의 id로 변경 필요
-            + "and u.id = 1001"
+            + "and o.user.id = 1006L"
     )
-    List<Objet> findObjetListForOwner(@Param("loungeId") Long loungeId);
+    List<Objet> findObjetListForOwner(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
 
     // 라운지별 오브제 목록 조회
     @Query("select o "

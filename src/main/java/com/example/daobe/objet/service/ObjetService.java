@@ -36,13 +36,12 @@ public class ObjetService {
     private final UserRepository userRepository;
     private final UserObjetRepository userObjetRepository;
 
-    public ObjetCreateResponseDto create(ObjetCreateRequestDto request, String imageUrl) {
+    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
                 // TODO : custom exception 만들어서 처리
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Lounge ID"));
 
-        // TODO : 요청 보낸 유저의 ID로 변경
-        User creator = userRepository.findById(1001L)
+        User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
 
         Objet objet = Objet.builder()
@@ -173,15 +172,13 @@ public class ObjetService {
         return ObjetCreateResponseDto.of(findObjet);
     }
 
-    public List<ObjetInfoDto> getObjetList(Long lounge_id, Boolean owner) {
-        // NOTE : owner == true 이면, 본인을 대상으로 한 오브제 목록 조회
-        // TODO : 인증 추가 후, 본인을 대상으로 한 오브제 목록 조회 기능 추가
+    public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean owner) {
         if (Boolean.TRUE.equals(owner)) {
-            return objetRepository.findObjetListForOwner(lounge_id).stream()
+            return objetRepository.findObjetListForOwner(userId, loungeId).stream()
                     .map(ObjetInfoDto::of)
                     .toList();
         } else {
-            return objetRepository.findObjetList(lounge_id).stream()
+            return objetRepository.findObjetList(loungeId).stream()
                     .map(ObjetInfoDto::of)
                     .toList();
         }

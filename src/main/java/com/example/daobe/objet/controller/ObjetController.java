@@ -80,6 +80,7 @@ public class ObjetController {
 
     @PatchMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
+            @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
             @RequestParam("owners") List<Long> owners,
@@ -92,9 +93,9 @@ public class ObjetController {
 
         if (file != null && !file.isEmpty()) {
             UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-            ObjetUpdateResponse = objetService.updateWithFile(request, uploadImageResponse.image());
+            ObjetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
         } else {
-            ObjetUpdateResponse = objetService.update(request);
+            ObjetUpdateResponse = objetService.update(userId, request);
         }
 
         return ResponseEntity.status(HttpStatus.OK)

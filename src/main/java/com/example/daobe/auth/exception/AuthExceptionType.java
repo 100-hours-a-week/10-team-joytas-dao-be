@@ -20,11 +20,11 @@ public enum AuthExceptionType implements BaseExceptionType {
 
     @Override
     public String message() {
-        return "";
+        return message;
     }
 
     @Override
     public HttpStatus status() {
-        return null;
+        return status;
     }
 }

@@ -17,9 +17,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final TokenExtractor tokenExtractor;
 
-    public TokenResponseDto generateTokenPair(String kakaoId) {
-        User findUser = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new RuntimeException("가입하지 않은 아이디"));
+    public TokenResponseDto loginOrRegister(String oAuthId) {
+        User findUser = userRepository.findByKakaoId(oAuthId)
+                .orElseGet(() -> userRepository.save(generatedUser(oAuthId)));
 
         Token newToken = Token.builder()
                 .memberId(findUser.getId())
@@ -29,6 +29,10 @@ public class AuthService {
         String accessToken = tokenProvider.generatedAccessToken(newToken.getMemberId());
         String refreshToken = tokenProvider.generatedRefreshToken(newToken.getTokenId());
         return TokenResponseDto.of(accessToken, refreshToken);
+    }
+
+    private User generatedUser(String oAuthId) {
+        return User.builder().kakaoId(oAuthId).build();
     }
 
     public TokenResponseDto reissueTokenPair(String currentToken) {

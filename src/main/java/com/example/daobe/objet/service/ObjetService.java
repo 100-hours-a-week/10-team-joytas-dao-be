@@ -1,6 +1,8 @@
 package com.example.daobe.objet.service;
 
 import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.exception.LoungeException;
+import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.objet.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.dto.ObjetCreateResponseDto;
@@ -10,10 +12,14 @@ import com.example.daobe.objet.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.entity.Objet;
 import com.example.daobe.objet.entity.ObjetStatus;
 import com.example.daobe.objet.entity.ObjetType;
+import com.example.daobe.objet.exception.ObjetException;
+import com.example.daobe.objet.exception.ObjetExceptionType;
 import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserObjet;
 import com.example.daobe.shared.repository.UserObjetRepository;
 import com.example.daobe.user.entity.User;
+import com.example.daobe.user.exception.UserException;
+import com.example.daobe.user.exception.UserExceptionType;
 import com.example.daobe.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
@@ -29,12 +35,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ObjetService {
 
-    private static final String NOT_EXISTS_OBJET_EXCEPTION = "NOT_EXISTS_OBJET_EXCEPTION";
-    private static final String INVALID_LOUNGE_ID_EXCEPTION = "INVALID_LOUNGE_ID_EXCEPTION";
-    private static final String INVALID_USER_ID_EXCEPTION = "INVALID_USER_ID_EXCEPTION";
-    private static final String INVALID_OBJET_ID_EXCEPTION = "INVALID_OBJET_ID_EXCEPTION";
-    private static final String NO_PERMISSIONS_ON_OBJET = "NO_PERMISSIONS_ON_OBJET";
-
     private final ObjetRepository objetRepository;
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
@@ -42,11 +42,9 @@ public class ObjetService {
 
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
-                // TODO : custom exception 만들어서 처리
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_LOUNGE_ID_EXCEPTION));
-
+                .orElseThrow(() -> new LoungeException(LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION));
         User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_ID_EXCEPTION));
+                .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
 
         Objet objet = Objet.builder()
                 .name(request.name())
@@ -63,7 +61,7 @@ public class ObjetService {
         List<UserObjet> userObjets = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
-                            .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_ID_EXCEPTION));
+                            .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
                     return UserObjet.builder()
                             .user(user)
                             .objet(objet)
@@ -82,12 +80,12 @@ public class ObjetService {
     public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_OBJET_ID_EXCEPTION));
+                .orElseThrow(() -> new ObjetException(ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION));
 
         // NOTE : 우선 권한의 주체는 생성자로 하되, 도메인 별 권한의 주체를 고려해봐야 한다.
         // 해당 유저가 생성한 오브제가 아닌 경우
         if (!findObjet.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException(NO_PERMISSIONS_ON_OBJET);
+            throw new ObjetException(ObjetExceptionType.NO_PERMISSIONS_ON_OBJET);
         }
 
         // Objet 업데이트
@@ -105,7 +103,7 @@ public class ObjetService {
         for (Long newOwnerId : newOwnerIds) {
             if (!currentOwnerIds.contains(newOwnerId)) {
                 User user = userRepository.findById(newOwnerId)
-                        .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_ID_EXCEPTION));
+                        .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
 
                 UserObjet newUserObjet = UserObjet.builder()
                         .user(user)
@@ -137,11 +135,11 @@ public class ObjetService {
     public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl) {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
-                .orElseThrow(() -> new IllegalArgumentException(INVALID_OBJET_ID_EXCEPTION));
+                .orElseThrow(() -> new ObjetException(ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION));
 
         // 해당 유저가 생성한 오브제가 아닌 경우
         if (!findObjet.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException(NO_PERMISSIONS_ON_OBJET);
+            throw new ObjetException(ObjetExceptionType.NO_PERMISSIONS_ON_OBJET);
         }
 
         // Objet 업데이트
@@ -159,7 +157,7 @@ public class ObjetService {
         for (Long newOwnerId : newOwnerIds) {
             if (!currentOwnerIds.contains(newOwnerId)) {
                 User user = userRepository.findById(newOwnerId)
-                        .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_ID_EXCEPTION));
+                        .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
 
                 UserObjet newUserObjet = UserObjet.builder()
                         .user(user)
@@ -201,7 +199,7 @@ public class ObjetService {
 
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
-                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_OBJET_EXCEPTION));
+                .orElseThrow(() -> new ObjetException(ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION));
         return ObjetDetailInfoDto.builder()
                 .objetId(objetId)
                 .name(findObjet.getName())

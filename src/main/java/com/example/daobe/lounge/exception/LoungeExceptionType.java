@@ -4,7 +4,8 @@ import com.example.daobe.common.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum LoungeExceptionType implements BaseExceptionType {
-    INVALID_LOUNGE_ID_EXCEPTION("유효하지 않은 라운지 ID입니다.", HttpStatus.NOT_FOUND);
+    INVALID_LOUNGE_ID_EXCEPTION("유효하지 않은 라운지 ID입니다.", HttpStatus.NOT_FOUND),
+    ;
 
     private String message;
     private HttpStatus status;

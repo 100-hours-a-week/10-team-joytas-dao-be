@@ -5,7 +5,7 @@ import com.example.daobe.common.exception.BaseExceptionType;
 
 public class UserException extends BaseException {
 
-    public UserException(BaseExceptionType baseExceptionType) {
-        super(baseExceptionType);
+    public UserException(BaseExceptionType exceptionType) {
+        super(exceptionType);
     }
 }

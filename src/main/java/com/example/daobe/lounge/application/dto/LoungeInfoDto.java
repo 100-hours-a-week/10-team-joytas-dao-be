@@ -1,6 +1,6 @@
-package com.example.daobe.lounge.dto;
+package com.example.daobe.lounge.application.dto;
 
-import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.domain.Lounge;
 import lombok.Builder;
 
 @Builder

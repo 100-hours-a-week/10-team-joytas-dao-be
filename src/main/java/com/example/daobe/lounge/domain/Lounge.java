@@ -1,5 +1,7 @@
-package com.example.daobe.lounge.entity;
+package com.example.daobe.lounge.domain;
 
+import com.example.daobe.lounge.exception.LoungeException;
+import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.entity.Objet;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.user.entity.User;
@@ -16,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,7 +68,21 @@ public class Lounge {
         this.status = status;
     }
 
-    public void softDelete() {
+    public void softDelete(User owner) {
+        validateLoungeOwner(owner);
+        validateLoungeStatus();
         this.status = LoungeStatus.DELETED;
+    }
+
+    public void validateLoungeStatus() {
+        if (status.isDeleted() || status.isInactive()) {
+            throw new LoungeException(LoungeExceptionType.NOT_ACTIVE_LOUNGE_EXCEPTION);
+        }
+    }
+
+    private void validateLoungeOwner(User owner) {
+        if (!Objects.equals(owner, user)) {
+            throw new LoungeException(LoungeExceptionType.INVALID_LOUNGE_OWNER_EXCEPTION);
+        }
     }
 }

@@ -5,9 +5,9 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID_EXCEPTION;
 
-import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.domain.Lounge;
+import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.objet.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.dto.ObjetDetailInfoDto;

@@ -1,4 +1,4 @@
-package com.example.daobe.lounge.dto;
+package com.example.daobe.lounge.application.dto;
 
 import com.example.daobe.objet.entity.Objet;
 import java.util.List;

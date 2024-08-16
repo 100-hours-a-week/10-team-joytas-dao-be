@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class ObjetController {
 
     private static final String OBJET_CREATED_SUCCESS = "OBJET_CREATED_SUCCESS";
     private static final String OBJET_UPDATED_SUCCESS = "OBJET_UPDATED_SUCCESS";
+    private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
 
     private final ObjetService objetService;
     private final UploadService uploadService;
@@ -100,5 +102,14 @@ public class ObjetController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, ObjetUpdateResponse));
+    }
+
+    @DeleteMapping("/{objetId}")
+    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> deleteObjet(
+            @PathVariable(name = "objetId") Long objetId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        ObjetCreateResponseDto ObjetDeleteReponse = objetService.delete(objetId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
     }
 }

@@ -86,9 +86,7 @@ public class ObjetService {
 
         // NOTE : 우선 권한의 주체는 생성자로 하되, 도메인 별 권한의 주체를 고려해봐야 한다.
         // 해당 유저가 생성한 오브제가 아닌 경우
-        if (!findObjet.getUser().getId().equals(userId)) {
-            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
-        }
+        validateObjetOwner(findObjet, userId);
 
         // Objet 업데이트
         findObjet.updateDetails(request.name(), request.description());
@@ -140,9 +138,7 @@ public class ObjetService {
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
 
         // 해당 유저가 생성한 오브제가 아닌 경우
-        if (!findObjet.getUser().getId().equals(userId)) {
-            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
-        }
+        validateObjetOwner(findObjet, userId);
 
         // Objet 업데이트
         findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
@@ -225,4 +221,23 @@ public class ObjetService {
                 .build();
     }
 
+    public ObjetCreateResponseDto delete(Long objetId, Long userId) {
+        // 오브제 조회
+        Objet findObjet = objetRepository.findById(objetId)
+                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+
+        // 해당 유저가 생성한 오브제가 아닌 경우
+        validateObjetOwner(findObjet, userId);
+
+        // 오브제 삭제 - status 변경
+        findObjet.softDelete();
+        objetRepository.save(findObjet);
+        return ObjetCreateResponseDto.of(findObjet);
+    }
+
+    private void validateObjetOwner(Objet findObjet, Long userId) {
+        if (!findObjet.getUser().getId().equals(userId)) {
+            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
+        }
+    }
 }

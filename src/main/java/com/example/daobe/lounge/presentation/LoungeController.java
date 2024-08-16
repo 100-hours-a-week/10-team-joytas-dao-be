@@ -1,18 +1,18 @@
-package com.example.daobe.lounge.controller;
+package com.example.daobe.lounge.presentation;
 
-import static com.example.daobe.lounge.entity.LoungeResult.LOUNGE_CREATED_SUCCESS;
-import static com.example.daobe.lounge.entity.LoungeResult.LOUNGE_DELETED_SUCCESS;
-import static com.example.daobe.lounge.entity.LoungeResult.LOUNGE_INFO_LOADED_SUCCESS;
-import static com.example.daobe.lounge.entity.LoungeResult.LOUNGE_LIST_LOADED_SUCCESS;
+import static com.example.daobe.lounge.domain.LoungeResult.LOUNGE_CREATED_SUCCESS;
+import static com.example.daobe.lounge.domain.LoungeResult.LOUNGE_DELETED_SUCCESS;
+import static com.example.daobe.lounge.domain.LoungeResult.LOUNGE_INFO_LOADED_SUCCESS;
+import static com.example.daobe.lounge.domain.LoungeResult.LOUNGE_LIST_LOADED_SUCCESS;
 
 import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
-import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.dto.LoungeInfoDto;
-import com.example.daobe.lounge.dto.LoungeInviteDto;
-import com.example.daobe.lounge.entity.LoungeResult;
-import com.example.daobe.lounge.service.LoungeFacadeService;
+import com.example.daobe.lounge.application.LoungeFacadeService;
+import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
+import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.domain.LoungeResult;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

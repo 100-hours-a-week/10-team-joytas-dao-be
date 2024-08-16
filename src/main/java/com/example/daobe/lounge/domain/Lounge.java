@@ -1,4 +1,4 @@
-package com.example.daobe.lounge.entity;
+package com.example.daobe.lounge.domain;
 
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;

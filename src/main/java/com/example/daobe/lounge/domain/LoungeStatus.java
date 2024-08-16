@@ -1,4 +1,4 @@
-package com.example.daobe.lounge.entity;
+package com.example.daobe.lounge.domain;
 
 public enum LoungeStatus {
     ACTIVE,     // 사용 중인 상태

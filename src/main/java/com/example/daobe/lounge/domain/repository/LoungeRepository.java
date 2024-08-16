@@ -1,6 +1,6 @@
-package com.example.daobe.lounge.repository;
+package com.example.daobe.lounge.domain.repository;
 
-import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.domain.Lounge;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

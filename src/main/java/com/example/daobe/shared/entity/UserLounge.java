@@ -1,6 +1,6 @@
 package com.example.daobe.shared.entity;
 
-import com.example.daobe.lounge.entity.Lounge;
+import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

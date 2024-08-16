@@ -1,15 +1,15 @@
-package com.example.daobe.lounge.service;
+package com.example.daobe.lounge.application;
 
-import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
-import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.dto.LoungeInfoDto;
-import com.example.daobe.lounge.entity.Lounge;
-import com.example.daobe.lounge.entity.LoungeStatus;
-import com.example.daobe.lounge.entity.LoungeType;
+import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
+import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoDto;
+import com.example.daobe.lounge.domain.Lounge;
+import com.example.daobe.lounge.domain.LoungeStatus;
+import com.example.daobe.lounge.domain.LoungeType;
+import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
-import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

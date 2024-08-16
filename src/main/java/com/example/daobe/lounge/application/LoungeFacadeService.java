@@ -1,12 +1,12 @@
-package com.example.daobe.lounge.service;
+package com.example.daobe.lounge.application;
 
-import com.example.daobe.lounge.dto.LoungeCreateRequestDto;
-import com.example.daobe.lounge.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.dto.LoungeInfoDto;
-import com.example.daobe.lounge.dto.LoungeInviteDto;
-import com.example.daobe.lounge.entity.Lounge;
-import com.example.daobe.lounge.entity.LoungeResult;
+import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
+import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.domain.Lounge;
+import com.example.daobe.lounge.domain.LoungeResult;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.repository.ObjetRepository;

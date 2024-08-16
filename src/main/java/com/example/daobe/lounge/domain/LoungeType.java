@@ -1,4 +1,4 @@
-package com.example.daobe.lounge.entity;
+package com.example.daobe.lounge.domain;
 
 import java.util.Arrays;
 import lombok.Getter;

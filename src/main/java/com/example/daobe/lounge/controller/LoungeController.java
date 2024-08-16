@@ -42,7 +42,7 @@ public class LoungeController {
     ) {
         LoungeCreateResponseDto response = loungeFacadeService.create(request, userId);
         return ResponseEntity.status(LOUNGE_CREATED_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_CREATED_SUCCESS.getMessage(), response));
+                .body(new ApiResponse<>(LOUNGE_CREATED_SUCCESS.name(), response));
     }
 
     @GetMapping
@@ -50,7 +50,7 @@ public class LoungeController {
             @AuthenticationPrincipal Long userId
     ) {
         ApiResponse<List<LoungeInfoDto>> response = new ApiResponse<>(
-                LOUNGE_LIST_LOADED_SUCCESS.getMessage(),
+                LOUNGE_LIST_LOADED_SUCCESS.name(),
                 loungeFacadeService.findLoungeByUserId(userId)
         );
         return ResponseEntity.status(LOUNGE_LIST_LOADED_SUCCESS.getHttpStatus()).body(response);
@@ -61,7 +61,7 @@ public class LoungeController {
             @PathVariable(name = "loungeId") Long loungeId
     ) {
         ApiResponse<LoungeDetailInfoDto> response = new ApiResponse<>(
-                LOUNGE_INFO_LOADED_SUCCESS.getMessage(),
+                LOUNGE_INFO_LOADED_SUCCESS.name(),
                 loungeFacadeService.getLoungeDetail(loungeId)
         );
         return ResponseEntity.status(LOUNGE_INFO_LOADED_SUCCESS.getHttpStatus()).body(response);
@@ -72,11 +72,8 @@ public class LoungeController {
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "loungeId") Long loungeId
     ) {
-        ApiResponse<LoungeInfoDto> response = new ApiResponse<>(
-                LOUNGE_DELETED_SUCCESS.getMessage(),
-                loungeFacadeService.delete(userId, loungeId)
-        );
-        return ResponseEntity.status(LOUNGE_DELETED_SUCCESS.getHttpStatus()).body(response);
+        loungeFacadeService.delete(userId, loungeId);
+        return ResponseEntity.status(LOUNGE_DELETED_SUCCESS.getHttpStatus()).body(null);
     }
 
     @PostMapping("/invite")
@@ -85,7 +82,7 @@ public class LoungeController {
     ) {
         LoungeResult inviteResult = loungeFacadeService.inviteUser(request);
         ApiResponse<String> response = new ApiResponse<>(
-                inviteResult.getMessage(),
+                inviteResult.name(),
                 null
         );
         return ResponseEntity.status(inviteResult.getHttpStatus()).body(response);

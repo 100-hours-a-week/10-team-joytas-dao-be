@@ -2,7 +2,10 @@ package com.example.daobe.user.entity;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +21,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseTimeEntity {
 
+    // TODO: VO 필요함
+
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +36,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "profile_url")
     private String profileUrl;
 
-    private String status;
+    @Embedded
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     // 비활성화 사유
     private String reason;
@@ -41,9 +48,21 @@ public class User extends BaseTimeEntity {
     private String reasonDetail;
 
     @Builder
-    public User(String kakaoId, String nickname, String profileUrl) {
+    public User(String kakaoId, String profileUrl) {
         this.kakaoId = kakaoId;
-        this.nickname = nickname;
+        this.nickname = DefaultNicknamePolicy.generatedRandomString();
         this.profileUrl = profileUrl;
+        this.status = UserStatus.ACTIVE_FIRST_LOGIN;
+    }
+
+    private void updateNickname(String nickname) {
+        this.nickname = nickname;
+        changeToActiveStatus();
+    }
+
+    private void changeToActiveStatus() {
+        if (status.isFirstLogin()) {
+            status = UserStatus.ACTIVE;
+        }
     }
 }

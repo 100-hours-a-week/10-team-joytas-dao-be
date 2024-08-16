@@ -1,8 +1,12 @@
 package com.example.daobe.auth.application;
 
+import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN;
+import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
+
 import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.domain.Token;
 import com.example.daobe.auth.domain.repository.TokenRepository;
+import com.example.daobe.auth.exception.AuthException;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +42,7 @@ public class AuthService {
     public TokenResponseDto reissueTokenPair(String currentToken) {
         String tokenId = tokenExtractor.extractRefreshToken(currentToken);
         Token findToken = tokenRepository.findByTokenId(tokenId)
-                .orElseThrow(() -> new RuntimeException("유효하지 않은 토큰"));
+                .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
         Token newToken = Token.builder()
@@ -55,10 +59,10 @@ public class AuthService {
     public void logout(Long userId, String currentToken) {
         String tokenId = tokenExtractor.extractRefreshToken(currentToken);
         Token findToken = tokenRepository.findByTokenId(tokenId)
-                .orElseThrow(() -> new RuntimeException("유효하지 않은 토큰"));
+                .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
         if (!findToken.isMatchMemberId(userId)) {
-            throw new RuntimeException("일치하지 않는 유저입니다");
+            throw new AuthException(UN_MATCH_USER_INFO);
         }
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());

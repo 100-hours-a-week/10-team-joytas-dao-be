@@ -1,6 +1,11 @@
 package com.example.daobe.auth.infrastructure.jwt;
 
+import static com.example.daobe.auth.exception.AuthExceptionType.ALREADY_EXPIRED_TOKEN;
+import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN;
+import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN_TYPE;
+
 import com.example.daobe.auth.application.TokenExtractor;
+import com.example.daobe.auth.exception.AuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtParser;
@@ -44,7 +49,7 @@ public class JwtExtractor implements TokenExtractor {
         if (subject.equals(expectedTokenType)) {
             return claims.get(claimKey, T);
         }
-        throw new RuntimeException("INVALID_TOKEN_TYPE");
+        throw new AuthException(INVALID_TOKEN_TYPE);
     }
 
     private Claims parseClaim(String token) {
@@ -52,9 +57,9 @@ public class JwtExtractor implements TokenExtractor {
             return jwtParser.parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException ex) {
-            throw new RuntimeException("EXPIRED_TOKEN");
+            throw new AuthException(ALREADY_EXPIRED_TOKEN);
         } catch (Exception ex) {
-            throw new RuntimeException("INVALID_TOKEN");
+            throw new AuthException(INVALID_TOKEN);
         }
     }
 }

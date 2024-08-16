@@ -1,4 +1,4 @@
-package com.example.daobe.common.controller.cookie;
+package com.example.daobe.common.presentation.cookie;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

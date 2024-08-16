@@ -4,7 +4,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.example.daobe.auth.application.AuthService;
 import com.example.daobe.auth.application.dto.TokenResponseDto;
-import com.example.daobe.common.controller.cookie.CookieHandler;
+import com.example.daobe.common.presentation.cookie.CookieHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

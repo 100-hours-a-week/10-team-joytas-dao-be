@@ -1,4 +1,4 @@
-package com.example.daobe.common.controller;
+package com.example.daobe.common.presentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

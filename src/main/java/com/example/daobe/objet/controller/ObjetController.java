@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class ObjetController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
+            @AuthenticationPrincipal Long userId,
             @RequestParam("name") String name,
             @RequestParam("type") String type,
             @RequestParam("lounge_id") Long loungeId,
@@ -48,7 +50,7 @@ public class ObjetController {
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(owners, name, description, type, loungeId);
 
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(request, uploadImageResponse.image());
+        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
@@ -56,10 +58,12 @@ public class ObjetController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ObjetInfoDto>>> getAllObjets(
-            @RequestParam Long lounge_id, @RequestParam Boolean owner
+            @AuthenticationPrincipal Long userId,
+            @RequestParam("lounge_id") Long loungeId,
+            @RequestParam Boolean owner
     ) {
         ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(lounge_id, owner)
+                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, owner)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -76,6 +80,7 @@ public class ObjetController {
 
     @PatchMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
+            @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
             @RequestParam("owners") List<Long> owners,
@@ -88,9 +93,9 @@ public class ObjetController {
 
         if (file != null && !file.isEmpty()) {
             UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-            ObjetUpdateResponse = objetService.updateWithFile(request, uploadImageResponse.image());
+            ObjetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
         } else {
-            ObjetUpdateResponse = objetService.update(request);
+            ObjetUpdateResponse = objetService.update(userId, request);
         }
 
         return ResponseEntity.status(HttpStatus.OK)

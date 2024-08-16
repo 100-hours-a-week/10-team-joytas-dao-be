@@ -187,11 +187,16 @@ public class ObjetService {
 
     public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean owner) {
         if (Boolean.TRUE.equals(owner)) {
-            return objetRepository.findObjetListForOwner(userId, loungeId).stream()
+            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndUserObjetsUserId(
+                            loungeId,
+                            ObjetStatus.ACTIVE,
+                            userId)
+                    .stream()
                     .map(ObjetInfoDto::of)
                     .toList();
         } else {
-            return objetRepository.findObjetList(loungeId).stream()
+            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatus(loungeId, ObjetStatus.ACTIVE)
+                    .stream()
                     .map(ObjetInfoDto::of)
                     .toList();
         }

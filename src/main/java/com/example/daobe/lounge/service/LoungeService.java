@@ -7,6 +7,8 @@ import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeStatus;
 import com.example.daobe.lounge.entity.LoungeType;
+import com.example.daobe.lounge.exception.LoungeException;
+import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.lounge.repository.LoungeRepository;
 import com.example.daobe.user.entity.User;
 import java.util.List;
@@ -20,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoungeService {
-
-    private static final String NOT_EXISTS_LOUNGE_EXCEPTION = "NOT_EXISTS_LOUNGE_EXCEPTION";
 
     private final LoungeRepository loungeRepository;
 
@@ -47,7 +47,7 @@ public class LoungeService {
 
     public Lounge findLoungeById(Long loungeId) {
         return loungeRepository.findById(loungeId)
-                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_LOUNGE_EXCEPTION));
+                .orElseThrow(() -> new LoungeException(LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION));
     }
 
     public LoungeDetailInfoDto createLoungeDetailInfo(
@@ -55,7 +55,7 @@ public class LoungeService {
             List<LoungeDetailInfoDto.ObjetInfo> objetInfos
     ) {
         Lounge findLounge = loungeRepository.findById(loungeId)
-                .orElseThrow(() -> new RuntimeException(NOT_EXISTS_LOUNGE_EXCEPTION));
+                .orElseThrow(() -> new LoungeException(LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION));
         return LoungeDetailInfoDto.builder()
                 .loungeId(loungeId)
                 .name(findLounge.getName())

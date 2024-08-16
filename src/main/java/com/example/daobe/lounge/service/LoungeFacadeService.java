@@ -7,13 +7,16 @@ import com.example.daobe.lounge.dto.LoungeInfoDto;
 import com.example.daobe.lounge.dto.LoungeInviteDto;
 import com.example.daobe.lounge.entity.Lounge;
 import com.example.daobe.lounge.entity.LoungeResult;
+import com.example.daobe.lounge.exception.LoungeException;
+import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.shared.repository.UserLoungeRepository;
 import com.example.daobe.user.entity.User;
+import com.example.daobe.user.exception.UserException;
+import com.example.daobe.user.exception.UserExceptionType;
 import com.example.daobe.user.repository.UserRepository;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +49,7 @@ public class LoungeFacadeService {
         Lounge findLounge = findLoungeById(loungeId);
 
         // ACTIVE 상태가 아닌 라운지라면 예외 발생
-        validateLoungeStatus(findLounge);
+        findLounge.validateLoungeStatus();
 
         List<LoungeDetailInfoDto.ObjetInfo> objetInfos = objetRepository.findAll().stream()
                 .map(LoungeDetailInfoDto.ObjetInfo::of)
@@ -69,23 +72,14 @@ public class LoungeFacadeService {
             userLoungeRepository.save(userLounge);
             return LoungeResult.LOUNGE_INVITE_SUCCESS;
         }
-        return LoungeResult.LOUNGE_ALREADY_EXISTS_USER;
+        throw new LoungeException(LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION);
     }
 
     @Transactional
-    public LoungeInfoDto delete(Long userId, Long loungeId) {
+    public void delete(Long userId, Long loungeId) {
         User findUser = findUserById(userId);
         Lounge findLounge = findLoungeById(loungeId);
-
-        // 라운지 생성자가 아니라면 예외 발생
-        validateLoungeOwner(findUser, findLounge);
-
-        findLounge.softDelete();
-        return LoungeInfoDto.builder()
-                .loungeId(loungeId)
-                .name(findLounge.getName())
-                .type(findLounge.getType().getTypeName())
-                .build();
+        findLounge.softDelete(findUser);
     }
 
     // find
@@ -95,7 +89,7 @@ public class LoungeFacadeService {
 
     private User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_USER_EXCEPTION"));
+                .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
     }
 
     private Lounge findLoungeById(Long id) {
@@ -104,21 +98,5 @@ public class LoungeFacadeService {
 
     private boolean isNotExistUserInLounge(User user, Lounge lounge) {
         return !userLoungeRepository.existsByUserIdAndLoungeId(user.getId(), lounge.getId());
-    }
-
-    private void validateLoungeStatus(Lounge lounge) {
-        if (lounge.getStatus().isDeleted() || lounge.getStatus().isInactive()) {
-            throw new RuntimeException("NOT_ACTIVE_LOUNGE_EXCEPTION");
-        }
-    }
-
-    private void validateLoungeOwner(User user, Lounge lounge) {
-        if (isNotLoungeOwner(user, lounge.getUser())) {
-            throw new RuntimeException("INVALID_USER_TO_DELETE_LOUNGE_EXCEPTION");
-        }
-    }
-
-    private boolean isNotLoungeOwner(User user, User owner) {
-        return !Objects.equals(user, owner);
     }
 }

@@ -2,7 +2,6 @@ package com.example.daobe.user.entity;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -36,7 +35,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "profile_url")
     private String profileUrl;
 
-    @Embedded
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

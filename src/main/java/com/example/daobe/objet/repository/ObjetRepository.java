@@ -18,7 +18,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             + "where o.lounge.id = :loungeId "
             + "and o.deletedAt is null "
             + "and o.status = 'ACTIVE' "
-            + "and o.user.id = :userId"
+            + "and u.id = :userId"
     )
     List<Objet> findObjetListForOwner(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
 

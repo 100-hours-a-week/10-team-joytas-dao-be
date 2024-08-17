@@ -3,7 +3,6 @@ package com.example.daobe.objet.domain;
 import com.example.daobe.common.entity.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
-import com.example.daobe.shared.entity.UserObjet;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,7 +42,7 @@ public class Objet extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "objet")
-    private List<UserObjet> userObjets;
+    private List<ObjetSharer> objetSharers;
 
     @Column(name = "name")
     private String name;
@@ -92,8 +91,8 @@ public class Objet extends BaseTimeEntity {
         return new ObjetCreateResponseDto(objetId);
     }
 
-    public void updateUserObjets(List<UserObjet> userObjets) {
-        this.userObjets = userObjets;
+    public void updateUserObjets(List<ObjetSharer> objetSharers) {
+        this.objetSharers = objetSharers;
     }
 
     public void updateDetails(String name, String description) {

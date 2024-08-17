@@ -1,6 +1,5 @@
-package com.example.daobe.shared.entity;
+package com.example.daobe.objet.domain;
 
-import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,9 +17,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "users_objets")
+@Table(name = "objets_sharers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserObjet {
+public class ObjetSharer {
 
     @Id
     @Column(name = "usr_obj_id")
@@ -36,7 +35,7 @@ public class UserObjet {
     private Objet objet;
 
     @Builder
-    public UserObjet(User user, Objet objet) {
+    public ObjetSharer(User user, Objet objet) {
         this.user = user;
         this.objet = objet;
     }

@@ -91,17 +91,17 @@ public class ObjetController {
     ) {
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
 
-        ObjetCreateResponseDto ObjetUpdateResponse;
+        ObjetCreateResponseDto objetUpdateResponse;
 
         if (file != null && !file.isEmpty()) {
             UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-            ObjetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
+            objetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
         } else {
-            ObjetUpdateResponse = objetService.update(userId, request);
+            objetUpdateResponse = objetService.update(userId, request);
         }
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, ObjetUpdateResponse));
+                .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }
 
     @DeleteMapping("/{objetId}")

@@ -185,10 +185,13 @@ public class ObjetService {
 
     public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean owner) {
         if (Boolean.TRUE.equals(owner)) {
-            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndUserObjetsUserId(
+            List<ObjetSharer> ObjetSharerList = objetSharerRepository.findByUserId(userId);
+
+            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharers(
                             loungeId,
                             ObjetStatus.ACTIVE,
-                            userId)
+                            ObjetSharerList
+                    )
                     .stream()
                     .map(ObjetInfoDto::of)
                     .toList();

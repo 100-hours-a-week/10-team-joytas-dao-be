@@ -1,6 +1,5 @@
-package com.example.daobe.shared.entity;
+package com.example.daobe.lounge.domain;
 
-import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,12 +17,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "users_lounges")
+@Table(name = "lounges_sharers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLounge {
+public class LoungeSharer {
 
     @Id
-    @Column(name = "usr_lng_id")
+    @Column(name = "lng_shr_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,7 +35,7 @@ public class UserLounge {
     private Lounge lounge;
 
     @Builder
-    public UserLounge(User user, Lounge lounge) {
+    public LoungeSharer(User user, Lounge lounge) {
         this.user = user;
         this.lounge = lounge;
     }

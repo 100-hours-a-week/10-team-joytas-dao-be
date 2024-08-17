@@ -3,7 +3,6 @@ package com.example.daobe.lounge.domain;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,7 +57,7 @@ public class Lounge {
     private List<Objet> objets;
 
     @OneToMany(mappedBy = "lounge")
-    private List<UserLounge> userLounges;
+    private List<LoungeSharer> loungeSharers;
 
     @Builder
     public Lounge(User user, String name, LoungeType type, LoungeStatus status) {

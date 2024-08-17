@@ -1,4 +1,4 @@
-package com.example.daobe.myroom.entity;
+package com.example.daobe.myroom.domain;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import com.example.daobe.user.entity.User;

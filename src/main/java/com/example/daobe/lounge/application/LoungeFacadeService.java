@@ -10,8 +10,8 @@ import com.example.daobe.lounge.domain.LoungeResult;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
-import com.example.daobe.shared.entity.UserLounge;
-import com.example.daobe.shared.repository.UserLoungeRepository;
+import com.example.daobe.lounge.domain.LoungeSharer;
+import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.exception.UserExceptionType;
@@ -30,18 +30,18 @@ public class LoungeFacadeService {
     private final LoungeService loungeService;
     private final UserRepository userRepository;
     private final ObjetRepository objetRepository;
-    private final UserLoungeRepository userLoungeRepository;
+    private final LoungeSharerRepository loungeSharerRepository;
 
     public LoungeCreateResponseDto create(LoungeCreateRequestDto request, Long userId) {
         User findUser = findUserById(userId);
         LoungeCreateResponseDto response = loungeService.createLounge(request, findUser);
         Lounge findLounge = loungeService.findLoungeById(response.loungeId());
 
-        UserLounge userLounge = UserLounge.builder()
+        LoungeSharer userLounge = LoungeSharer.builder()
                 .user(findUser)
                 .lounge(findLounge)
                 .build();
-        userLoungeRepository.save(userLounge);
+        loungeSharerRepository.save(userLounge);
         return LoungeCreateResponseDto.of(findLounge);
     }
 
@@ -65,11 +65,11 @@ public class LoungeFacadeService {
         // TODO: 알림 기능 구현 이후 유저가 초대 수락시 해당 메서드 실행
         // 해당 라운지에 이미 소속되어 있는지 확인
         if (isNotExistUserInLounge(findUser, findLounge)) {
-            UserLounge userLounge = UserLounge.builder()
+            LoungeSharer userLounge = LoungeSharer.builder()
                     .user(findUser)
                     .lounge(findLounge)
                     .build();
-            userLoungeRepository.save(userLounge);
+            loungeSharerRepository.save(userLounge);
             return LoungeResult.LOUNGE_INVITE_SUCCESS;
         }
         throw new LoungeException(LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION);
@@ -97,6 +97,6 @@ public class LoungeFacadeService {
     }
 
     private boolean isNotExistUserInLounge(User user, Lounge lounge) {
-        return !userLoungeRepository.existsByUserIdAndLoungeId(user.getId(), lounge.getId());
+        return !loungeSharerRepository.existsByUserIdAndLoungeId(user.getId(), lounge.getId());
     }
 }

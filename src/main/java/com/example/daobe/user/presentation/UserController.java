@@ -49,4 +49,15 @@ public class UserController {
                 userService.searchUserByNickname(nickname)
         ));
     }
+
+    @GetMapping("/validate")
+    public ResponseEntity<ApiResponse<Void>> validateNickname(
+            @RequestParam("nickname") String nickname
+    ) {
+        userService.checkValidateByNickname(nickname);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "NICKNAME_DUPLICATE_CHECK_SUCCESS",
+                null
+        ));
+    }
 }

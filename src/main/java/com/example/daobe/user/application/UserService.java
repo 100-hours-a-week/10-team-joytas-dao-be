@@ -1,5 +1,6 @@
 package com.example.daobe.user.application;
 
+import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
@@ -30,5 +31,11 @@ public class UserService {
         return findUserList.stream()
                 .map(UserInfoResponseDto::of)
                 .toList();
+    }
+
+    public void checkValidateByNickname(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
+            throw new UserException(DUPLICATE_NICKNAME);
+        }
     }
 }

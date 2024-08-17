@@ -53,7 +53,7 @@ public class User extends BaseTimeEntity {
         this.status = UserStatus.ACTIVE_FIRST_LOGIN;
     }
 
-    private void updateNickname(String nickname) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
         changeToActiveStatus();
     }
@@ -62,5 +62,9 @@ public class User extends BaseTimeEntity {
         if (status.isFirstLogin()) {
             status = UserStatus.ACTIVE;
         }
+    }
+
+    public void updateProfileUrl(String profileImage) {
+        this.profileUrl = profileImage;
     }
 }

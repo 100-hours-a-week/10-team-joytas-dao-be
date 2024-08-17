@@ -1,6 +1,6 @@
 package com.example.daobe.lounge.application.dto;
 
-import com.example.daobe.objet.entity.Objet;
+import com.example.daobe.objet.domain.Objet;
 import java.util.List;
 import lombok.Builder;
 

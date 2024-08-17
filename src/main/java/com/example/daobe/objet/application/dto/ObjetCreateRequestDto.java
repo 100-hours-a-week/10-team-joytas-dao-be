@@ -1,4 +1,4 @@
-package com.example.daobe.objet.dto;
+package com.example.daobe.objet.application.dto;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.example.daobe.objet.dto;
+package com.example.daobe.objet.application.dto;
 
-import com.example.daobe.objet.entity.Objet;
-import com.example.daobe.objet.entity.ObjetType;
+import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetType;
 import lombok.Builder;
 
 @Builder

@@ -2,7 +2,7 @@ package com.example.daobe.lounge.domain;
 
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
-import com.example.daobe.objet.entity.Objet;
+import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;

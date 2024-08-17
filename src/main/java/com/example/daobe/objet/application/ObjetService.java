@@ -1,4 +1,4 @@
-package com.example.daobe.objet.service;
+package com.example.daobe.objet.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
@@ -8,16 +8,16 @@ import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.objet.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.dto.ObjetCreateResponseDto;
-import com.example.daobe.objet.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.dto.ObjetInfoDto;
-import com.example.daobe.objet.dto.ObjetUpdateRequestDto;
-import com.example.daobe.objet.entity.Objet;
-import com.example.daobe.objet.entity.ObjetStatus;
-import com.example.daobe.objet.entity.ObjetType;
+import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
+import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
+import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetStatus;
+import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.exception.ObjetException;
-import com.example.daobe.objet.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserObjet;
 import com.example.daobe.shared.repository.UserObjetRepository;
 import com.example.daobe.user.entity.User;

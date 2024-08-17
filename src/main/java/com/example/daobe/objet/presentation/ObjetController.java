@@ -1,12 +1,12 @@
-package com.example.daobe.objet.controller;
+package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.objet.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.dto.ObjetCreateResponseDto;
-import com.example.daobe.objet.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.dto.ObjetInfoDto;
-import com.example.daobe.objet.dto.ObjetUpdateRequestDto;
-import com.example.daobe.objet.service.ObjetService;
+import com.example.daobe.objet.application.ObjetService;
+import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
+import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.upload.application.dto.UploadImageResponse;
 import java.util.List;

@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,11 @@ public class MyRoom extends BaseTimeEntity {
     // TODO: ENUM 으로 수정 예정
     // 마이룸 타임 ex) R0001, R0002
     private String type;
+
+    @Builder
+    public MyRoom(User user, String name, String type) {
+        this.user = user;
+        this.name = name;
+        this.type = type;
+    }
 }

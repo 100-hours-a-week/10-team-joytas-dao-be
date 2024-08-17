@@ -5,6 +5,8 @@ import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID
 import com.example.daobe.myroom.application.dto.CreatedMyRoomRequestDto;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomResponseDto;
 import com.example.daobe.myroom.application.dto.MyRoomInfoResponseDto;
+import com.example.daobe.myroom.application.dto.UpdateMyRoomRequestDto;
+import com.example.daobe.myroom.application.dto.UpdateMyRoomResponseDto;
 import com.example.daobe.myroom.domain.MyRoom;
 import com.example.daobe.myroom.domain.repository.MyRoomRepository;
 import com.example.daobe.user.entity.User;
@@ -44,5 +46,19 @@ public class MyRoomService {
 
         myRoomRepository.save(newMyRoom);
         return CreatedMyRoomResponseDto.of(newMyRoom);
+    }
+
+    @Transactional
+    public UpdateMyRoomResponseDto updateMyRoomInfo(
+            Long userId, Long myRoomId, UpdateMyRoomRequestDto request
+    ) {
+        MyRoom findMyRoom = myRoomRepository.findById(myRoomId)
+                .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+        findMyRoom.isMatchOwnerOrThrow(userId);
+
+        findMyRoom.updatedName(request.roomName());
+        myRoomRepository.save(findMyRoom);
+
+        return UpdateMyRoomResponseDto.of(findMyRoom);
     }
 }

@@ -17,12 +17,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "myrooms")
+@Table(name = "my_rooms")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MyRoom extends BaseTimeEntity {
 
     @Id
-    @Column(name = "myroom_id")
+    @Column(name = "my_room_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -32,8 +32,6 @@ public class MyRoom extends BaseTimeEntity {
     // 마이룸 별명
     private String name;
 
-    // TODO: ENUM 으로 수정 예정
-    // 마이룸 타임 ex) R0001, R0002
     private String type;
 
     @Builder
@@ -41,5 +39,15 @@ public class MyRoom extends BaseTimeEntity {
         this.user = user;
         this.name = name;
         this.type = type;
+    }
+
+    public void updatedName(String name) {
+        this.name = name;
+    }
+
+    public void isMatchOwnerOrThrow(Long userId) {
+        if (!user.getId().equals(userId)) {
+            throw new RuntimeException("다른 사람의 마이룸은 변경할 수 없습니다");
+        }
     }
 }

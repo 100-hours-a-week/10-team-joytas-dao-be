@@ -5,10 +5,14 @@ import com.example.daobe.myroom.application.MyRoomService;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomRequestDto;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomResponseDto;
 import com.example.daobe.myroom.application.dto.MyRoomInfoResponseDto;
+import com.example.daobe.myroom.application.dto.UpdateMyRoomRequestDto;
+import com.example.daobe.myroom.application.dto.UpdateMyRoomResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +44,18 @@ public class MyRoomController {
         return ResponseEntity.ok(new ApiResponse<>(
                 "ROOM_CREATED_SUCCESS",
                 myRoomService.generatedMyRoom(userId, request)
+        ));
+    }
+
+    @PatchMapping("/{myRoomId}")
+    public ResponseEntity<ApiResponse<UpdateMyRoomResponseDto>> updateMyRoomInfo(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long myRoomId,
+            @RequestBody UpdateMyRoomRequestDto request
+    ) {
+        return ResponseEntity.ok(new ApiResponse<>(
+                "ROOM_INFO_UPDATED_SUCCESS",
+                myRoomService.updateMyRoomInfo(userId, myRoomId, request)
         ));
     }
 }

@@ -1,5 +1,7 @@
 package com.example.daobe.myroom.application;
 
+import static com.example.daobe.myroom.exception.MyRoomExceptionType.ALREADY_EXIST_MY_ROOM;
+import static com.example.daobe.myroom.exception.MyRoomExceptionType.NOT_EXIST_MY_ROOM;
 import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID_EXCEPTION;
 
 import com.example.daobe.myroom.application.dto.CreatedMyRoomRequestDto;
@@ -9,6 +11,7 @@ import com.example.daobe.myroom.application.dto.UpdateMyRoomRequestDto;
 import com.example.daobe.myroom.application.dto.UpdateMyRoomResponseDto;
 import com.example.daobe.myroom.domain.MyRoom;
 import com.example.daobe.myroom.domain.repository.MyRoomRepository;
+import com.example.daobe.myroom.exception.MyRoomException;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.repository.UserRepository;
@@ -26,14 +29,14 @@ public class MyRoomService {
 
     public MyRoomInfoResponseDto getMyRoomInfo(Long userId) {
         MyRoom findMyRoom = myRoomRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 마이룸 입니다"));
+                .orElseThrow(() -> new MyRoomException(NOT_EXIST_MY_ROOM));
         return MyRoomInfoResponseDto.of(findMyRoom);
     }
 
     @Transactional
     public CreatedMyRoomResponseDto generatedMyRoom(Long userId, CreatedMyRoomRequestDto request) {
         myRoomRepository.findByUserId(userId).ifPresent(a -> {
-            throw new RuntimeException("회원당 마이룸은 한개만 생성할 수 있습니다.");
+            throw new MyRoomException(ALREADY_EXIST_MY_ROOM);
         });
 
         User findUser = userRepository.findById(userId)

@@ -1,6 +1,9 @@
 package com.example.daobe.myroom.domain;
 
+import static com.example.daobe.myroom.exception.MyRoomExceptionType.FORBIDDEN_MY_ROOM_MODIFICATION;
+
 import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.myroom.exception.MyRoomException;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,7 +50,7 @@ public class MyRoom extends BaseTimeEntity {
 
     public void isMatchOwnerOrThrow(Long userId) {
         if (!user.getId().equals(userId)) {
-            throw new RuntimeException("다른 사람의 마이룸은 변경할 수 없습니다");
+            throw new MyRoomException(FORBIDDEN_MY_ROOM_MODIFICATION);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.daobe.notification.entity;
+package com.example.daobe.notification.domain;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import com.example.daobe.user.entity.User;

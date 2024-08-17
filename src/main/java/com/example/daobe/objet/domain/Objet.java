@@ -1,8 +1,8 @@
-package com.example.daobe.objet.entity;
+package com.example.daobe.objet.domain;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.objet.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.shared.entity.UserObjet;
 import com.example.daobe.user.entity.User;
 import jakarta.persistence.Column;

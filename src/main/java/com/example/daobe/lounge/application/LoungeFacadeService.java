@@ -9,7 +9,7 @@ import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeResult;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
-import com.example.daobe.objet.repository.ObjetRepository;
+import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.shared.entity.UserLounge;
 import com.example.daobe.shared.repository.UserLoungeRepository;
 import com.example.daobe.user.entity.User;

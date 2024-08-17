@@ -1,6 +1,6 @@
-package com.example.daobe.objet.dto;
+package com.example.daobe.objet.application.dto;
 
-import com.example.daobe.objet.entity.Objet;
+import com.example.daobe.objet.domain.Objet;
 
 public record ObjetCreateResponseDto(
         Long objetId

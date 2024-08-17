@@ -14,12 +14,12 @@ import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.objet.exception.ObjetException;
-import com.example.daobe.shared.entity.UserObjet;
-import com.example.daobe.shared.repository.UserObjetRepository;
 import com.example.daobe.user.entity.User;
 import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.repository.UserRepository;
@@ -40,7 +40,7 @@ public class ObjetService {
     private final ObjetRepository objetRepository;
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
-    private final UserObjetRepository userObjetRepository;
+    private final ObjetSharerRepository objetSharerRepository;
 
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
@@ -60,20 +60,20 @@ public class ObjetService {
 
         objetRepository.save(objet);
 
-        List<UserObjet> userObjets = request.owners().stream()
+        List<ObjetSharer> objetSharers = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
                             .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
-                    return UserObjet.builder()
+                    return ObjetSharer.builder()
                             .user(user)
                             .objet(objet)
                             .build();
                 })
                 .toList();
 
-        userObjetRepository.saveAll(userObjets);
+        objetSharerRepository.saveAll(objetSharers);
 
-        objet.updateUserObjets(userObjets);
+        objet.updateUserObjets(objetSharers);
 
         return ObjetCreateResponseDto.of(objet);
     }
@@ -92,8 +92,8 @@ public class ObjetService {
         findObjet.updateDetails(request.name(), request.description());
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getUserObjets().stream()
-                .map(userObjet -> userObjet.getUser().getId())
+        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+                .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
         // 새로운 관계에서 ID를 Set으로 관리
@@ -105,21 +105,21 @@ public class ObjetService {
                 User user = userRepository.findById(newOwnerId)
                         .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
 
-                UserObjet newUserObjet = UserObjet.builder()
+                ObjetSharer newObjetSharer = ObjetSharer.builder()
                         .user(user)
                         .objet(findObjet)
                         .build();
-                userObjetRepository.save(newUserObjet);
+                objetSharerRepository.save(newObjetSharer);
 
                 // 관계 설정
-                findObjet.getUserObjets().add(newUserObjet);
+                findObjet.getObjetSharers().add(newObjetSharer);
             }
         }
 
         // 제거된 관계 삭제
-        findObjet.getUserObjets().removeIf(userObjet -> {
-            if (!newOwnerIds.contains(userObjet.getUser().getId())) {
-                userObjetRepository.delete(userObjet);
+        findObjet.getObjetSharers().removeIf(objetSharer -> {
+            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+                objetSharerRepository.delete(objetSharer);
                 return true;
             }
             return false;
@@ -144,8 +144,8 @@ public class ObjetService {
         findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getUserObjets().stream()
-                .map(userObjet -> userObjet.getUser().getId())
+        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+                .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
         // 새로운 관계에서 ID를 Set으로 관리
@@ -157,21 +157,21 @@ public class ObjetService {
                 User user = userRepository.findById(newOwnerId)
                         .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
 
-                UserObjet newUserObjet = UserObjet.builder()
+                ObjetSharer newObjetSharer = ObjetSharer.builder()
                         .user(user)
                         .objet(findObjet)
                         .build();
-                userObjetRepository.save(newUserObjet);
+                objetSharerRepository.save(newObjetSharer);
 
                 // 관계 설정
-                findObjet.getUserObjets().add(newUserObjet);
+                findObjet.getObjetSharers().add(newObjetSharer);
             }
         }
 
         // 제거된 관계 삭제
-        findObjet.getUserObjets().removeIf(userObjet -> {
-            if (!newOwnerIds.contains(userObjet.getUser().getId())) {
-                userObjetRepository.delete(userObjet);
+        findObjet.getObjetSharers().removeIf(objetSharer -> {
+            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+                objetSharerRepository.delete(objetSharer);
                 return true;
             }
             return false;

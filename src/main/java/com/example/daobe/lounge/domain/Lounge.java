@@ -3,7 +3,7 @@ package com.example.daobe.lounge.domain;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.user.entity.User;
+import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

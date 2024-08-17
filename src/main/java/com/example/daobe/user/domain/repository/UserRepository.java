@@ -1,6 +1,6 @@
-package com.example.daobe.user.repository;
+package com.example.daobe.user.domain.repository;
 
-import com.example.daobe.user.entity.User;
+import com.example.daobe.user.domain.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -7,8 +7,8 @@ import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.domain.Token;
 import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.auth.exception.AuthException;
-import com.example.daobe.user.entity.User;
-import com.example.daobe.user.repository.UserRepository;
+import com.example.daobe.user.domain.User;
+import com.example.daobe.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

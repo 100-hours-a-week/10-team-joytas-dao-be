@@ -1,4 +1,4 @@
-package com.example.daobe.user.entity;
+package com.example.daobe.user.domain;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;

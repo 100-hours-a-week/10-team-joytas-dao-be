@@ -1,6 +1,6 @@
 package com.example.daobe.lounge.domain;
 
-import com.example.daobe.user.entity.User;
+import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

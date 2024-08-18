@@ -1,4 +1,4 @@
-package com.example.daobe.user.entity;
+package com.example.daobe.user.domain;
 
 import lombok.Getter;
 

@@ -1,7 +1,7 @@
 package com.example.daobe.myroom.entity;
 
 import com.example.daobe.common.entity.BaseTimeEntity;
-import com.example.daobe.user.entity.User;
+import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

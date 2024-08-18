@@ -5,10 +5,12 @@ import org.springframework.http.HttpStatus;
 
 public enum UserExceptionType implements BaseExceptionType {
     INVALID_USER_ID_EXCEPTION("유효하지 않은 유저 ID입니다.", HttpStatus.NOT_FOUND),
+    NOT_EXIST_USER("존재하지 않는 사용자입니다", HttpStatus.NOT_FOUND),
+    DUPLICATE_NICKNAME("이미 사용 중인 닉네임입니다.", HttpStatus.CONFLICT),
     ;
 
-    private String message;
-    private HttpStatus status;
+    private final String message;
+    private final HttpStatus status;
 
     UserExceptionType(String message, HttpStatus status) {
         this.message = message;

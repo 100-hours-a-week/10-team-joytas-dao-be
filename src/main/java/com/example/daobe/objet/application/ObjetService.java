@@ -3,7 +3,7 @@ package com.example.daobe.objet.application;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
-import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID_EXCEPTION;
+import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
@@ -46,7 +46,7 @@ public class ObjetService {
         Lounge lounge = loungeRepository.findById(request.loungeId())
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
         User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
         Objet objet = Objet.builder()
                 .name(request.name())
@@ -63,7 +63,7 @@ public class ObjetService {
         List<ObjetSharer> objetSharers = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
-                            .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                            .orElseThrow(() -> new UserException(NOT_EXIST_USER));
                     return ObjetSharer.builder()
                             .user(user)
                             .objet(objet)
@@ -103,7 +103,7 @@ public class ObjetService {
         for (Long newOwnerId : newOwnerIds) {
             if (!currentOwnerIds.contains(newOwnerId)) {
                 User user = userRepository.findById(newOwnerId)
-                        .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                        .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
                         .user(user)
@@ -155,7 +155,7 @@ public class ObjetService {
         for (Long newOwnerId : newOwnerIds) {
             if (!currentOwnerIds.contains(newOwnerId)) {
                 User user = userRepository.findById(newOwnerId)
-                        .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                        .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
                         .user(user)

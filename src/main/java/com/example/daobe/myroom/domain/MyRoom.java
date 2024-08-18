@@ -1,6 +1,9 @@
 package com.example.daobe.myroom.domain;
 
+import static com.example.daobe.myroom.exception.MyRoomExceptionType.FORBIDDEN_MY_ROOM_MODIFICATION;
+
 import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.myroom.exception.MyRoomException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,17 +14,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "myrooms")
+@Table(name = "my_rooms")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MyRoom extends BaseTimeEntity {
 
     @Id
-    @Column(name = "myroom_id")
+    @Column(name = "my_room_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -31,7 +35,23 @@ public class MyRoom extends BaseTimeEntity {
     // 마이룸 별명
     private String name;
 
-    // TODO: ENUM 으로 수정 예정
     // 마이룸 타임 ex) R0001, R0002
     private String type;
+
+    @Builder
+    public MyRoom(User user, String name, String type) {
+        this.user = user;
+        this.name = name;
+        this.type = type;
+    }
+
+    public void updatedName(String newName) {
+        this.name = newName;
+    }
+
+    public void isMatchOwnerOrThrow(Long userId) {
+        if (!user.getId().equals(userId)) {
+            throw new MyRoomException(FORBIDDEN_MY_ROOM_MODIFICATION);
+        }
+    }
 }

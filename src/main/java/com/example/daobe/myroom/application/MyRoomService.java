@@ -2,7 +2,7 @@ package com.example.daobe.myroom.application;
 
 import static com.example.daobe.myroom.exception.MyRoomExceptionType.ALREADY_EXIST_MY_ROOM;
 import static com.example.daobe.myroom.exception.MyRoomExceptionType.NOT_EXIST_MY_ROOM;
-import static com.example.daobe.user.exception.UserExceptionType.INVALID_USER_ID_EXCEPTION;
+import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.myroom.application.dto.CreatedMyRoomRequestDto;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomResponseDto;
@@ -40,7 +40,7 @@ public class MyRoomService {
         });
 
         User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
         MyRoom newMyRoom = MyRoom.builder()
                 .user(findUser)
@@ -56,7 +56,7 @@ public class MyRoomService {
             Long userId, Long myRoomId, UpdateMyRoomRequestDto request
     ) {
         MyRoom findMyRoom = myRoomRepository.findById(myRoomId)
-                .orElseThrow(() -> new UserException(INVALID_USER_ID_EXCEPTION));
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
         findMyRoom.isMatchOwnerOrThrow(userId);
 
         findMyRoom.updatedName(request.roomName());

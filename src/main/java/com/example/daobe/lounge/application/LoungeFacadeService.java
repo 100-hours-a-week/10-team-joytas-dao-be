@@ -1,5 +1,8 @@
 package com.example.daobe.lounge.application;
 
+import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
+import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
+
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
@@ -10,12 +13,10 @@ import com.example.daobe.lounge.domain.LoungeResult;
 import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
-import com.example.daobe.user.exception.UserExceptionType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class LoungeFacadeService {
             loungeSharerRepository.save(userLounge);
             return LoungeResult.LOUNGE_INVITE_SUCCESS;
         }
-        throw new LoungeException(LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION);
+        throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
     }
 
     @Transactional
@@ -89,7 +90,7 @@ public class LoungeFacadeService {
 
     private User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserException(UserExceptionType.INVALID_USER_ID_EXCEPTION));
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
     }
 
     private Lounge findLoungeById(Long id) {

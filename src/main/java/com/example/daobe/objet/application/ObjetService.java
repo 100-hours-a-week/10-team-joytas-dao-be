@@ -63,11 +63,11 @@ public class ObjetService {
         objetRepository.save(objet);
 
         // 생성자를 sharer에 추가
-        request.owners().add(userId);
+        request.sharers().add(userId);
 
-        List<ObjetSharer> objetSharers = request.owners().stream()
-                .map(ownerId -> {
-                    User user = userRepository.findById(ownerId)
+        List<ObjetSharer> objetSharers = request.sharers().stream()
+                .map(sharerId -> {
+                    User user = userRepository.findById(sharerId)
                             .orElseThrow(() -> new UserException(NOT_EXIST_USER));
                     return ObjetSharer.builder()
                             .user(user)
@@ -97,20 +97,20 @@ public class ObjetService {
         findObjet.updateDetails(request.name(), request.description());
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+        Set<Long> currentSharerIds = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
         // 생성자를 sharer에 추가
-        request.owners().add(userId);
+        request.sharers().add(userId);
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newOwnerIds = new HashSet<>(request.owners());
+        Set<Long> newSharerIds = new HashSet<>(request.sharers());
 
         // 추가된 관계 삽입
-        for (Long newOwnerId : newOwnerIds) {
-            if (!currentOwnerIds.contains(newOwnerId)) {
-                User user = userRepository.findById(newOwnerId)
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerIds.contains(newSharerId)) {
+                User user = userRepository.findById(newSharerId)
                         .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
@@ -126,7 +126,7 @@ public class ObjetService {
 
         // 제거된 관계 삭제
         findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
                 objetSharerRepository.delete(objetSharer);
                 return true;
             }
@@ -152,20 +152,20 @@ public class ObjetService {
         findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+        Set<Long> currentSharerId = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
         // 생성자를 sharer에 추가
-        request.owners().add(userId);
+        request.sharers().add(userId);
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newOwnerIds = new HashSet<>(request.owners());
+        Set<Long> newSharerIds = new HashSet<>(request.sharers());
 
         // 추가된 관계 삽입
-        for (Long newOwnerId : newOwnerIds) {
-            if (!currentOwnerIds.contains(newOwnerId)) {
-                User user = userRepository.findById(newOwnerId)
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerId.contains(newSharerId)) {
+                User user = userRepository.findById(newSharerId)
                         .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
@@ -181,7 +181,7 @@ public class ObjetService {
 
         // 제거된 관계 삭제
         findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
                 objetSharerRepository.delete(objetSharer);
                 return true;
             }
@@ -194,14 +194,14 @@ public class ObjetService {
         return ObjetCreateResponseDto.of(findObjet);
     }
 
-    public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean owner) {
-        if (Boolean.TRUE.equals(owner)) {
+    public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean sharer) {
+        if (Boolean.TRUE.equals(sharer)) {
             List<ObjetSharer> ObjetSharerList = objetSharerRepository.findByUserId(userId);
 
-            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharers(
+            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserId(
                             loungeId,
                             ObjetStatus.ACTIVE,
-                            ObjetSharerList
+                            userId
                     )
                     .stream()
                     .map(ObjetInfoDto::of)

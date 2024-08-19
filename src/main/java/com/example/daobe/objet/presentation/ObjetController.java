@@ -9,6 +9,7 @@ import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
@@ -48,7 +49,7 @@ public class ObjetController {
             @RequestParam("name") String name,
             @RequestParam("type") String type,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("owners") List<Long> owners,
+            @RequestParam("sharers") List<Long> sharers,
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
     ) {
@@ -59,7 +60,7 @@ public class ObjetController {
 
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
-        ObjetCreateRequestDto request = new ObjetCreateRequestDto(owners, name, description, type, loungeId);
+        ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -70,10 +71,10 @@ public class ObjetController {
     public ResponseEntity<ApiResponse<List<ObjetInfoDto>>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam Boolean owner
+            @RequestParam Boolean sharer
     ) {
         ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, owner)
+                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, sharer)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -88,17 +89,28 @@ public class ObjetController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<ObjetMeInfoDto>>> getMyObjets(
+            @AuthenticationPrincipal Long userId
+    ) {
+        ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
+                "USER_OBJET_LIST_LOADED_SUCCESS", objetService.getMyRecentObjets(userId)
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
     @PatchMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
-            @RequestParam("owners") List<Long> owners,
+            @RequestParam("sharers") List<Long> sharers,
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
     ) {
 
-        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
+        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
 
         ObjetCreateResponseDto objetUpdateResponse;
 

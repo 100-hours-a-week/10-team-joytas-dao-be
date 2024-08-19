@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record ObjetUpdateRequestDto(
         Long objetId,
-        List<Long> owners,
+        List<Long> sharers,
         String name,
         String description
 ) {

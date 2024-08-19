@@ -9,7 +9,6 @@ import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
@@ -89,17 +88,6 @@ public class ObjetController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<ObjetMeInfoDto>>> getMyObjets(
-            @AuthenticationPrincipal Long userId
-    ) {
-        ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
-                "USER_OBJET_LIST_LOADED_SUCCESS", objetService.getMyRecentObjets(userId)
-        );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-
     @PatchMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
@@ -110,15 +98,14 @@ public class ObjetController {
             @RequestParam(value = "objet_image", required = false) MultipartFile file
     ) {
 
-        if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
-            throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-        }
-
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
 
         ObjetCreateResponseDto objetUpdateResponse;
 
         if (file != null && !file.isEmpty()) {
+            if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
+                throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
+            }
             UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
             objetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
         } else {
@@ -138,4 +125,3 @@ public class ObjetController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
     }
 }
-

@@ -2,6 +2,10 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
   cors:
     allowed-methods: ${ALLOWED_METHODS}
     allowed-origins: ${ALLOWED_ORIGINS}

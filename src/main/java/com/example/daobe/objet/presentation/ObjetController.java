@@ -1,12 +1,16 @@
 package com.example.daobe.objet.presentation;
 
+import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_IMAGE_EXTENSIONS;
+
 import com.example.daobe.common.response.ApiResponse;
+import com.example.daobe.common.utils.DaoFileExtensionUtils;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
+import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.upload.application.dto.UploadImageResponse;
 import java.util.List;
@@ -48,10 +52,14 @@ public class ObjetController {
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
     ) {
+
+        if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
+            throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
+        }
+
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(owners, name, description, type, loungeId);
-
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -89,6 +97,11 @@ public class ObjetController {
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
     ) {
+
+        if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
+            throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
+        }
+
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
 
         ObjetCreateResponseDto objetUpdateResponse;

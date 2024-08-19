@@ -1,8 +1,5 @@
 package com.example.daobe.common.utils;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_IMAGE_EXTENSIONS;
-
-import com.example.daobe.objet.exception.ObjetException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,15 +18,13 @@ public class DaoFileExtensionUtils {
     }
 
     // 파일 확장자 검증
-    public static void validateFileExtension(MultipartFile file) {
+    public static boolean isValidFileExtension(MultipartFile file) {
         String fileName = file.getOriginalFilename();
 
         if (fileName != null) {
             String fileExtension = getFileExtension(fileName);
-
-            if (!allowedExtensions.contains(fileExtension.toLowerCase())) {
-                throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-            }
+            return allowedExtensions.contains(fileExtension.toLowerCase());
         }
+        return false;
     }
 }

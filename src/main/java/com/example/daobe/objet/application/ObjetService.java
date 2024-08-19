@@ -62,6 +62,9 @@ public class ObjetService {
 
         objetRepository.save(objet);
 
+        // 생성자를 sharer에 추가
+        request.owners().add(userId);
+
         List<ObjetSharer> objetSharers = request.owners().stream()
                 .map(ownerId -> {
                     User user = userRepository.findById(ownerId)
@@ -97,6 +100,9 @@ public class ObjetService {
         Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
+
+        // 생성자를 sharer에 추가
+        request.owners().add(userId);
 
         // 새로운 관계에서 ID를 Set으로 관리
         Set<Long> newOwnerIds = new HashSet<>(request.owners());
@@ -149,6 +155,9 @@ public class ObjetService {
         Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
+
+        // 생성자를 sharer에 추가
+        request.owners().add(userId);
 
         // 새로운 관계에서 ID를 Set으로 관리
         Set<Long> newOwnerIds = new HashSet<>(request.owners());

@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 public class ObjetSharer {
 
     @Id
-    @Column(name = "usr_obj_id")
+    @Column(name = "obj_shr_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

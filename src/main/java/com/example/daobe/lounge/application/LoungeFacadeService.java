@@ -6,6 +6,7 @@ import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto.ObjetInfo;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.domain.Lounge;
@@ -13,7 +14,10 @@ import com.example.daobe.lounge.domain.LoungeResult;
 import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
+import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
@@ -25,14 +29,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoungeFacadeService {
 
-    private final LoungeService loungeService;
     private final UserRepository userRepository;
-    private final ObjetRepository objetRepository;
+    private final LoungeService loungeService;
     private final LoungeSharerRepository loungeSharerRepository;
+    private final ObjetRepository objetRepository;
 
+    @Transactional
     public LoungeCreateResponseDto create(LoungeCreateRequestDto request, Long userId) {
         User findUser = findUserById(userId);
         LoungeCreateResponseDto response = loungeService.createLounge(request, findUser);
@@ -46,15 +52,18 @@ public class LoungeFacadeService {
         return LoungeCreateResponseDto.of(findLounge);
     }
 
-    public LoungeDetailInfoDto getLoungeDetail(Long loungeId) {
+    public LoungeDetailInfoDto getLoungeDetail(Long userId, Long loungeId) {
         Lounge findLounge = findLoungeById(loungeId);
+        findUserById(userId);
 
         // ACTIVE 상태가 아닌 라운지라면 예외 발생
         findLounge.validateLoungeStatus();
 
-        List<LoungeDetailInfoDto.ObjetInfo> objetInfos = objetRepository.findAll().stream()
-                .map(LoungeDetailInfoDto.ObjetInfo::of)
+        List<LoungeDetailInfoDto.ObjetInfo> objetInfos = objetRepository
+                .findLoungeObjetByUser(loungeId, userId).stream()
+                .map(ObjetInfo::of)
                 .toList();
+
         return loungeService.createLoungeDetailInfo(loungeId, objetInfos);
     }
 
@@ -88,13 +97,13 @@ public class LoungeFacadeService {
         return loungeService.findLoungeByUserId(userId);
     }
 
+    private Lounge findLoungeById(Long id) {
+        return loungeService.findLoungeById(id);
+    }
+
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-    }
-
-    private Lounge findLoungeById(Long id) {
-        return loungeService.findLoungeById(id);
     }
 
     private boolean isNotExistUserInLounge(User user, Lounge lounge) {

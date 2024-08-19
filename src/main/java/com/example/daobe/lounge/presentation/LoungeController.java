@@ -58,11 +58,12 @@ public class LoungeController {
 
     @GetMapping("/{loungeId}")
     public ResponseEntity<ApiResponse<LoungeDetailInfoDto>> getLoungeDetail(
+            @AuthenticationPrincipal Long userId,
             @PathVariable(name = "loungeId") Long loungeId
     ) {
         ApiResponse<LoungeDetailInfoDto> response = new ApiResponse<>(
                 LOUNGE_INFO_LOADED_SUCCESS.name(),
-                loungeFacadeService.getLoungeDetail(loungeId)
+                loungeFacadeService.getLoungeDetail(userId, loungeId)
         );
         return ResponseEntity.status(LOUNGE_INFO_LOADED_SUCCESS.getHttpStatus()).body(response);
     }

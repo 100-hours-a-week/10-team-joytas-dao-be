@@ -12,6 +12,7 @@ import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
@@ -24,6 +25,7 @@ import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
 import jakarta.transaction.Transactional;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -224,6 +226,24 @@ public class ObjetService {
                 .build();
     }
 
+    public List<ObjetMeInfoDto> getMyRecentObjets(Long userId) {
+        List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserId(userId);
+
+        // ObjetSharer 목록에서 Objet 엔티티만 추출합니다.
+        List<Objet> objets = objetSharerList.stream()
+                .map(ObjetSharer::getObjet)
+                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE
+                        && objet.getDeletedAt() == null)
+                .sorted(Comparator.comparing(Objet::getCreatedAt).reversed())
+                .limit(4)
+                .toList();
+
+        return objets.stream()
+                .map(ObjetMeInfoDto::of)
+                .toList();
+    }
+
+
     public ObjetCreateResponseDto delete(Long objetId, Long userId) {
         // 오브제 조회
         Objet findObjet = objetRepository.findById(objetId)
@@ -246,3 +266,4 @@ public class ObjetService {
         }
     }
 }
+

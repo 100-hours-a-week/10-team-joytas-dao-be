@@ -1,6 +1,7 @@
 package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
+import com.example.daobe.common.utils.DaoFileExtensionUtils;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
@@ -48,10 +49,11 @@ public class ObjetController {
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
     ) {
+        DaoFileExtensionUtils.validateFileExtension(file);
+
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(owners, name, description, type, loungeId);
-
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -89,6 +91,9 @@ public class ObjetController {
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
     ) {
+
+        DaoFileExtensionUtils.validateFileExtension(file);
+
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
 
         ObjetCreateResponseDto objetUpdateResponse;

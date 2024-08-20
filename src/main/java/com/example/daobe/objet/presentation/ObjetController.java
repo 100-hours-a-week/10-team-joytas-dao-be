@@ -49,7 +49,7 @@ public class ObjetController {
             @RequestParam("name") String name,
             @RequestParam("type") String type,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("owners") List<Long> owners,
+            @RequestParam("sharers") List<Long> sharers,
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
     ) {
@@ -60,7 +60,7 @@ public class ObjetController {
 
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
-        ObjetCreateRequestDto request = new ObjetCreateRequestDto(owners, name, description, type, loungeId);
+        ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -71,10 +71,10 @@ public class ObjetController {
     public ResponseEntity<ApiResponse<List<ObjetInfoDto>>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam Boolean owner
+            @RequestParam Boolean sharer
     ) {
         ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, owner)
+                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, sharer)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -105,20 +105,19 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
-            @RequestParam("owners") List<Long> owners,
+            @RequestParam("sharers") List<Long> sharers,
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
     ) {
 
-        if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
-            throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-        }
-
-        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, owners, name, description);
+        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
 
         ObjetCreateResponseDto objetUpdateResponse;
 
         if (file != null && !file.isEmpty()) {
+            if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
+                throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
+            }
             UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
             objetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
         } else {
@@ -138,4 +137,3 @@ public class ObjetController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
     }
 }
-

@@ -11,6 +11,7 @@ import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
@@ -62,9 +63,12 @@ public class ObjetService {
 
         objetRepository.save(objet);
 
-        List<ObjetSharer> objetSharers = request.owners().stream()
-                .map(ownerId -> {
-                    User user = userRepository.findById(ownerId)
+        // 생성자를 sharer에 추가
+        request.sharers().add(userId);
+
+        List<ObjetSharer> objetSharers = request.sharers().stream()
+                .map(sharerId -> {
+                    User user = userRepository.findById(sharerId)
                             .orElseThrow(() -> new UserException(NOT_EXIST_USER));
                     return ObjetSharer.builder()
                             .user(user)
@@ -94,17 +98,20 @@ public class ObjetService {
         findObjet.updateDetails(request.name(), request.description());
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+        Set<Long> currentSharerIds = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
+        // 생성자를 sharer에 추가
+        request.sharers().add(userId);
+
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newOwnerIds = new HashSet<>(request.owners());
+        Set<Long> newSharerIds = new HashSet<>(request.sharers());
 
         // 추가된 관계 삽입
-        for (Long newOwnerId : newOwnerIds) {
-            if (!currentOwnerIds.contains(newOwnerId)) {
-                User user = userRepository.findById(newOwnerId)
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerIds.contains(newSharerId)) {
+                User user = userRepository.findById(newSharerId)
                         .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
@@ -120,7 +127,7 @@ public class ObjetService {
 
         // 제거된 관계 삭제
         findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
                 objetSharerRepository.delete(objetSharer);
                 return true;
             }
@@ -146,17 +153,20 @@ public class ObjetService {
         findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
 
         // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentOwnerIds = findObjet.getObjetSharers().stream()
+        Set<Long> currentSharerId = findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
+        // 생성자를 sharer에 추가
+        request.sharers().add(userId);
+
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newOwnerIds = new HashSet<>(request.owners());
+        Set<Long> newSharerIds = new HashSet<>(request.sharers());
 
         // 추가된 관계 삽입
-        for (Long newOwnerId : newOwnerIds) {
-            if (!currentOwnerIds.contains(newOwnerId)) {
-                User user = userRepository.findById(newOwnerId)
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerId.contains(newSharerId)) {
+                User user = userRepository.findById(newSharerId)
                         .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
                 ObjetSharer newObjetSharer = ObjetSharer.builder()
@@ -172,7 +182,7 @@ public class ObjetService {
 
         // 제거된 관계 삭제
         findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newOwnerIds.contains(objetSharer.getUser().getId())) {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
                 objetSharerRepository.delete(objetSharer);
                 return true;
             }
@@ -185,14 +195,12 @@ public class ObjetService {
         return ObjetCreateResponseDto.of(findObjet);
     }
 
-    public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean owner) {
-        if (Boolean.TRUE.equals(owner)) {
-            List<ObjetSharer> ObjetSharerList = objetSharerRepository.findByUserId(userId);
-
-            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharers(
+    public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean sharer) {
+        if (Boolean.TRUE.equals(sharer)) {
+            return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserId(
                             loungeId,
                             ObjetStatus.ACTIVE,
-                            ObjetSharerList
+                            userId
                     )
                     .stream()
                     .map(ObjetInfoDto::of)
@@ -208,6 +216,13 @@ public class ObjetService {
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+
+        List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
+        List<SharerInfo> sharerInfos = objetSharers.stream()
+                .map(sharer -> SharerInfo.of(sharer.getUser().getId(), sharer.getUser().getNickname()))
+                .toList();
+
+        // TODO : 오브제 수정에서 사용할 sharers 리스트 정보가 필요함
         return ObjetDetailInfoDto.builder()
                 .objetId(objetId)
                 .name(findObjet.getName())
@@ -222,7 +237,8 @@ public class ObjetService {
                 // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
                 .chattings(null)
                 // TODO : 오브제 음성 채팅 참가자 수 로직 구현 후 변경
-                .CallingUserNum(3L)
+                .callingUserNum(3L)
+                .sharers(sharerInfos)
                 .build();
     }
 

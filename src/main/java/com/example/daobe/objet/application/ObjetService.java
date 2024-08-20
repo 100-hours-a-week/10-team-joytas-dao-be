@@ -11,6 +11,7 @@ import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
@@ -215,6 +216,12 @@ public class ObjetService {
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+
+        List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
+        List<SharerInfo> sharerInfos = objetSharers.stream()
+                .map(sharer -> SharerInfo.of(sharer.getUser().getId(), sharer.getUser().getNickname()))
+                .toList();
+
         // TODO : 오브제 수정에서 사용할 sharers 리스트 정보가 필요함
         return ObjetDetailInfoDto.builder()
                 .objetId(objetId)
@@ -230,7 +237,8 @@ public class ObjetService {
                 // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
                 .chattings(null)
                 // TODO : 오브제 음성 채팅 참가자 수 로직 구현 후 변경
-                .CallingUserNum(3L)
+                .callingUserNum(3L)
+                .sharers(sharerInfos)
                 .build();
     }
 

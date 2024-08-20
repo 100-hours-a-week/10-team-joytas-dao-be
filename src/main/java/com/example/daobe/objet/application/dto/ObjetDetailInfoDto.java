@@ -12,10 +12,23 @@ public record ObjetDetailInfoDto(
         String objetImage,
         String description,
         Boolean isActive,
-        Long CallingUserNum,
+        Long callingUserNum,
         List<ViewerInfo> viewers,
-        List<ChattingInfo> chattings
+        List<ChattingInfo> chattings,
+        List<SharerInfo> sharers
 ) {
+    @Builder
+    public record SharerInfo(
+            Long userId,
+            String nickname
+    ) {
+        public static SharerInfo of(Long userId, String nickname) {
+            return SharerInfo.builder()
+                    .userId(userId)
+                    .nickname(nickname)
+                    .build();
+        }
+    }
 
     @Builder
     public record ViewerInfo(

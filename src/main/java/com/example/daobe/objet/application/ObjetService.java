@@ -196,8 +196,6 @@ public class ObjetService {
 
     public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean sharer) {
         if (Boolean.TRUE.equals(sharer)) {
-            List<ObjetSharer> ObjetSharerList = objetSharerRepository.findByUserId(userId);
-
             return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserId(
                             loungeId,
                             ObjetStatus.ACTIVE,
@@ -217,6 +215,7 @@ public class ObjetService {
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+        // TODO : 오브제 수정에서 사용할 sharers 리스트 정보가 필요함
         return ObjetDetailInfoDto.builder()
                 .objetId(objetId)
                 .name(findObjet.getName())

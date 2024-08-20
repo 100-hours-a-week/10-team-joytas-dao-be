@@ -2,7 +2,7 @@ package com.example.daobe.myroom.domain;
 
 import static com.example.daobe.myroom.exception.MyRoomExceptionType.FORBIDDEN_MY_ROOM_MODIFICATION;
 
-import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.myroom.exception.MyRoomException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;

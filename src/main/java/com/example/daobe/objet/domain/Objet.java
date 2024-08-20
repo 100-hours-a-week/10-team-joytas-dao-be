@@ -1,6 +1,6 @@
 package com.example.daobe.objet.domain;
 
-import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.user.domain.User;

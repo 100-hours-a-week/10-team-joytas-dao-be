@@ -1,6 +1,6 @@
 package com.example.daobe.user.domain;
 
-import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.common.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

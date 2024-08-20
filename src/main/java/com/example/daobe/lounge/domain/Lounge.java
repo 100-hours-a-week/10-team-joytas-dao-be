@@ -1,5 +1,6 @@
 package com.example.daobe.lounge.domain;
 
+import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.Objet;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "lounges")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Lounge {
+public class Lounge extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

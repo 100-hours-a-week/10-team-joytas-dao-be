@@ -1,4 +1,4 @@
-package com.example.daobe.common.entity;
+package com.example.daobe.common.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

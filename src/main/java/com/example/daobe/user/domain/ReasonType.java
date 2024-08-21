@@ -3,11 +3,11 @@ package com.example.daobe.user.domain;
 import java.util.Optional;
 
 public enum ReasonType {
-    W0001(""),
-    W0002(""),
-    W0003(""),
-    W0004(""),
-    W0005(""),
+    W0001("서비스에 대한 흥미를 잃었어요"),
+    W0002("사용 빈도가 낮아요"),
+    W0003("이용이 불편하고 장애가 많아요"),
+    W0004("특별한 이유가 없어요"),
+    W0005("기타"),
     ;
 
     private final String description;

@@ -10,6 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LoungeRepository extends JpaRepository<Lounge, Long> {
 
-    @Query("SELECT l FROM Lounge l WHERE l.user.id = :userId")
+    @Query("""
+            SELECT l FROM Lounge l 
+            LEFT JOIN FETCH l.loungeSharers ls 
+            WHERE l.user.id = :userId 
+            OR ls.user.id = :userId
+            """)
     List<Lounge> findLoungeByUserId(@Param("userId") Long userId);
 }

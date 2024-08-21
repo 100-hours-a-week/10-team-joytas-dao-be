@@ -44,7 +44,21 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponseDto updateProfile(Long userId, String nickname, MultipartFile profileImage) {
+    public UpdateProfileResponseDto updateProfile(Long userId, String nickname) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+
+        findUser.updateNickname(nickname);
+        userRepository.save(findUser);
+        return UpdateProfileResponseDto.of(findUser);
+    }
+
+    @Transactional
+    public UpdateProfileResponseDto updateProfileWithProfileImage(
+            Long userId,
+            String nickname,
+            MultipartFile profileImage
+    ) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 

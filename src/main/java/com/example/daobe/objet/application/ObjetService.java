@@ -25,6 +25,9 @@ import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -45,9 +48,11 @@ public class ObjetService {
     private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
 
-    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
+    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
+            throws JsonProcessingException {
         Lounge lounge = loungeRepository.findById(request.loungeId())
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
+
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
@@ -63,10 +68,15 @@ public class ObjetService {
 
         objetRepository.save(objet);
 
-        // 생성자를 sharer에 추가
-        request.sharers().add(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        List<ObjetSharer> objetSharers = request.sharers().stream()
+        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
+        });
+
+        // 생성자를 sharer에 추가
+        sharerData.add(userId);
+
+        List<ObjetSharer> objetSharers = sharerData.stream()
                 .map(sharerId -> {
                     User user = userRepository.findById(sharerId)
                             .orElseThrow(() -> new UserException(NOT_EXIST_USER));
@@ -85,7 +95,7 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) {
+    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) throws JsonProcessingException {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
@@ -102,11 +112,13 @@ public class ObjetService {
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
-        // 생성자를 sharer에 추가
-        request.sharers().add(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
+        });
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(request.sharers());
+        Set<Long> newSharerIds = new HashSet<>(sharerData);
 
         // 추가된 관계 삽입
         for (Long newSharerId : newSharerIds) {
@@ -141,7 +153,8 @@ public class ObjetService {
     }
 
 
-    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl) {
+    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl)
+            throws JsonProcessingException {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
@@ -157,11 +170,13 @@ public class ObjetService {
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
-        // 생성자를 sharer에 추가
-        request.sharers().add(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
+        });
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(request.sharers());
+        Set<Long> newSharerIds = new HashSet<>(sharerData);
 
         // 추가된 관계 삽입
         for (Long newSharerId : newSharerIds) {

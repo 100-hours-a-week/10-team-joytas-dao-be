@@ -14,6 +14,7 @@ import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.upload.application.dto.UploadImageResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class ObjetController {
             @RequestParam("name") String name,
             @RequestParam("type") String type,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("sharers") List<Long> sharers,
+            @RequestParam("sharers") String sharers,
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
     ) {
@@ -61,7 +62,12 @@ public class ObjetController {
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
+        ObjetCreateResponseDto ObjetCreateResponse = null;
+        try {
+            ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
@@ -105,10 +111,10 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
-            @RequestParam("sharers") List<Long> sharers,
+            @RequestParam("sharers") String sharers,
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
-    ) {
+    ) throws JsonProcessingException {
 
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
 

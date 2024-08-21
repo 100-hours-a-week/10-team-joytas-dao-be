@@ -111,10 +111,10 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestParam("name") String name,
-            @RequestParam("sharers") List<Long> sharers,
+            @RequestParam("sharers") String sharers,
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
-    ) {
+    ) throws JsonProcessingException {
 
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
 

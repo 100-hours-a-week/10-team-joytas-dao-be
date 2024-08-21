@@ -95,7 +95,7 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) {
+    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) throws JsonProcessingException {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
@@ -112,11 +112,13 @@ public class ObjetService {
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
-        // 생성자를 sharer에 추가
-        request.sharers().add(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
+        });
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(request.sharers());
+        Set<Long> newSharerIds = new HashSet<>(sharerData);
 
         // 추가된 관계 삽입
         for (Long newSharerId : newSharerIds) {
@@ -151,7 +153,8 @@ public class ObjetService {
     }
 
 
-    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl) {
+    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl)
+            throws JsonProcessingException {
         // Objet 찾기
         Objet findObjet = objetRepository.findById(request.objetId())
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
@@ -167,11 +170,13 @@ public class ObjetService {
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
 
-        // 생성자를 sharer에 추가
-        request.sharers().add(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
+        });
 
         // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(request.sharers());
+        Set<Long> newSharerIds = new HashSet<>(sharerData);
 
         // 추가된 관계 삽입
         for (Long newSharerId : newSharerIds) {

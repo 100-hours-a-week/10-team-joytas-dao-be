@@ -1,5 +1,6 @@
 package com.example.daobe.objet.application.dto;
 
+import com.example.daobe.objet.domain.ObjetType;
 import java.util.List;
 import lombok.Builder;
 
@@ -11,6 +12,7 @@ public record ObjetDetailInfoDto(
         String nickname,
         String objetImage,
         String description,
+        ObjetType type,
         Boolean isActive,
         Long callingUserNum,
         List<ViewerInfo> viewers,

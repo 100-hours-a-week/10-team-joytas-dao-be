@@ -245,6 +245,7 @@ public class ObjetService {
                 .nickname(findObjet.getUser().getNickname())
                 .objetImage(findObjet.getImageUrl())
                 .description(findObjet.getExplanation())
+                .type(findObjet.getType())
                 // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
                 .isActive(true)
                 // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경

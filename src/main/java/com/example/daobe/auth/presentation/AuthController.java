@@ -5,6 +5,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import com.example.daobe.auth.application.AuthService;
 import com.example.daobe.auth.application.dto.SignalingAuthRequestDto;
 import com.example.daobe.auth.application.dto.TokenResponseDto;
+import com.example.daobe.auth.application.dto.WithdrawRequestDto;
 import com.example.daobe.common.presentation.cookie.CookieHandler;
 import com.example.daobe.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,6 +59,23 @@ public class AuthController {
         ));
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody WithdrawRequestDto request,
+            @CookieValue(COOKIE_REFRESH_TOKEN) String refreshToken,
+            HttpServletResponse response
+    ) {
+        authService.withdraw(userId, refreshToken, request);
+        ResponseCookie cookie = cookieHandler.deleteCookie(COOKIE_REFRESH_TOKEN);
+        response.addHeader(SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(new ApiResponse<>(
+                "WITHDRAW_SUCCESS",
+                null
+        ));
+    }
+
+    // TODO: 오브제 관련은 다른 패키지로 이동
     @PostMapping("/signaling")
     public ResponseEntity<ApiResponse> signaling(@AuthenticationPrincipal Long userId,
                                                  @RequestBody SignalingAuthRequestDto request) {

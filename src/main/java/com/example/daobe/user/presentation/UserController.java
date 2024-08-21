@@ -72,10 +72,11 @@ public class UserController {
             @RequestParam("nickname") String nickname,
             @RequestParam(value = "profile_image", required = false) MultipartFile profileImage
     ) {
-        ApiResponse<UpdateProfileResponseDto> response = new ApiResponse<>(
+        return ResponseEntity.ok(new ApiResponse<>(
                 "UPDATE_SUCCESS",
-                userService.updateProfile(userId, nickname, profileImage)
-        );
-        return ResponseEntity.ok(response);
+                profileImage == null ?
+                        userService.updateProfile(userId, nickname) :
+                        userService.updateProfileWithProfileImage(userId, nickname, profileImage)
+        ));
     }
 }

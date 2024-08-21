@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 public enum UserExceptionType implements BaseExceptionType {
     NOT_EXIST_USER("존재하지 않는 사용자입니다", HttpStatus.NOT_FOUND),
     DUPLICATE_NICKNAME("이미 사용 중인 닉네임입니다.", HttpStatus.CONFLICT),
-    ;
+    NOT_MATCH_REASON_TYPE("일치하는 사용자 상태가 없습니다.", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final HttpStatus status;

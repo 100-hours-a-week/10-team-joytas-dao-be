@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class User extends BaseTimeEntity {
     private UserStatus status;
 
     // 비활성화 사유
-    private String reason;
+    private String reasons;
 
     // 비활성화 사유
     @Column(columnDefinition = "TEXT", name = "reason_detail")
@@ -66,5 +67,14 @@ public class User extends BaseTimeEntity {
 
     public void updateProfileUrl(String profileImage) {
         this.profileUrl = profileImage;
+    }
+
+    public void withdrawWithAddReason(List<String> stringReasonTypeList, String detail) {
+        this.reasons = stringReasonTypeList.stream()
+                .map(ReasonType::getReasonTypeByString)
+                .toList()
+                .toString();
+        this.reasonDetail = detail;
+        this.status = UserStatus.DELETED;
     }
 }

@@ -3,7 +3,7 @@ package com.example.daobe.user.application;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
-import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
+import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.domain.User;
@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UploadService uploadService;
 
     public UserInfoResponseDto getUserInfoWithId(Long userId) {
         User findUser = userRepository.findById(userId)
@@ -42,11 +44,16 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponseDto updateProfile(Long userId, UpdateProfileRequestDto request) {
+    public UpdateProfileResponseDto updateProfile(Long userId, String nickname, MultipartFile profileImage) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-        findUser.updateNickname(request.nickname());
-        findUser.updateProfileUrl(request.profileImage());  // TODO: S3 업로드 로직 추가
+
+        // TODO: S3 업로드 로직 분리
+        String imageUrl = uploadService.uploadImage(profileImage).image();
+
+        findUser.updateNickname(nickname);
+        findUser.updateProfileUrl(imageUrl);
+
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);
     }

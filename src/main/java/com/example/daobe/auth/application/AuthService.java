@@ -2,11 +2,15 @@ package com.example.daobe.auth.application;
 
 import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN;
 import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
+import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 
 import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.domain.Token;
 import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.auth.exception.AuthException;
+import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ public class AuthService {
     private final TokenExtractor tokenExtractor;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final ObjetRepository objetRepository;
 
     public TokenResponseDto loginOrRegister(String oAuthId) {
         User findUser = userRepository.findByKakaoId(oAuthId)
@@ -66,5 +71,12 @@ public class AuthService {
         }
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
+    }
+
+
+    public boolean isObjetSharer(Long userId, Long objetId) {
+        Objet findObjet = objetRepository.findById(objetId)
+                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+        return findObjet.getObjetSharers().contains(userId);
     }
 }

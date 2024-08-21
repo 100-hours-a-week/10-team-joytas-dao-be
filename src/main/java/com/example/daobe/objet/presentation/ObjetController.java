@@ -48,7 +48,7 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId,
             @RequestParam("name") String name,
             @RequestParam("type") String type,
-            @RequestParam("lounge_id") Long loungeId,
+            @RequestParam("lounge_id") String loungeId,
             @RequestParam("sharers") List<Long> sharers,
             @RequestParam("description") String description,
             @RequestParam("objet_image") MultipartFile file
@@ -60,7 +60,8 @@ public class ObjetController {
 
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
-        ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
+        ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type,
+                Long.parseLong(loungeId));
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)

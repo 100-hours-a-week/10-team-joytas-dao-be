@@ -77,6 +77,7 @@ public class AuthService {
     public boolean isObjetSharer(Long userId, Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-        return findObjet.getObjetSharers().contains(userId);
+        return findObjet.getObjetSharers().stream()
+                .anyMatch(sharer -> sharer.getUser().getId().equals(userId));
     }
 }

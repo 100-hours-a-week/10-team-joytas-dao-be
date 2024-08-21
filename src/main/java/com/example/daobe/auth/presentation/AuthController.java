@@ -69,7 +69,7 @@ public class AuthController {
             ));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(
-                "AUTHENTICATION_FAILED", userId
+                "ACCESS_FORBIDDEN", userId
         ));
     }
 }

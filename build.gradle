@@ -52,6 +52,12 @@ dependencies {
 
     // AWS
     implementation 'software.amazon.awssdk:s3:2.25.13'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Messaging
+    implementation 'org.springframework:spring-messaging'
 }
 
 tasks.named('test') {

@@ -1,5 +1,8 @@
 package com.example.daobe.user.domain;
 
+import static com.example.daobe.user.exception.UserExceptionType.NOT_MATCH_REASON_TYPE;
+
+import com.example.daobe.user.exception.UserException;
 import java.util.Optional;
 
 public enum ReasonType {
@@ -22,6 +25,6 @@ public enum ReasonType {
 
     public static ReasonType getReasonTypeByString(String stringValue) {
         return Optional.of(ReasonType.valueOf(stringValue.toUpperCase()))
-                .orElseThrow(() -> new RuntimeException("일치하는 타입이 없습니다."));
+                .orElseThrow(() -> new UserException(NOT_MATCH_REASON_TYPE));
     }
 }

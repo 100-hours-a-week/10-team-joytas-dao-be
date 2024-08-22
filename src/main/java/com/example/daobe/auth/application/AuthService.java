@@ -18,10 +18,8 @@ import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -78,7 +76,6 @@ public class AuthService {
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }
 
-    @Transactional
     public void withdraw(Long userId, String currentToken, WithdrawRequestDto request) {
         String tokenId = tokenExtractor.extractRefreshToken(currentToken);
         Token findToken = tokenRepository.findByTokenId(tokenId)

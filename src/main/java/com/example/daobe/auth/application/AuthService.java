@@ -5,6 +5,7 @@ import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_I
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 
 import com.example.daobe.auth.application.dto.TokenResponseDto;
+import com.example.daobe.auth.application.dto.WithdrawRequestDto;
 import com.example.daobe.auth.domain.Token;
 import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.auth.exception.AuthException;
@@ -13,10 +14,14 @@ import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
+import com.example.daobe.user.exception.UserException;
+import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -73,7 +78,25 @@ public class AuthService {
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }
 
+    @Transactional
+    public void withdraw(Long userId, String currentToken, WithdrawRequestDto request) {
+        String tokenId = tokenExtractor.extractRefreshToken(currentToken);
+        Token findToken = tokenRepository.findByTokenId(tokenId)
+                .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
+        if (!findToken.isMatchMemberId(userId)) {
+            throw new AuthException(UN_MATCH_USER_INFO);
+        }
+
+        tokenRepository.deleteByTokenId(findToken.getTokenId());
+
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserExceptionType.NOT_EXIST_USER));
+        findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
+        userRepository.save(findUser);
+    }
+
+    // TODO: 오브제 관련 다른 패키지로 이동
     public boolean isObjetSharer(Long userId, Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));

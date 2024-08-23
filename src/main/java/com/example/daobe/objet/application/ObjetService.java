@@ -5,6 +5,8 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
+import com.example.daobe.chat.application.ChatRoomService;
+import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
@@ -41,12 +43,14 @@ public class ObjetService {
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
+    private final ChatRoomService chatRoomService;
 
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
         Lounge lounge = loungeRepository.findById(request.loungeId())
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
         User creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        ChatRoom chatRoom = chatRoomService.createChatRoom();
 
         Objet objet = Objet.builder()
                 .name(request.name())
@@ -56,6 +60,7 @@ public class ObjetService {
                 .user(creator)
                 .lounge(lounge)
                 .imageUrl((imageUrl))
+                .chatRoom(chatRoom)
                 .build();
 
         objetRepository.save(objet);

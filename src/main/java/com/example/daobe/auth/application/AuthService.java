@@ -16,6 +16,7 @@ import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.exception.UserExceptionType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -94,6 +95,7 @@ public class AuthService {
     }
 
     // TODO: 오브제 관련 다른 패키지로 이동
+    @Transactional
     public boolean isObjetSharer(Long userId, Long objetId) {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));

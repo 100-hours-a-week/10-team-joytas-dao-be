@@ -38,6 +38,7 @@ dependencies {
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -52,6 +53,12 @@ dependencies {
 
     // AWS
     implementation 'software.amazon.awssdk:s3:2.25.13'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Messaging
+    implementation 'org.springframework:spring-messaging'
 }
 
 tasks.named('test') {

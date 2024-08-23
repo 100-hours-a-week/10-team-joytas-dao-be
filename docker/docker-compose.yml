@@ -28,5 +28,19 @@ services:
     ports:
       - '6379:6379'
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongo9
+    ports:
+      - '27017:27017'
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=dao-local-db
+    volumes:
+      - mongo-data:/data/db
+
 volumes:
   dao-mysqldb:
+  mongo-data:

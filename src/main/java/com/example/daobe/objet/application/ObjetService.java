@@ -28,7 +28,6 @@ import com.example.daobe.user.exception.UserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -37,9 +36,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ObjetService {
 
@@ -48,6 +49,7 @@ public class ObjetService {
     private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
 
+    @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
             throws JsonProcessingException {
         Lounge lounge = loungeRepository.findById(request.loungeId())
@@ -152,7 +154,7 @@ public class ObjetService {
         return ObjetCreateResponseDto.of(findObjet);
     }
 
-
+    @Transactional
     public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl)
             throws JsonProcessingException {
         // Objet 찾기
@@ -275,7 +277,7 @@ public class ObjetService {
                 .toList();
     }
 
-
+    @Transactional
     public ObjetCreateResponseDto delete(Long objetId, Long userId) {
         // 오브제 조회
         Objet findObjet = objetRepository.findById(objetId)

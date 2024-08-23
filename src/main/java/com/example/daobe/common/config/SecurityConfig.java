@@ -59,7 +59,8 @@ public class SecurityConfig {
                 new OrRequestMatcher(
                         new AntPathRequestMatcher("/api/v1/health"),
                         new AntPathRequestMatcher("/api/v1/auth/reissue"),
-                        new AntPathRequestMatcher("/oauth2/authorization/kakao")
+                        new AntPathRequestMatcher("/oauth2/authorization/kakao"),
+                        new AntPathRequestMatcher("/ws/init")
                 )
         );
     }
@@ -79,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/health").permitAll()
                         .requestMatchers("/api/v1/auth/reissue").permitAll()
                         .requestMatchers("/oauth2/authorization/kakao").permitAll()
+                        .requestMatchers("/ws/init").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -25,5 +25,4 @@ public enum NotificationExceptionType implements BaseExceptionType {
     public HttpStatus status() {
         return status;
     }
-
 }

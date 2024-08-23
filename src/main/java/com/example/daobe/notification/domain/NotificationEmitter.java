@@ -1,5 +1,8 @@
 package com.example.daobe.notification.domain;
 
+import static com.example.daobe.notification.exception.NotificationExceptionType.IS_NOT_SINGLE_EMITTER;
+
+import com.example.daobe.notification.exception.NotificationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -30,7 +33,7 @@ public class NotificationEmitter {
                     .findFirst()
                     .get();
         }
-        throw new RuntimeException("생성된 이미터가 1개가 아닙니다");
+        throw new NotificationException(IS_NOT_SINGLE_EMITTER);
     }
 
     private String generateEmitterId() {

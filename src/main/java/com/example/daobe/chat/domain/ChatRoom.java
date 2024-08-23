@@ -1,6 +1,6 @@
 package com.example.daobe.chat.domain;
 
-import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.common.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;
-
 
 @Getter
 @Entity

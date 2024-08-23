@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 public enum LoggingMediaType {
     APPLICATION_JSON(MediaType.APPLICATION_JSON_VALUE),
     MULTIPART_FORM_DATA(MediaType.MULTIPART_FORM_DATA_VALUE),
+    ALL(MediaType.ALL_VALUE),
     ;
 
     private final String mediaType;
@@ -16,6 +17,11 @@ public enum LoggingMediaType {
 
     public static boolean isMatchType(String mediaType) {
         return Stream.of(LoggingMediaType.values())
-                .anyMatch(type -> type.mediaType.equalsIgnoreCase(mediaType));
+                .anyMatch(type -> type.isContainEnumType(mediaType));
+    }
+
+    private boolean isContainEnumType(String mediaType) {
+        return mediaType != null &&
+                mediaType.toLowerCase().startsWith(this.mediaType.toLowerCase());
     }
 }

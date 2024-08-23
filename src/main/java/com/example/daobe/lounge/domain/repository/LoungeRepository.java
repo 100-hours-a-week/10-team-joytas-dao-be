@@ -5,16 +5,13 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface LoungeRepository extends JpaRepository<Lounge, Long> {
 
     @Query("""
-            SELECT l FROM Lounge l 
-            LEFT JOIN FETCH l.loungeSharers ls 
-            WHERE l.user.id = :userId 
-            OR ls.user.id = :userId
+            SELECT l FROM Lounge l
+            LEFT JOIN LoungeSharer ls ON l = ls.lounge
+            WHERE l.user.id = :userId OR ls.user.id = :userId
             """)
     List<Lounge> findLoungeByUserId(@Param("userId") Long userId);
 }

@@ -1,6 +1,6 @@
 package com.example.daobe.notification.domain;
 
-import com.example.daobe.common.entity.BaseTimeEntity;
+import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,5 +1,7 @@
 package com.example.daobe.common.logging;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+
 import com.example.daobe.common.utils.DaoStreamUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +32,19 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        String contentType = request.getHeader(CONTENT_TYPE);
+        if (LoggingMediaType.isMatchType(contentType)) {
+            doReqResLogging(request, response, filterChain);
+        } else {
+            filterChain.doFilter(request, response);
+        }
+    }
+
+    private void doReqResLogging(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper cachedResponse = new ContentCachingResponseWrapper(response);
 
@@ -40,10 +55,7 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
         filterChain.doFilter(cachedRequest, cachedResponse);
 
         stopWatch.stop();
-        long requestDuration = stopWatch.getTotalTimeMillis();
-
-        logging(cachedRequest, cachedResponse, requestDuration);
-
+        logging(cachedRequest, cachedResponse, stopWatch.getTotalTimeMillis());
         cachedResponse.copyBodyToResponse();
     }
 

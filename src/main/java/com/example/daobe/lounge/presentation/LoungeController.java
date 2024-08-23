@@ -79,9 +79,10 @@ public class LoungeController {
 
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<String>> inviteUser(
+            @AuthenticationPrincipal Long userId,
             @RequestBody LoungeInviteDto request
     ) {
-        LoungeResult inviteResult = loungeFacadeService.inviteUser(request);
+        LoungeResult inviteResult = loungeFacadeService.inviteUser(userId, request);
         ApiResponse<String> response = new ApiResponse<>(
                 inviteResult.name(),
                 null

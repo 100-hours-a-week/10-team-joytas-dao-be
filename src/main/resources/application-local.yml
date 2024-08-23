@@ -37,6 +37,7 @@ spring:
         format_sql: true
         highlight_sql: true
     show-sql: true
+    open-in-view: false
 
   security:
     oauth2:

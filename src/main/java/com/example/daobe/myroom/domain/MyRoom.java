@@ -39,9 +39,9 @@ public class MyRoom extends BaseTimeEntity {
     private String type;
 
     @Builder
-    public MyRoom(User user, String name, String type) {
+    public MyRoom(User user, String type) {
+        generateDefaultRoomName(user);
         this.user = user;
-        this.name = name;
         this.type = type;
     }
 
@@ -53,5 +53,9 @@ public class MyRoom extends BaseTimeEntity {
         if (!user.getId().equals(userId)) {
             throw new MyRoomException(FORBIDDEN_MY_ROOM_MODIFICATION);
         }
+    }
+
+    private void generateDefaultRoomName(User user) {
+        this.name = user.getNickname() + "님의 마이룸";
     }
 }

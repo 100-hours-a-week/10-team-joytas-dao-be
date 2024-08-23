@@ -1,7 +1,6 @@
 package com.example.daobe.notification.application;
 
 import com.example.daobe.common.domain.DomainEvent;
-import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.notification.application.dto.NotificationPayload;
 import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.NotificationEventType;
@@ -21,9 +20,7 @@ public class NotificationPublisher {
     @Async
     @TransactionalEventListener(
             phase = TransactionPhase.AFTER_COMMIT,
-            classes = {
-                    LoungeInviteEvent.class
-            }
+            classes = DomainEvent.class
     )
     public void publish(DomainEvent domainEvent) {
         String receiveEmitterId = domainEvent.getReceiveUserId().toString();

@@ -1,5 +1,6 @@
 package com.example.daobe.objet.domain;
 
+import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
@@ -15,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AccessLevel;
@@ -43,6 +45,10 @@ public class Objet extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "objet")
     private List<ObjetSharer> objetSharers;
+
+    @OneToOne
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
 
     @Column(name = "name")
     private String name;
@@ -75,8 +81,8 @@ public class Objet extends BaseTimeEntity {
             String imageUrl,
             String explanation,
             ObjetType type,
-            ObjetStatus status
-
+            ObjetStatus status,
+            ChatRoom chatRoom
     ) {
         this.lounge = lounge;
         this.user = user;
@@ -85,6 +91,7 @@ public class Objet extends BaseTimeEntity {
         this.explanation = explanation;
         this.type = type;
         this.status = status;
+        this.chatRoom = chatRoom;
     }
 
     public ObjetCreateResponseDto toObjetCreateResponseDto() {

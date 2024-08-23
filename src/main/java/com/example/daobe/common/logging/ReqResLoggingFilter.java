@@ -34,13 +34,13 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String contentType = request.getHeader(CONTENT_TYPE);
         if (LoggingMediaType.isMatchType(contentType)) {
-            doFilterWithCaching(request, response, filterChain);
+            doReqResLogging(request, response, filterChain);
         } else {
             filterChain.doFilter(request, response);
         }
     }
 
-    private void doFilterWithCaching(
+    private void doReqResLogging(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
@@ -57,7 +57,6 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
         stopWatch.stop();
         logging(cachedRequest, cachedResponse, stopWatch.getTotalTimeMillis());
         cachedResponse.copyBodyToResponse();
-
     }
 
     // TODO: 리팩토링

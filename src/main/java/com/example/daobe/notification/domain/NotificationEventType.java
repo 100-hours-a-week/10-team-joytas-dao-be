@@ -1,7 +1,10 @@
 package com.example.daobe.notification.domain;
 
+import static com.example.daobe.notification.exception.NotificationExceptionType.NON_MATCH_DOMAIN_EVENT_TYPE;
+
 import com.example.daobe.common.domain.DomainEvent;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
+import com.example.daobe.notification.exception.NotificationException;
 import java.util.stream.Stream;
 
 public enum NotificationEventType {
@@ -24,7 +27,7 @@ public enum NotificationEventType {
         return Stream.of(NotificationEventType.values())
                 .filter(eventType -> eventType.eventClass.equals(domainEvent.getClass()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("일치하는 도메인 이벤트 타입이 없습니다."))
+                .orElseThrow(() -> new NotificationException(NON_MATCH_DOMAIN_EVENT_TYPE))
                 .toString();
     }
 }

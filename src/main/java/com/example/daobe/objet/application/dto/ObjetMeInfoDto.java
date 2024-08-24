@@ -10,7 +10,8 @@ public record ObjetMeInfoDto(
         String name,
         String objetImage,
         String description,
-        ObjetType objetType
+        ObjetType objetType,
+        Long loungeId
 ) {
     public static ObjetMeInfoDto of(Objet objet) {
         return ObjetMeInfoDto.builder()
@@ -19,6 +20,7 @@ public record ObjetMeInfoDto(
                 .objetImage(objet.getImageUrl())
                 .description(objet.getExplanation())
                 .objetType(objet.getType())
+                .loungeId(objet.getLounge().getId())
                 .build();
     }
 }

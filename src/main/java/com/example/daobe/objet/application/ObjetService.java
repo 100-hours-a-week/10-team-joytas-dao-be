@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,8 +53,6 @@ public class ObjetService {
     private final ObjetSharerRepository objetSharerRepository;
     private final ChatRoomService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
-
-    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)

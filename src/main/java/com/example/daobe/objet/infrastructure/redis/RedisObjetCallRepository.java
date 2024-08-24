@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class RedisObjetCallRepository implements ObjetCallRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public RedisObjetCallRepository(RedisTemplate<String, Object> redisTemplate) {
+    public RedisObjetCallRepository(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

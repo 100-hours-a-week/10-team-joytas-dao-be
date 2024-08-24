@@ -26,8 +26,8 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+      host: localhost
+      port: 6379
     mongodb:
       uri: mongodb://dao-local-user:dao-local-password@localhost:27017/dao-local-db?authSource=admin
       authentication-database: admin

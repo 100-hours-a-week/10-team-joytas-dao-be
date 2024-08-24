@@ -21,10 +21,10 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.objet.exception.ObjetException;
-import com.example.daobe.objet.infrastructure.redis.ObjetCallRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,8 +53,6 @@ public class ObjetService {
     private final ObjetSharerRepository objetSharerRepository;
     private final ChatRoomService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
-
-    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)

@@ -1,20 +1,24 @@
 package com.example.daobe.objet.infrastructure.redis;
 
+import com.example.daobe.objet.domain.repository.ObjetCallRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
+@RequiredArgsConstructor
 public class RedisObjetCallRepository implements ObjetCallRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private static final String OBJET_PREFIX = "objet:";
 
-    public RedisObjetCallRepository(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    // redis 에서 objet:{objetId} 키의 리스트 길이를 조회
+    public Long getObjetLength(Long objetId) {
+        return redisTemplate.opsForList().size(key(objetId));
     }
 
-    public Long getObjetLength(Long objetId) {
-        // Redis에서 objet:{objetId} 키의 리스트 길이를 조회
-        String key = "objet:" + objetId;
-        return redisTemplate.opsForList().size(key);
+    private String key(Long objetId) {
+        return OBJET_PREFIX + objetId;
     }
 }

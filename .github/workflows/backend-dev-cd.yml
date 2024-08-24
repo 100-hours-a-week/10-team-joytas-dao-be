@@ -70,3 +70,7 @@ jobs:
         run: |
           sudo chmod +x deploy.sh
           sudo ./deploy.sh
+
+      - name: 도커 이미지 정리
+        run: |
+          sudo docker image prune --all

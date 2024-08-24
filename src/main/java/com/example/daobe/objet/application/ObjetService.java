@@ -24,6 +24,7 @@ import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.objet.exception.ObjetException;
+import com.example.daobe.objet.infrastructure.redis.ObjetCallRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +53,9 @@ public class ObjetService {
     private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
     private final ChatRoomService chatRoomService;
+    private final ObjetCallRepository objetCallRepository;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
@@ -241,10 +246,14 @@ public class ObjetService {
 
         List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
         List<SharerInfo> sharerInfos = objetSharers.stream()
-                .map(sharer -> SharerInfo.of(sharer.getUser().getId(), sharer.getUser().getNickname()))
+                .map(sharer -> SharerInfo.of(
+                        sharer.getUser().getId(),
+                        sharer.getUser().getNickname())
+                )
                 .toList();
 
-        // TODO : 오브제 수정에서 사용할 sharers 리스트 정보가 필요함
+        Long callingUserNum = objetCallRepository.getObjetLength(objetId);
+
         return ObjetDetailInfoDto.builder()
                 .objetId(objetId)
                 .name(findObjet.getName())
@@ -259,8 +268,7 @@ public class ObjetService {
                 .viewers(null)
                 // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
                 .chattings(null)
-                // TODO : 오브제 음성 채팅 참가자 수 로직 구현 후 변경
-                .callingUserNum(3L)
+                .callingUserNum(callingUserNum)
                 .sharers(sharerInfos)
                 .build();
     }
@@ -304,5 +312,6 @@ public class ObjetService {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
     }
+
 }
 

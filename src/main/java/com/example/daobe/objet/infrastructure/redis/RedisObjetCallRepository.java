@@ -1,5 +1,6 @@
 package com.example.daobe.objet.infrastructure.redis;
 
+import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 

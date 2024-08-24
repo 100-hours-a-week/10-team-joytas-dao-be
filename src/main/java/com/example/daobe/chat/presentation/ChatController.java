@@ -24,12 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private static final String SUBSCRIBE_URL = "/sub/chatroom/%s/messages";
+    private static final String SUBSCRIBE_URL = "/sub/chat-rooms/%s/messages";
 
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chatroom/{roomToken}/enter")
+    @MessageMapping("/chat-rooms/{roomToken}/enter")
     public void enterChatRoom(
             @DestinationVariable("roomToken") String token,
             @Payload ChatMessageDto message,
@@ -43,7 +43,7 @@ public class ChatController {
         messagingTemplate.convertAndSend(SUBSCRIBE_URL.formatted(token), newMessage);
     }
 
-    @MessageMapping("/chatroom/{roomToken}/messages")
+    @MessageMapping("/chat-rooms/{roomToken}/messages")
     public void sendMessage(
             @DestinationVariable("roomToken") String token,
             @Payload ChatMessageDto message
@@ -54,7 +54,7 @@ public class ChatController {
         );
     }
 
-    @GetMapping("/api/v1/chatroom/{objetId}/room-token")
+    @GetMapping("/api/v1/chat-rooms/{objetId}/room-token")
     public ResponseEntity<ApiResponse<ChatRoomTokenDto>> getChatRoomToken(
             @PathVariable(name = "objetId") Long objetId
     ) {
@@ -70,7 +70,7 @@ public class ChatController {
     /**
      * ?all=true : 전체 메시지 ?all=false : 최근 3개 메시지
      */
-    @GetMapping("/api/v1/chatroom/{roomToken}/messages")
+    @GetMapping("/api/v1/chat-rooms/{roomToken}/messages")
     public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getChatMessages(
             @PathVariable(name = "roomToken") String token,
             @RequestParam(name = "all") boolean isAll

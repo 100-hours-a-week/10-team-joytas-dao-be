@@ -13,6 +13,7 @@ import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,17 @@ public class ChatService {
             String roomToken,
             SimpMessageHeaderAccessor headerAccessor
     ) {
+        // 세션 속성이 없는 경우, 재인증 또는 새로운 세션 생성 처리
         if (headerAccessor.getSessionAttributes() == null) {
-            throw new IllegalStateException("Session attributes are missing");
+            log.warn("Session attributes are missing, reinitializing session or requesting re-authentication.");
+            headerAccessor.setSessionAttributes(new HashMap<>()); // 새로운 세션 초기화
         }
 
+        // 세션 속성 업데이트
         Optional.ofNullable(headerAccessor.getSessionAttributes())
                 .ifPresent(sessionAttributes -> {
                     if (message.senderName() != null) {
-                        sessionAttributes.put("sender", message.senderName());
+                        sessionAttributes.put("senderId", message.senderId());
                     }
                     if (message.roomToken() != null) {
                         sessionAttributes.put("roomId", message.roomToken());
@@ -59,6 +63,10 @@ public class ChatService {
                 });
 
         UserInfoResponseDto findUser = userService.getUserInfoWithId(message.senderId());
+        if (findUser == null) {
+            throw new IllegalArgumentException("Invalid user ID: " + message.senderId());
+        }
+
         String welcomeMessage = findUser.nickname() + "님이 입장하셨습니다.";
 
         return new ChatMessageDto.EnterMessage(

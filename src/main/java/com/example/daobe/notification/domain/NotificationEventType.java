@@ -5,10 +5,12 @@ import static com.example.daobe.notification.exception.NotificationExceptionType
 import com.example.daobe.common.domain.DomainEvent;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.notification.exception.NotificationException;
+import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import java.util.stream.Stream;
 
 public enum NotificationEventType {
     LOUNGE_INVITE_EVENT("N0001", LoungeInviteEvent.class),
+    OBJET_INVITE_EVENT("N0002", ObjetInviteEvent.class),
     ;
 
     private final String type;

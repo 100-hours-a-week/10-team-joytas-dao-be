@@ -51,7 +51,7 @@ public class ChatService {
         Optional.ofNullable(headerAccessor.getSessionAttributes())
                 .ifPresent(sessionAttributes -> {
                     if (message.senderName() != null) {
-                        sessionAttributes.put("sender", message.senderName());
+                        sessionAttributes.put("senderId", message.senderId());
                     }
                     if (message.roomToken() != null) {
                         sessionAttributes.put("roomId", message.roomToken());

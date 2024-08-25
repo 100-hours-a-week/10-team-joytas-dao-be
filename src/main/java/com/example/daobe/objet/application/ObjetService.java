@@ -21,6 +21,7 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
@@ -38,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +55,7 @@ public class ObjetService {
     private final ObjetSharerRepository objetSharerRepository;
     private final ChatRoomService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
@@ -89,14 +92,17 @@ public class ObjetService {
                 .map(sharerId -> {
                     User user = userRepository.findById(sharerId)
                             .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-                    return ObjetSharer.builder()
+                    ObjetSharer newObjetSharer = ObjetSharer.builder()
                             .user(user)
                             .objet(objet)
                             .build();
+
+                    objetSharerRepository.save(newObjetSharer);
+                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
+
+                    return newObjetSharer;
                 })
                 .toList();
-
-        objetSharerRepository.saveAll(objetSharers);
 
         objet.updateUserObjets(objetSharers);
 
@@ -140,6 +146,8 @@ public class ObjetService {
                         .objet(findObjet)
                         .build();
                 objetSharerRepository.save(newObjetSharer);
+
+                eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
 
                 // 관계 설정
                 findObjet.getObjetSharers().add(newObjetSharer);

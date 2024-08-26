@@ -35,7 +35,7 @@ public class ChatController {
             @Payload ChatMessageDto message,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        ChatMessageDto.EnterMessage newMessage = chatService.createEnterMessageAndSetSessionAttribute(
+        ChatMessageDto.EnterAndLeaveMessage newMessage = chatService.createEnterMessageAndSetSessionAttribute(
                 message,
                 token,
                 headerAccessor
@@ -51,6 +51,17 @@ public class ChatController {
         messagingTemplate.convertAndSend(
                 SUBSCRIBE_URL.formatted(token),
                 chatService.createMessage(message, token)
+        );
+    }
+
+    @MessageMapping("/chat-rooms/{roomToken}/exit")
+    public void leaveChatRoom(
+            @DestinationVariable("roomToken") String token,
+            SimpMessageHeaderAccessor simpMessageHeaderAccessor
+    ) {
+        messagingTemplate.convertAndSend(
+                SUBSCRIBE_URL.formatted(token),
+                chatService.leaveChatRoom(simpMessageHeaderAccessor)
         );
     }
 

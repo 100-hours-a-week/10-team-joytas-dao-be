@@ -1,6 +1,7 @@
 package com.example.daobe.chat.application;
 
 import static com.example.daobe.chat.domain.MessageType.ENTER;
+import static com.example.daobe.chat.domain.MessageType.LEAVE;
 import static com.example.daobe.chat.domain.MessageType.TALK;
 
 import com.example.daobe.chat.application.dto.ChatMessageDto;
@@ -11,11 +12,12 @@ import com.example.daobe.chat.domain.repository.ChatMessageRepository;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
+import com.example.daobe.user.exception.UserException;
+import com.example.daobe.user.exception.UserExceptionType;
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -40,37 +42,29 @@ public class ChatService {
         return new ChatRoomTokenDto(findChatRoom.getRoomToken());
     }
 
-    public ChatMessageDto.EnterMessage createEnterMessageAndSetSessionAttribute(
+    public ChatMessageDto.EnterAndLeaveMessage createEnterMessageAndSetSessionAttribute(
             ChatMessageDto message,
             String roomToken,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        // 세션 속성이 없는 경우, 재인증 또는 새로운 세션 생성 처리
-        if (headerAccessor.getSessionAttributes() == null) {
-            log.warn("Session attributes are missing, reinitializing session or requesting re-authentication.");
-            headerAccessor.setSessionAttributes(new HashMap<>()); // 새로운 세션 초기화
+        try {
+            Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("senderId", message.senderId());
+            headerAccessor.getSessionAttributes().put("senderName", message.senderName());
+            headerAccessor.getSessionAttributes().put("roomToken", roomToken);
+        } catch (Exception e) {
+            throw new RuntimeException("SOCKET_CONNECTION_FAILED_EXCEPTION");
         }
-
-        // 세션 속성 업데이트
-        Optional.ofNullable(headerAccessor.getSessionAttributes())
-                .ifPresent(sessionAttributes -> {
-                    if (message.senderName() != null) {
-                        sessionAttributes.put("senderId", message.senderId());
-                    }
-                    if (message.roomToken() != null) {
-                        sessionAttributes.put("roomId", message.roomToken());
-                    }
-                });
 
         UserInfoResponseDto findUser = userService.getUserInfoWithId(message.senderId());
         if (findUser == null) {
-            throw new IllegalArgumentException("Invalid user ID: " + message.senderId());
+            throw new UserException(UserExceptionType.NOT_EXIST_USER);
         }
 
         String welcomeMessage = findUser.nickname() + "님이 입장하셨습니다.";
 
-        return new ChatMessageDto.EnterMessage(
+        return new ChatMessageDto.EnterAndLeaveMessage(
                 ENTER.name(),
+                message.senderId(),
                 roomToken,
                 welcomeMessage,
                 LocalDateTime.now()
@@ -118,4 +112,18 @@ public class ChatService {
                 .toList();
     }
 
+    public ChatMessageDto.EnterAndLeaveMessage leaveChatRoom(SimpMessageHeaderAccessor headerAccessor) {
+        String roomToken = (String) headerAccessor.getSessionAttributes().get("roomToken");
+        String senderName = (String) headerAccessor.getSessionAttributes().get("senderName");
+        Long senderId = (Long) headerAccessor.getSessionAttributes().get("senderId");
+        String leaveMessage = senderName + "님이 퇴장하셨습니다.";
+
+        return new ChatMessageDto.EnterAndLeaveMessage(
+                LEAVE.name(),
+                senderId,
+                roomToken,
+                leaveMessage,
+                LocalDateTime.now()
+        );
+    }
 }

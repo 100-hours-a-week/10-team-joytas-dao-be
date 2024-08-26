@@ -13,8 +13,9 @@ public record ChatMessageDto(
         String message,
         LocalDateTime createdAt
 ) {
-    public record EnterMessage(
+    public record EnterAndLeaveMessage(
             String Type,
+            Long senderId,
             String roomToken,
             String message,
             LocalDateTime createdAt

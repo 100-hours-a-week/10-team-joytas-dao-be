@@ -21,7 +21,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -73,12 +72,12 @@ public class Lounge extends BaseTimeEntity {
 
     public void softDelete(Long userId) {
         validate(userId);
+        isOwnerOrThrow(userId);
         this.status = LoungeStatus.DELETED;
     }
 
     public void validate(Long userId) {
         isNotActiveOrThrow();
-        isOwnerOrThrow(userId);
         isSharerOrThrow(userId);
     }
 
@@ -89,7 +88,7 @@ public class Lounge extends BaseTimeEntity {
     }
 
     private void isOwnerOrThrow(Long userId) {
-        if (!Objects.equals(userId, id)) {
+        if (userId != user.getId()) {
             throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
     }

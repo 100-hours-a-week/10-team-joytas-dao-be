@@ -12,8 +12,6 @@ import com.example.daobe.chat.domain.repository.ChatMessageRepository;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
-import com.example.daobe.user.exception.UserException;
-import com.example.daobe.user.exception.UserExceptionType;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -56,17 +54,16 @@ public class ChatService {
         }
 
         UserInfoResponseDto findUser = userService.getUserInfoWithId(message.senderId());
-        if (findUser == null) {
-            throw new UserException(UserExceptionType.NOT_EXIST_USER);
-        }
 
-        String welcomeMessage = findUser.nickname() + "님이 입장하셨습니다.";
+        log.info("findUser for enter the chatting-room: {}", findUser.nickname());
+        log.info("headerAccessor - senderId: {}", headerAccessor.getSessionAttributes().get("senderId"));
+        log.info("headerAccessor - senderName: {}", headerAccessor.getSessionAttributes().get("senderName"));
 
         return new ChatMessageDto.EnterAndLeaveMessage(
                 ENTER.name(),
                 message.senderId(),
                 roomToken,
-                welcomeMessage,
+                "%s님이 입장하셨습니다.".formatted(findUser.nickname()),
                 LocalDateTime.now()
         );
     }

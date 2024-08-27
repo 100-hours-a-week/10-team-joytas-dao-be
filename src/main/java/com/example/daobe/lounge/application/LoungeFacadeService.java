@@ -1,6 +1,7 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
+import static com.example.daobe.objet.domain.ObjetStatus.ACTIVE;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
@@ -55,6 +56,7 @@ public class LoungeFacadeService {
         findLounge.validate(userId);
         List<LoungeDetailInfoDto.ObjetInfo> objetInfos = findLounge.getObjets()
                 .stream()
+                .filter(objet -> objet.getStatus() == ACTIVE)
                 .map(ObjetInfo::of)
                 .toList();
 

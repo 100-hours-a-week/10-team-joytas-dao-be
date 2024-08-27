@@ -1,6 +1,7 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
+import static com.example.daobe.objet.domain.ObjetStatus.ACTIVE;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
@@ -15,7 +16,6 @@ import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
@@ -35,7 +35,6 @@ public class LoungeFacadeService {
     private final UserRepository userRepository;
     private final LoungeService loungeService;
     private final LoungeSharerRepository loungeSharerRepository;
-    private final ObjetRepository objetRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -54,13 +53,10 @@ public class LoungeFacadeService {
 
     public LoungeDetailInfoDto getLoungeDetail(Long userId, Long loungeId) {
         Lounge findLounge = findLoungeById(loungeId);
-        findUserById(userId);
-
-        // ACTIVE 상태가 아닌 라운지라면 예외 발생
-        findLounge.validateLoungeStatus();
-
-        List<LoungeDetailInfoDto.ObjetInfo> objetInfos = objetRepository
-                .findLoungeObjetByUser(loungeId, userId).stream()
+        findLounge.validate(userId);
+        List<LoungeDetailInfoDto.ObjetInfo> objetInfos = findLounge.getObjets()
+                .stream()
+                .filter(objet -> objet.getStatus() == ACTIVE)
                 .map(ObjetInfo::of)
                 .toList();
 
@@ -90,7 +86,7 @@ public class LoungeFacadeService {
     public void delete(Long userId, Long loungeId) {
         User findUser = findUserById(userId);
         Lounge findLounge = findLoungeById(loungeId);
-        findLounge.softDelete(findUser);
+        findLounge.softDelete(findUser.getId());
     }
 
     // find

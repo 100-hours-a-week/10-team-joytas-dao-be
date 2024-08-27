@@ -1,8 +1,11 @@
 package com.example.daobe.lounge.domain;
 
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_OWNER_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ACTIVE_LOUNGE_EXCEPTION;
+
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
@@ -68,21 +71,34 @@ public class Lounge extends BaseTimeEntity {
         this.status = status;
     }
 
-    public void softDelete(User owner) {
-        validateLoungeOwner(owner);
-        validateLoungeStatus();
+    public void softDelete(Long userId) {
+        validate(userId);
         this.status = LoungeStatus.DELETED;
     }
 
-    public void validateLoungeStatus() {
-        if (status.isDeleted() || status.isInactive()) {
-            throw new LoungeException(LoungeExceptionType.NOT_ACTIVE_LOUNGE_EXCEPTION);
+    public void validate(Long userId) {
+        isNotActiveOrThrow();
+        isOwnerOrThrow(userId);
+        isSharerOrThrow(userId);
+    }
+
+    private void isNotActiveOrThrow() {
+        if (!status.isActive()) {
+            throw new LoungeException(NOT_ACTIVE_LOUNGE_EXCEPTION);
         }
     }
 
-    private void validateLoungeOwner(User owner) {
-        if (!Objects.equals(owner, user)) {
-            throw new LoungeException(LoungeExceptionType.INVALID_LOUNGE_OWNER_EXCEPTION);
+    private void isOwnerOrThrow(Long userId) {
+        if (!Objects.equals(userId, id)) {
+            throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
+    }
+
+    private void isSharerOrThrow(Long userId) {
+        loungeSharers.stream()
+                .map(loungeSharer -> loungeSharer.getUser().getId())
+                .filter(loungeSharer -> loungeSharer.equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION));
     }
 }

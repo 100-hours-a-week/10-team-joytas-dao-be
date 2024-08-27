@@ -249,6 +249,9 @@ public class ObjetService {
         Objet findObjet = objetRepository.findById(objetId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
 
+        // 활성화된 오브제가 아니라면 예외 발
+        findObjet.isActiveOrThrow();
+
         List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
         List<SharerInfo> sharerInfos = objetSharers.stream()
                 .map(sharer -> SharerInfo.of(
@@ -317,6 +320,5 @@ public class ObjetService {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
     }
-
 }
 

@@ -37,15 +37,20 @@ public class NotificationPublisher {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void publishEvent(DomainEvent domainEvent) {
         Long receiveUserId = domainEvent.getReceiveUserId();
+        Long sendUserId = domainEvent.getSendUserId();
         String receiveEmitterId = receiveUserId.toString();
         NotificationEmitter emitters = emitterRepository.findAllEmitterByUserId(receiveEmitterId);
         NotificationEventType eventType = NotificationEventType.getEventTypeByDomainEvent(domainEvent);
         emitters.sendToClient(NotificationPayload.of(domainEvent, eventType.type()));
 
-        User findUser = userRepository.findById(receiveUserId)
+        User sendUser = userRepository.findById(sendUserId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        User receiveUser = userRepository.findById(receiveUserId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+
         Notification newNotification = Notification.builder()
-                .user(findUser)
+                .sendUser(sendUser)
+                .receiveUser(receiveUser)
                 .domainId(domainEvent.getDomainId())
                 .type(eventType)
                 .build();

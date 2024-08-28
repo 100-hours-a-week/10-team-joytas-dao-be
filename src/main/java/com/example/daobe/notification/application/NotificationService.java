@@ -24,7 +24,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     public List<NotificationInfoResponseDto> getNotificationList(Long userId) {
-        List<Notification> notificationList = notificationRepository.findByUserId(userId);
+        List<Notification> notificationList = notificationRepository.findByReceiveUserId(userId);
 
         return notificationList.stream()
                 .map((notification) -> {

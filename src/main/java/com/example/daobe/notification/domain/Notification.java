@@ -33,9 +33,13 @@ public class Notification extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "receive_user_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private User receiveUser;
+
+    @JoinColumn(name = "send_user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User sendUser;
 
     @Column(name = "domain_id")
     private Long domainId;
@@ -47,15 +51,16 @@ public class Notification extends BaseTimeEntity {
     private boolean isRead;
 
     @Builder
-    public Notification(User user, Long domainId, NotificationEventType type) {
-        this.user = user;
+    public Notification(User receiveUser, User sendUser, Long domainId, NotificationEventType type) {
+        this.receiveUser = receiveUser;
+        this.sendUser = sendUser;
         this.domainId = domainId;
         this.type = type;
         this.isRead = false;
     }
 
     public void updateReadStateIfOwnNotification(Long userId) {
-        if (Objects.equals(user.getId(), userId)) {
+        if (Objects.equals(receiveUser.getId(), userId)) {
             isRead = true;
         }
         throw new NotificationException(IS_NOT_OWN_NOTIFICATION);

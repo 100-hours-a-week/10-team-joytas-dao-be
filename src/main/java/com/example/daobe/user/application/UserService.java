@@ -71,4 +71,10 @@ public class UserService {
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);
     }
+
+    // FIXME: External Service
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    }
 }

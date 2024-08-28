@@ -8,7 +8,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class NotificationSubscribeService {
 
     private static final String DETERMINE = "_";
     private static final Long DEFAULT_TIMEOUT = 44 * 1000L;  // 기본 지속 시간 44초

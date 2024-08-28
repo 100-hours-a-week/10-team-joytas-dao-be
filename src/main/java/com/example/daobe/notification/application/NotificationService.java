@@ -1,34 +1,46 @@
 package com.example.daobe.notification.application;
 
-import com.example.daobe.notification.domain.NotificationEmitter;
-import com.example.daobe.notification.domain.repository.EmitterRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import static com.example.daobe.notification.exception.NotificationExceptionType.NOT_EXIST_NOTIFICATION;
 
+import com.example.daobe.notification.application.dto.NotificationInfoResponseDto;
+import com.example.daobe.notification.domain.Notification;
+import com.example.daobe.notification.domain.convert.DomainEventConvertMapper;
+import com.example.daobe.notification.domain.convert.dto.DomainInfo;
+import com.example.daobe.notification.domain.repository.NotificationRepository;
+import com.example.daobe.notification.exception.NotificationException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private static final String DETERMINE = "_";
-    private static final Long DEFAULT_TIMEOUT = 44 * 1000L;  // 기본 지속 시간 44초
+    private final DomainEventConvertMapper domainEventConvertMapper;
+    private final NotificationRepository notificationRepository;
 
-    private final EmitterRepository emitterRepository;
+    public List<NotificationInfoResponseDto> getNotificationList(Long userId) {
+        List<Notification> notificationList = notificationRepository.findByUserId(userId);
 
-    public SseEmitter subscribeNotification(Long userId) {
-        String emitterId = userId + DETERMINE + System.currentTimeMillis();
-        NotificationEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
-        emitter.sendToClient(DummyPayload.of());
-        return emitter.getSingleEmitter();
+        return notificationList.stream()
+                .map((notification) -> {
+                    DomainInfo domainInfo = domainEventConvertMapper.convert(
+                            notification.getType(), notification.getDomainId()
+                    );
+                    return NotificationInfoResponseDto.of(notification, domainInfo);
+                })
+                .toList();
     }
 
-    // Nested
-    public record DummyPayload(
-            String message
-    ) {
-
-        public static DummyPayload of() {
-            return new DummyPayload("connect success");
-        }
+    @Transactional
+    public void readNotification(Long userId, Long notificationId) {
+        Notification findNotification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationException(NOT_EXIST_NOTIFICATION));
+        findNotification.updateReadStateIfOwnNotification(userId);
+        notificationRepository.save(findNotification);
     }
 }

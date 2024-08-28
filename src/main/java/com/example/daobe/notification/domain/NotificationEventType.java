@@ -25,11 +25,14 @@ public enum NotificationEventType {
         return type;
     }
 
-    public static String getEventTypeByDomainEvent(DomainEvent domainEvent) {
+    public String getClassName() {
+        return eventClass.getName().toLowerCase();
+    }
+
+    public static NotificationEventType getEventTypeByDomainEvent(DomainEvent domainEvent) {
         return Stream.of(NotificationEventType.values())
                 .filter(eventType -> eventType.eventClass.equals(domainEvent.getClass()))
                 .findFirst()
-                .orElseThrow(() -> new NotificationException(NON_MATCH_DOMAIN_EVENT_TYPE))
-                .toString();
+                .orElseThrow(() -> new NotificationException(NON_MATCH_DOMAIN_EVENT_TYPE));
     }
 }

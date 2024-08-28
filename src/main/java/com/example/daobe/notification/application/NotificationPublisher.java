@@ -3,10 +3,12 @@ package com.example.daobe.notification.application;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.common.domain.DomainEvent;
-import com.example.daobe.notification.application.dto.NotificationPayload;
+import com.example.daobe.notification.application.dto.NotificationInfoResponseDto;
 import com.example.daobe.notification.domain.Notification;
 import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.NotificationEventType;
+import com.example.daobe.notification.domain.convert.DomainEventConvertMapper;
+import com.example.daobe.notification.domain.convert.dto.DomainInfo;
 import com.example.daobe.notification.domain.repository.EmitterRepository;
 import com.example.daobe.notification.domain.repository.NotificationRepository;
 import com.example.daobe.user.domain.User;
@@ -28,6 +30,7 @@ public class NotificationPublisher {
     private final UserRepository userRepository;
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final DomainEventConvertMapper domainEventConvertMapper;
 
     @Async
     @TransactionalEventListener(
@@ -36,17 +39,17 @@ public class NotificationPublisher {
     )
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void publishEvent(DomainEvent domainEvent) {
-        Long receiveUserId = domainEvent.getReceiveUserId();
         Long sendUserId = domainEvent.getSendUserId();
+        User sendUser = userRepository.findById(sendUserId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+
+        Long receiveUserId = domainEvent.getReceiveUserId();
+        User receiveUser = userRepository.findById(receiveUserId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+
         String receiveEmitterId = receiveUserId.toString();
         NotificationEmitter emitters = emitterRepository.findAllEmitterByUserId(receiveEmitterId);
         NotificationEventType eventType = NotificationEventType.getEventTypeByDomainEvent(domainEvent);
-        emitters.sendToClient(NotificationPayload.of(domainEvent, eventType.type()));
-
-        User sendUser = userRepository.findById(sendUserId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-        User receiveUser = userRepository.findById(receiveUserId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
         Notification newNotification = Notification.builder()
                 .sendUser(sendUser)
@@ -54,6 +57,10 @@ public class NotificationPublisher {
                 .domainId(domainEvent.getDomainId())
                 .type(eventType)
                 .build();
-        notificationRepository.save(newNotification);
+        Notification notification = notificationRepository.save(newNotification);
+
+        DomainInfo domainInfo = domainEventConvertMapper.convert(eventType, domainEvent.getDomainId());
+        NotificationInfoResponseDto payload = NotificationInfoResponseDto.of(notification, domainInfo);
+        emitters.sendToClient(payload);
     }
 }

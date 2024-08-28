@@ -8,7 +8,7 @@ public record NotificationInfoResponseDto(
         Long notificationId,
         String type,
         boolean isRead,
-        UserInfo author,
+        UserInfo sender,
         DomainInfo detail
 ) {
 
@@ -17,7 +17,7 @@ public record NotificationInfoResponseDto(
                 notification.getId(),
                 notification.getType().type(),
                 notification.isRead(),
-                UserInfo.of(notification.getUser()),
+                UserInfo.of(notification.getSendUser()),
                 domainInfo
         );
     }

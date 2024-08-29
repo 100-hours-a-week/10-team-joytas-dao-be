@@ -1,10 +1,9 @@
 package com.example.daobe.lounge.application.dto;
 
+import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.domain.Objet;
 import java.util.List;
-import lombok.Builder;
 
-@Builder
 public record LoungeDetailInfoDto(
         Long loungeId,
         String name,
@@ -12,18 +11,27 @@ public record LoungeDetailInfoDto(
         Long userId,
         List<ObjetInfo> objets
 ) {
-    @Builder
+    public static LoungeDetailInfoDto of(Lounge lounge, List<ObjetInfo> objetInfos) {
+        return new LoungeDetailInfoDto(
+                lounge.getId(),
+                lounge.getName(),
+                lounge.getType().getTypeName(),
+                lounge.getUser().getId(),
+                objetInfos
+        );
+    }
+
     public record ObjetInfo(
             Long objetId,
             String type,
             String name
     ) {
         public static ObjetInfo of(Objet objet) {
-            return ObjetInfo.builder()
-                    .objetId(objet.getObjetId())
-                    .type(objet.getType().getType())
-                    .name(objet.getName())
-                    .build();
+            return new ObjetInfo(
+                    objet.getObjetId(),
+                    objet.getType().getType(),
+                    objet.getName()
+            );
         }
     }
 }

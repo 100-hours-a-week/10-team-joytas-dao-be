@@ -1,4 +1,4 @@
-package com.example.daobe.upload.s3;
+package com.example.daobe.upload.infrastructure.s3;
 
 import static com.example.daobe.upload.exception.UploadExceptionType.FILE_ENCODE_FAIL;
 import static com.example.daobe.upload.exception.UploadExceptionType.UPLOAD_IMAGE_FAIL;

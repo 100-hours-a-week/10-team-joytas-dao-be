@@ -2,6 +2,7 @@ package com.example.daobe.user.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.user.application.UserService;
+import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,19 +66,29 @@ public class UserController {
         ));
     }
 
-    // FIXME: 이미지 업로드와 사용자 프로필 정보 분리
+
+    @Deprecated(since = "2024-08-29")
     @PatchMapping("/profile")
-    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
+    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfileWithProfileImage(
             @AuthenticationPrincipal Long userId,
-//            @RequestBody UpdateProfileRequestDto request,
             @RequestParam("nickname") String nickname,
-            @RequestParam(value = "profile_image", required = false) MultipartFile profileImage
+            @RequestParam(value = "profile_image") MultipartFile profileImage
     ) {
         return ResponseEntity.ok(new ApiResponse<>(
                 "UPDATE_SUCCESS",
-                profileImage == null ?
-                        userService.updateProfile(userId, nickname) :
-                        userService.updateProfileWithProfileImage(userId, nickname, profileImage)
+                userService.updateProfileWithProfileImage(userId, nickname, profileImage)
         ));
     }
+
+    @PatchMapping("/nickname")
+    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateNickname(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody UpdateProfileRequestDto request
+    ) {
+        return ResponseEntity.ok(new ApiResponse<>(
+                "UPDATE_NICKNAME_SUCCESS",
+                userService.updateNickname(userId, request)
+        ));
+    }
+
 }

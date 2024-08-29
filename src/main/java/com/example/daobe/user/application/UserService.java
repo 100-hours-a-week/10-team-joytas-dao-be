@@ -4,6 +4,7 @@ import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKN
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.upload.application.UploadService;
+import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.domain.User;
@@ -44,15 +45,16 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponseDto updateProfile(Long userId, String nickname) {
+    public UpdateProfileResponseDto updateNickname(Long userId, UpdateProfileRequestDto request) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
-        findUser.updateNickname(nickname);
+        findUser.updateNickname(request.nickname());
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);
     }
 
+    @Deprecated(since = "2024-08-29")
     @Transactional
     public UpdateProfileResponseDto updateProfileWithProfileImage(
             Long userId,

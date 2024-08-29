@@ -6,13 +6,10 @@ import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.lounge.domain.LoungeSharer;
-import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +21,6 @@ public class LoungeFacadeService {
     private final UserService userService;
     private final LoungeService loungeService;
     private final LoungeSharerService loungeSharerService;
-    private final ApplicationEventPublisher eventPublisher;
 
     // 라운지 생성
     @Transactional
@@ -59,11 +55,6 @@ public class LoungeFacadeService {
     public void inviteUser(LoungeInviteDto request, Long inviterId) {
         User findUser = userService.getUserById(request.userId());
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
-        LoungeSharer loungeSharer = loungeSharerService.inviteUser(findUser, findLounge, inviterId);
-
-        // 초대 성공시 이벤트 발행
-        if (loungeSharer != null) {
-            eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
-        }
+        loungeSharerService.inviteUser(findUser, findLounge, inviterId);
     }
 }

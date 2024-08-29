@@ -5,16 +5,19 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOU
 
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
+import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class LoungeSharerService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final LoungeSharerRepository loungeSharerRepository;
 
     public void createAndSaveLoungeSharer(User user, Lounge lounge) {
@@ -25,7 +28,7 @@ public class LoungeSharerService {
         loungeSharerRepository.save(loungeSharer);
     }
 
-    public LoungeSharer inviteUser(User user, Lounge lounge, Long inviterId) {
+    public void inviteUser(User user, Lounge lounge, Long inviterId) {
         // 활성 상태인 라운지인지 검증
         lounge.isActiveOrThrow();
 
@@ -41,7 +44,8 @@ public class LoungeSharerService {
                     .lounge(lounge)
                     .build();
             loungeSharerRepository.save(loungeSharer);
-            return loungeSharer;
+            eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
+            return;
         }
         throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
     }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum LoungeResult {
+public enum LoungeResultType {
     LOUNGE_CREATED_SUCCESS(HttpStatus.CREATED),
     LOUNGE_LIST_LOADED_SUCCESS(HttpStatus.OK),
     LOUNGE_INFO_LOADED_SUCCESS(HttpStatus.OK),
@@ -14,7 +14,7 @@ public enum LoungeResult {
 
     private final HttpStatus httpStatus;
 
-    LoungeResult(HttpStatus httpStatus) {
+    LoungeResultType(HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
     }
 }

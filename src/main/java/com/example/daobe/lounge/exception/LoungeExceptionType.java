@@ -12,8 +12,8 @@ public enum LoungeExceptionType implements BaseExceptionType {
     ALREADY_DELETED_LOUNGE_EXCEPTION("이미 삭제된 라운지입니다.", HttpStatus.METHOD_NOT_ALLOWED),
     ;
 
-    private String message;
-    private HttpStatus status;
+    private final String message;
+    private final HttpStatus status;
 
     LoungeExceptionType(String message, HttpStatus status) {
         this.message = message;

@@ -49,7 +49,8 @@ public class UserService {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
-        findUser.updateNickname(request.nickname());
+        findUser.updateUserInfo(request.nickname(), request.profileUrl());
+
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);
     }

@@ -1,10 +1,10 @@
 package com.example.daobe.lounge.presentation;
 
-import static com.example.daobe.lounge.domain.LoungeResultType.LOUNGE_CREATED_SUCCESS;
-import static com.example.daobe.lounge.domain.LoungeResultType.LOUNGE_DELETED_SUCCESS;
-import static com.example.daobe.lounge.domain.LoungeResultType.LOUNGE_INFO_LOADED_SUCCESS;
-import static com.example.daobe.lounge.domain.LoungeResultType.LOUNGE_INVITE_SUCCESS;
-import static com.example.daobe.lounge.domain.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_CREATED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_DELETED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INFO_LOADED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;

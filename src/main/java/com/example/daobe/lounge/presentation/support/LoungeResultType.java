@@ -1,4 +1,4 @@
-package com.example.daobe.lounge.domain;
+package com.example.daobe.lounge.presentation.support;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

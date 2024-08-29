@@ -4,10 +4,12 @@ import com.example.daobe.common.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum NotificationExceptionType implements BaseExceptionType {
-    NON_MATCH_DOMAIN_EVENT_TYPE("일치하는 도메인 타입이 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    IS_NOT_SINGLE_EMITTER("생성된 이미터가 1개가 아닙니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     NOT_EXIST_NOTIFICATION("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
     IS_NOT_OWN_NOTIFICATION("다른 사용자의 알림입니다.", HttpStatus.FORBIDDEN),
+    IS_NOT_SINGLE_EMITTER("생성된 이미터가 1개가 아닙니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    NON_MATCH_DOMAIN_EVENT_TYPE("일치하는 도메인 타입이 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    UN_SUPPORT_DOMAIN_EVENT_TYPE("지원하지 않는 도메인 이벤트 타입입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    JSON_RESPONSE_SERIALIZATION_ERROR("응답을 JSON 으로 변환하지 못했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final String message;

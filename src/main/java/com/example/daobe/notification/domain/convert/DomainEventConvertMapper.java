@@ -1,7 +1,10 @@
 package com.example.daobe.notification.domain.convert;
 
+import static com.example.daobe.notification.exception.NotificationExceptionType.UN_SUPPORT_DOMAIN_EVENT_TYPE;
+
 import com.example.daobe.notification.domain.NotificationEventType;
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
+import com.example.daobe.notification.exception.NotificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +24,7 @@ public class DomainEventConvertMapper {
         String className = eventType.getClassName();
         DomainEventConvert converter = convertMap.get(className);
         if (converter == null) {
-            throw new RuntimeException("일치하는 도메인 이벤트가 없습니다.");
+            throw new NotificationException(UN_SUPPORT_DOMAIN_EVENT_TYPE);
         }
         return converter.convertToDomainInfo(domainId);
     }

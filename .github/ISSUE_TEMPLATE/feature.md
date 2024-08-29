@@ -27,4 +27,4 @@ assignees: ''
 <!-- 연결된 이슈 정보를 작성해주세염 -->
 
 - closes
-- ref
+- resolves

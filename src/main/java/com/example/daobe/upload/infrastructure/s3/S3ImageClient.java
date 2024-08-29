@@ -1,4 +1,4 @@
-package com.example.daobe.upload.s3;
+package com.example.daobe.upload.infrastructure.s3;
 
 import com.example.daobe.common.config.S3Properties;
 import com.example.daobe.upload.application.ImageClient;

@@ -54,19 +54,28 @@ public class User extends BaseTimeEntity {
         this.status = UserStatus.ACTIVE_FIRST_LOGIN;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-        changeToActiveStatus();
+    public void updateUserInfo(String nickname, String profileUrl) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (profileUrl != null) {
+            this.profileUrl = profileUrl;
+        }
+        updateActiveStatusIfFirstLogin();
     }
 
-    private void changeToActiveStatus() {
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
+    private void updateActiveStatusIfFirstLogin() {
         if (status.isFirstLogin()) {
             status = UserStatus.ACTIVE;
         }
-    }
-
-    public void updateProfileUrl(String profileImage) {
-        this.profileUrl = profileImage;
     }
 
     public void withdrawWithAddReason(List<String> stringReasonTypeList, String detail) {

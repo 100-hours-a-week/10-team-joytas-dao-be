@@ -1,11 +1,11 @@
 package com.example.daobe.objet.application;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
 
+import com.example.daobe.lounge.domain.Lounge;
+import com.example.daobe.lounge.domain.repository.LoungeRepository;
+import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetSignalRequestDto;
-import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.objet.domain.repository.ObjetRepository;
-import com.example.daobe.objet.exception.ObjetException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ObjetSignalService {
 
-    private final ObjetRepository objetRepository;
+    private final LoungeRepository loungeRepository;
 
-    public boolean isObjetSharer(Long userId, ObjetSignalRequestDto objetId) {
-        Objet findObjet = objetRepository.findById(objetId.objetId())
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-
-        return findObjet.getObjetSharers().stream()
-                .anyMatch(sharer -> sharer.getUser().getId().equals(userId));
+    public boolean isObjetSharer(Long userId, ObjetSignalRequestDto request) {
+        Lounge findLounge = loungeRepository.findById(request.loungeId())
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
+        return findLounge.getLoungeSharers().stream()
+                .anyMatch(loungeSharer -> loungeSharer.getUser().getId().equals(userId));
     }
 }

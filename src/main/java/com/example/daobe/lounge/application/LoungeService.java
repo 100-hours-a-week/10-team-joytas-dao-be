@@ -1,67 +1,70 @@
 package com.example.daobe.lounge.application;
 
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
+import static com.example.daobe.objet.domain.ObjetStatus.ACTIVE;
+
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
-import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto.ObjetInfo;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeStatus;
 import com.example.daobe.lounge.domain.LoungeType;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.lounge.exception.LoungeExceptionType;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoungeService {
 
     private final LoungeRepository loungeRepository;
 
-    @Transactional
-    public LoungeCreateResponseDto createLounge(LoungeCreateRequestDto request, User user) {
+    public Lounge createAndSaveLounge(LoungeCreateRequestDto request, User user) {
         Lounge lounge = Lounge.builder()
                 .user(user)
                 .name(request.name())
-                .type(LoungeType.from(request.type()))  // 라운지 타입
-                .status(LoungeStatus.ACTIVE)    // 라운지 활성화
+                .type(LoungeType.from(request.type()))
+                .status(LoungeStatus.ACTIVE)
                 .build();
-
         loungeRepository.save(lounge);
-        return LoungeCreateResponseDto.of(lounge);
+        return lounge;
     }
 
-    public List<LoungeInfoDto> findLoungeByUserId(Long userId) {
+    public List<LoungeInfoDto> getLoungeInfosByUserId(Long userId) {
         return loungeRepository.findLoungeByUserId(userId).stream()
                 .filter(lounge -> lounge.getStatus().isActive())
                 .map(LoungeInfoDto::of)
                 .toList();
     }
 
-    public Lounge findLoungeById(Long loungeId) {
-        return loungeRepository.findById(loungeId)
-                .orElseThrow(() -> new LoungeException(LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION));
+    public LoungeDetailInfoDto getLoungeDetailInfo(Long userId, Lounge lounge) {
+        validateLoungeAccess(userId, lounge);
+        List<ObjetInfo> objetInfos = lounge.getObjets()
+                .stream()
+                .filter(objet -> objet.getStatus() == ACTIVE)
+                .map(ObjetInfo::of)
+                .toList();
+        return LoungeDetailInfoDto.of(lounge, objetInfos);
     }
 
-    public LoungeDetailInfoDto createLoungeDetailInfo(
-            Long loungeId,
-            List<LoungeDetailInfoDto.ObjetInfo> objetInfos
-    ) {
-        Lounge findLounge = loungeRepository.findById(loungeId)
-                .orElseThrow(() -> new LoungeException(LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION));
-        return LoungeDetailInfoDto.builder()
-                .loungeId(loungeId)
-                .name(findLounge.getName())
-                .type(findLounge.getType().getTypeName())
-                .userId(findLounge.getUser().getId())
-                .objets(objetInfos)
-                .build();
+    public Lounge getLoungeById(Long loungeId) {
+        return loungeRepository.findById(loungeId)
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
+    }
+
+    public void deleteLoungeByUserId(User user, Lounge lounge) {
+        lounge.softDelete(user.getId());
+    }
+
+    // 조회 가능한 라운지인지  검증
+    private void validateLoungeAccess(Long userId, Lounge lounge) {
+        lounge.isActiveOrThrow();
+        lounge.isSharerOrThrow(userId);
     }
 }

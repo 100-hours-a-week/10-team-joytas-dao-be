@@ -1,9 +1,12 @@
 package com.example.daobe.notification.domain.convert;
 
+import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
+
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.exception.ObjetException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +26,7 @@ public class ObjetInviteEventConvert implements DomainEventConvert {
     @Override
     public DomainInfo convertToDomainInfo(Long domainId) {
         Objet findObjet = objetRepository.findById(domainId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 도메인 - 404"));
+                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
         return new DomainInfo(
                 findObjet.getObjetId(),
                 findObjet.getName()

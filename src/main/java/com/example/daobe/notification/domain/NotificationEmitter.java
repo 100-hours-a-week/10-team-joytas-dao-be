@@ -1,6 +1,7 @@
 package com.example.daobe.notification.domain;
 
 import static com.example.daobe.notification.exception.NotificationExceptionType.IS_NOT_SINGLE_EMITTER;
+import static com.example.daobe.notification.exception.NotificationExceptionType.JSON_RESPONSE_SERIALIZATION_ERROR;
 
 import com.example.daobe.notification.exception.NotificationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,7 +63,7 @@ public class NotificationEmitter {
         try {
             jsonValue = objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException ex) {
-            throw new RuntimeException(ex);
+            throw new NotificationException(JSON_RESPONSE_SERIALIZATION_ERROR);
         }
         return jsonValue;
     }

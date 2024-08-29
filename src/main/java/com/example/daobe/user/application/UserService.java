@@ -45,7 +45,7 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponseDto updateProfile(Long userId, UpdateProfileRequestDto request) {
+    public UpdateProfileResponseDto updateNickname(Long userId, UpdateProfileRequestDto request) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 

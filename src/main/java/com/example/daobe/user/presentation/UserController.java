@@ -80,15 +80,14 @@ public class UserController {
         ));
     }
 
-    @PatchMapping("/nickname")
-    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateNickname(
+    @PatchMapping
+    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
             @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequestDto request
     ) {
         return ResponseEntity.ok(new ApiResponse<>(
-                "UPDATE_NICKNAME_SUCCESS",
+                "UPDATE_PROFILE_SUCCESS",
                 userService.updateNickname(userId, request)
         ));
     }
-
 }

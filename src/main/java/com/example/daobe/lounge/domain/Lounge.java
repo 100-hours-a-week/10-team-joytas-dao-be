@@ -71,17 +71,12 @@ public class Lounge extends BaseTimeEntity {
     }
 
     public void softDelete(Long userId) {
-        validate(userId);
+        isActiveOrThrow();
         isOwnerOrThrow(userId);
         this.status = LoungeStatus.DELETED;
     }
 
-    public void validate(Long userId) {
-        isNotActiveOrThrow();
-        isSharerOrThrow(userId);
-    }
-
-    private void isNotActiveOrThrow() {
+    public void isActiveOrThrow() {
         if (!status.isActive()) {
             throw new LoungeException(NOT_ACTIVE_LOUNGE_EXCEPTION);
         }
@@ -93,11 +88,10 @@ public class Lounge extends BaseTimeEntity {
         }
     }
 
-    private void isSharerOrThrow(Long userId) {
+    public void isSharerOrThrow(Long userId) {
         loungeSharers.stream()
-                .map(loungeSharer -> loungeSharer.getUser().getId())
-                .filter(loungeSharer -> loungeSharer.equals(userId))
-                .findFirst()
+                .filter(loungeSharer -> loungeSharer.getUser().getId().equals(userId))
+                .findAny()
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION));
     }
 }

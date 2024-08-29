@@ -24,6 +24,14 @@ spring:
     password: dao-local-password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:mysql://localhost:3306/dao-local-db
+    user: dao-local-user
+    password: dao-local-password
+    locations: classpath:db/migration
+
   data:
     redis:
       host: localhost
@@ -35,8 +43,6 @@ spring:
       authentication-database: admin
 
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         format_sql: true

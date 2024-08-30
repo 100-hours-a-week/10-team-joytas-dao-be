@@ -4,12 +4,14 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INV
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
 
+import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,17 @@ public class LoungeSharerService {
                 .build();
         loungeSharerRepository.save(loungeSharer);
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
+    }
+
+    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
+        // 초대자가 라운지에 소속되어있는지 검증
+        if (!isExistUserInLounge(userId, loungeId)) {
+            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
+        }
+
+        List<LoungeSharer> byUserId = loungeSharerRepository
+                .findByLounge_IdAndUser_NicknameContaining(loungeId, nickname);
+        return LoungeSharerInfoResponseDto.of(byUserId);
     }
 
     // TODO: 추후 도메인 로직으로 분리

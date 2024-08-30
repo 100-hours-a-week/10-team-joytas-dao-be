@@ -5,6 +5,7 @@ import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOU
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INFO_LOADED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_SHARER_INFO_LOADED_SUCCESS;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
@@ -13,6 +14,7 @@ import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -85,5 +88,18 @@ public class LoungeController {
         loungeFacadeService.inviteUser(request, userId);
         return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
                 .body(new ApiResponse<>(LOUNGE_INVITE_SUCCESS.name(), null));
+    }
+
+    @GetMapping("/{loungeId}/search")
+    public ResponseEntity<ApiResponse<List<LoungeSharerInfoResponseDto>>> searchLoungeSharer(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long loungeId,
+            @RequestParam(value = "nickname", defaultValue = "") String nickname
+    ) {
+        return ResponseEntity.status(LOUNGE_SHARER_INFO_LOADED_SUCCESS.getHttpStatus())
+                .body(new ApiResponse<>(
+                        LOUNGE_SHARER_INFO_LOADED_SUCCESS.name(),
+                        loungeFacadeService.searchLoungeSharer(userId, nickname, loungeId)
+                ));
     }
 }

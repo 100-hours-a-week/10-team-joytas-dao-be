@@ -1,6 +1,6 @@
 package com.example.daobe.common.exception;
 
-public record ExceptionResponse(
+public record ExceptionResponseDto(
         int status,
         String message
 ) {

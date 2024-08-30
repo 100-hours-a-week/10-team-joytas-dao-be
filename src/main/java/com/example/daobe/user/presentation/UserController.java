@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -66,21 +65,7 @@ public class UserController {
         ));
     }
 
-
-    @Deprecated(since = "2024-08-29")
     @PatchMapping("/profile")
-    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfileWithProfileImage(
-            @AuthenticationPrincipal Long userId,
-            @RequestParam("nickname") String nickname,
-            @RequestParam(value = "profile_image") MultipartFile profileImage
-    ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "UPDATE_SUCCESS",
-                userService.updateProfileWithProfileImage(userId, nickname, profileImage)
-        ));
-    }
-
-    @PatchMapping
     public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
             @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequestDto request

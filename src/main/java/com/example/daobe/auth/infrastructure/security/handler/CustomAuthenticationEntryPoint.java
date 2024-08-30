@@ -3,7 +3,7 @@ package com.example.daobe.auth.infrastructure.security.handler;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import com.example.daobe.common.exception.ExceptionResponse;
+import com.example.daobe.common.exception.ExceptionResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +31,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(UTF_8.name());
 
-        ExceptionResponse errorResponse = new ExceptionResponse(
+        ExceptionResponseDto errorResponse = new ExceptionResponseDto(
                 UNAUTHORIZED.value(), failed.getMessage()
         );
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

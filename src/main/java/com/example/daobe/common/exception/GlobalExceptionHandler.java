@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ExceptionResponse(type.status().value(), ex.getMessage()));
     }
 
+    // Multipart Exception 응답
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ExceptionResponse> handleException(MultipartException ex) {
+        log.warn(ex.getMessage(), ex);
+
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(new ExceptionResponse(BAD_REQUEST.value(), ex.getMessage()));
+    }
+
     // Custom Exception 이외의 예외 응답
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
@@ -40,10 +50,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.internalServerError()
                 .body(new ExceptionResponse(INTERNAL_SERVER_ERROR.value(), SERVER_ERROR_MESSAGE));
     }
-
-    /**
-     * 스프링 MVC 예외 처리
-     */
 
     // Request Parameter 예외 응답
     @Override

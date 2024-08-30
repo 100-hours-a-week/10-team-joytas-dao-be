@@ -6,11 +6,13 @@ import com.example.daobe.common.domain.DomainEvent;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.notification.exception.NotificationException;
 import com.example.daobe.objet.domain.event.ObjetInviteEvent;
+import com.example.daobe.user.domain.event.UserPokeEvent;
 import java.util.stream.Stream;
 
 public enum NotificationEventType {
     LOUNGE_INVITE_EVENT("N0001", LoungeInviteEvent.class),
     OBJET_INVITE_EVENT("N0002", ObjetInviteEvent.class),
+    USER_POKE_EVENT("N0003", UserPokeEvent.class),
     ;
 
     private final String type;

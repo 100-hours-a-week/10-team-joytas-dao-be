@@ -5,6 +5,7 @@ import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
@@ -56,5 +57,10 @@ public class LoungeFacadeService {
         User findUser = userService.getUserById(request.userId());
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         loungeSharerService.inviteUser(findUser, findLounge, inviterId);
+    }
+
+    // 라운지 내 유저 검색
+    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
+        return loungeSharerService.searchLoungeSharer(userId, nickname, loungeId);
     }
 }

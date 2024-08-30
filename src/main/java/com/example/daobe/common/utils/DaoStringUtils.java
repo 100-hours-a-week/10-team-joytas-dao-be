@@ -6,10 +6,6 @@ public class DaoStringUtils {
 
     private static final String DEFAULT_STRING = "";
 
-    public static String concatenateStrings(String... args) {
-        return String.join(DEFAULT_STRING, args);
-    }
-
     /**
      * 여러 개의 인자를 받아서 순서대로 연결한 문자열을 반환합니다.
      *

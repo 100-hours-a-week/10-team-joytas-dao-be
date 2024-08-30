@@ -65,7 +65,7 @@ public class UserController {
         ));
     }
 
-    @PatchMapping
+    @PatchMapping("/profile")
     public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
             @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequestDto request

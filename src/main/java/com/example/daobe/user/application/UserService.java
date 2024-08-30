@@ -3,16 +3,20 @@ package com.example.daobe.user.application;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
-import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
+import com.example.daobe.user.application.dto.UserPokeRequestDto;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.UserStatus;
+import com.example.daobe.user.domain.event.UserPokeEvent;
+import com.example.daobe.user.domain.repository.UserPokeRepository;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
+import com.example.daobe.user.exception.UserExceptionType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UploadService uploadService;
+    private final UserPokeRepository userPokeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserInfoResponseDto getUserInfoWithId(Long userId) {
         User findUser = userRepository.findById(userId)
@@ -52,6 +57,18 @@ public class UserService {
 
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);
+    }
+
+    public void poke(Long userId, UserPokeRequestDto request) {
+        boolean alreadyPoke = userPokeRepository.existsByUserId(userId);
+        if (alreadyPoke) {
+            throw new UserException(UserExceptionType.ALREADY_POKE);
+        }
+
+        UserPokeEvent userPokeEvent = new UserPokeEvent(request.userId(), userId);
+        userPokeRepository.save(userPokeEvent);
+
+        eventPublisher.publishEvent(userPokeEvent);
     }
 
     // FIXME: External Service

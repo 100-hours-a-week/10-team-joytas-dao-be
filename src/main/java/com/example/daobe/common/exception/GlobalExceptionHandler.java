@@ -25,30 +25,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Custom Exception 응답
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ExceptionResponse> handleException(BaseException ex) {
+    public ResponseEntity<ExceptionResponseDto> handleException(BaseException ex) {
         log.warn(ex.getMessage(), ex);
 
         BaseExceptionType type = ex.getType();
         return ResponseEntity.status(type.status())
-                .body(new ExceptionResponse(type.status().value(), ex.getMessage()));
+                .body(new ExceptionResponseDto(type.status().value(), ex.getMessage()));
     }
 
     // Multipart Exception 응답
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<ExceptionResponse> handleException(MultipartException ex) {
+    public ResponseEntity<ExceptionResponseDto> handleException(MultipartException ex) {
         log.warn(ex.getMessage(), ex);
 
         return ResponseEntity.status(BAD_REQUEST)
-                .body(new ExceptionResponse(BAD_REQUEST.value(), ex.getMessage()));
+                .body(new ExceptionResponseDto(BAD_REQUEST.value(), ex.getMessage()));
     }
 
     // Custom Exception 이외의 예외 응답
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception ex) {
+    public ResponseEntity<ExceptionResponseDto> handleException(Exception ex) {
         log.error(ex.getMessage(), ex);
 
         return ResponseEntity.internalServerError()
-                .body(new ExceptionResponse(INTERNAL_SERVER_ERROR.value(), SERVER_ERROR_MESSAGE));
+                .body(new ExceptionResponseDto(INTERNAL_SERVER_ERROR.value(), SERVER_ERROR_MESSAGE));
     }
 
     // Request Parameter 예외 응답
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(ex.getMessage(), ex);
 
         return ResponseEntity.badRequest()
-                .body(new ExceptionResponse(BAD_REQUEST.value(), MISSING_REQUEST_PARAMETER));
+                .body(new ExceptionResponseDto(BAD_REQUEST.value(), MISSING_REQUEST_PARAMETER));
     }
 
     // No Resource Found 예외 응답
@@ -76,6 +76,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn(ex.getMessage(), ex);
 
         return ResponseEntity.status(METHOD_NOT_ALLOWED)
-                .body(new ExceptionResponse(METHOD_NOT_ALLOWED.value(), METHOD_NOT_ALLOWED.name()));
+                .body(new ExceptionResponseDto(METHOD_NOT_ALLOWED.value(), METHOD_NOT_ALLOWED.name()));
     }
 }

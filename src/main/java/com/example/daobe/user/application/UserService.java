@@ -15,7 +15,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,26 +49,6 @@ public class UserService {
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
         findUser.updateUserInfo(request.nickname(), request.profileUrl());
-
-        userRepository.save(findUser);
-        return UpdateProfileResponseDto.of(findUser);
-    }
-
-    @Deprecated(since = "2024-08-29")
-    @Transactional
-    public UpdateProfileResponseDto updateProfileWithProfileImage(
-            Long userId,
-            String nickname,
-            MultipartFile profileImage
-    ) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-
-        // TODO: S3 업로드 로직 분리
-        String imageUrl = uploadService.uploadImage(profileImage).image();
-
-        findUser.updateNickname(nickname);
-        findUser.updateProfileUrl(imageUrl);
 
         userRepository.save(findUser);
         return UpdateProfileResponseDto.of(findUser);

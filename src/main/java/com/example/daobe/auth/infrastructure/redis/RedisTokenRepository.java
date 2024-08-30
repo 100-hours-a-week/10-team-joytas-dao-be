@@ -19,32 +19,32 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RedisTokenRepository implements TokenRepository {
 
-    private static final Long TTL = 10_080L;  // FIXME: 임시 TTL 10,080 초 (7일)
-    private static final String PREFIX = "token";
-    private static final String SEPARATOR = ":";
+    private static final Long TTL = 10_080L;  // FIXME: 임시 TTL 10,080 분 (7일)
+    private static final String TOKEN_PREFIX = "token:";
 
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void save(Token token) {
-        redisTemplate.opsForValue().set(key(token.getTokenId()), serializeToken(token));
-        redisTemplate.expire(key(token.getTokenId()), TTL, TimeUnit.MINUTES);
+        String key = generateKey(token.getTokenId());
+        String value = serializeToken(token);
+        redisTemplate.opsForValue().set(key, value, TTL, TimeUnit.MINUTES);
     }
 
     @Override
     public void deleteByTokenId(String tokenId) {
-        redisTemplate.delete(key(tokenId));
+        redisTemplate.delete(generateKey(tokenId));
     }
 
     @Override
     public Optional<Token> findByTokenId(String tokenId) {
-        return Optional.ofNullable(redisTemplate.opsForValue().get(key(tokenId)))
+        return Optional.ofNullable(redisTemplate.opsForValue().get(generateKey(tokenId)))
                 .map(this::deserializeToken);
     }
 
-    private String key(String tokenId) {
-        return DaoStringUtils.concatenateStrings(PREFIX, SEPARATOR, tokenId);
+    private String generateKey(String tokenId) {
+        return DaoStringUtils.combineToString(TOKEN_PREFIX, tokenId);
     }
 
     private String serializeToken(Token token) {

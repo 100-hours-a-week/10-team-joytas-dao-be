@@ -1,5 +1,6 @@
 package com.example.daobe.objet.infrastructure.redis;
 
+import com.example.daobe.common.utils.DaoStringUtils;
 import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,12 +14,12 @@ public class RedisObjetCallRepository implements ObjetCallRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    // redis 에서 objet:{objetId} 키의 리스트 길이를 조회
     public Long getObjetLength(Long objetId) {
-        return redisTemplate.opsForList().size(key(objetId));
+        String key = generateKey(objetId);
+        return redisTemplate.opsForList().size(key);
     }
 
-    private String key(Long objetId) {
-        return OBJET_PREFIX + objetId;
+    private String generateKey(Long objetId) {
+        return DaoStringUtils.combineToString(OBJET_PREFIX, objetId);
     }
 }

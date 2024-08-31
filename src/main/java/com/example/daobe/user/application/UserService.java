@@ -65,7 +65,13 @@ public class UserService {
             throw new UserException(UserExceptionType.ALREADY_POKE);
         }
 
-        UserPokeEvent userPokeEvent = new UserPokeEvent(request.userId(), userId);
+        Long receiveUserId = request.userId();
+        boolean isExistUser = userRepository.existsById(receiveUserId);
+        if (!isExistUser) {
+            throw new UserException(NOT_EXIST_USER);
+        }
+
+        UserPokeEvent userPokeEvent = new UserPokeEvent(userId, receiveUserId);
         userPokeRepository.save(userPokeEvent);
 
         eventPublisher.publishEvent(userPokeEvent);

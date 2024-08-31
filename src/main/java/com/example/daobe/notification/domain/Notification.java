@@ -60,9 +60,9 @@ public class Notification extends BaseTimeEntity {
     }
 
     public void updateReadStateIfOwnNotification(Long userId) {
-        if (Objects.equals(receiveUser.getId(), userId)) {
-            isRead = true;
+        if (!Objects.equals(receiveUser.getId(), userId)) {
+            throw new NotificationException(IS_NOT_OWN_NOTIFICATION);
         }
-        throw new NotificationException(IS_NOT_OWN_NOTIFICATION);
+        isRead = true;
     }
 }

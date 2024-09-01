@@ -1,70 +1,60 @@
 package com.example.daobe.notification.domain;
 
-import static com.example.daobe.notification.exception.NotificationExceptionType.IS_NOT_SINGLE_EMITTER;
 import static com.example.daobe.notification.exception.NotificationExceptionType.JSON_RESPONSE_SERIALIZATION_ERROR;
 
 import com.example.daobe.notification.exception.NotificationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Getter
 public class NotificationEmitter {
 
+    private static final String DELIMITER = "_";
     private static final String NOTIFICATION_EVENT_NAME = "NOTIFICATION_EVENT";
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Map<String, SseEmitter> emitterMap;
+    private final Long userId;
+    private final String emitterId;
+    private final SseEmitter emitter;
 
-    public NotificationEmitter(Map<String, SseEmitter> emitterMap) {
-        this.emitterMap = emitterMap;
+    @Builder
+    public NotificationEmitter(Long userId, SseEmitter emitter) {
+        this.userId = userId;
+        this.emitterId = generateEmitterId(userId);
+        this.emitter = emitter;
     }
 
-    public void sendToClient(Object event) {
-        emitterMap.forEach((key, emitter) -> {
-            sendToClient(emitter, generateEmitterId(), event);
-        });
+    private String generateEmitterId(Long userId) {
+        return userId + DELIMITER + System.currentTimeMillis();
     }
 
-    public SseEmitter getSingleEmitter() {
-        if (emitterMap.size() == 1) {
-            return emitterMap.values().stream()
-                    .findFirst()
-                    .get();
+    public void sendToClient(Object data) {
+        try {
+            emitter.send(SseEmitter.event()
+                    .id(generateEventId())
+                    .name(NOTIFICATION_EVENT_NAME)
+                    .data(extractEventDataAsJson(data))
+            );
+        } catch (IOException | RuntimeException ex) {
+            emitter.completeWithError(ex);
         }
-        throw new NotificationException(IS_NOT_SINGLE_EMITTER);
     }
 
-    private String generateEmitterId() {
+    private String generateEventId() {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
-    private void sendToClient(
-            SseEmitter emitter,
-            String emitterId,
-            Object data
-    ) {
-        try {
-            emitter.send(
-                    SseEmitter.event()
-                            .id(emitterId)
-                            .name(NOTIFICATION_EVENT_NAME)
-                            .data(extractEventDataAsJson(data))
-            );
-        } catch (IOException | RuntimeException ex) {
-            emitter.complete();
-        }
-    }
-
     private String extractEventDataAsJson(Object data) {
-        final String jsonValue;
         try {
-            jsonValue = objectMapper.writeValueAsString(data);
+            return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException ex) {
             throw new NotificationException(JSON_RESPONSE_SERIALIZATION_ERROR);
         }
-        return jsonValue;
     }
 }

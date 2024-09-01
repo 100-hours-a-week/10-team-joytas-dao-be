@@ -56,15 +56,12 @@ public class ObjetService {
     private final ChatRoomService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
-            throws JsonProcessingException {
-        Lounge lounge = loungeRepository.findById(request.loungeId())
-                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
-
-        User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
+        Lounge lounge = getLoungeById(request.loungeId());
+        User creator = getUserById(userId);
         ChatRoom chatRoom = chatRoomService.createChatRoom();
 
         Objet objet = Objet.builder()
@@ -77,33 +74,12 @@ public class ObjetService {
                 .imageUrl((imageUrl))
                 .chatRoom(chatRoom)
                 .build();
-
         objetRepository.save(objet);
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        List<Long> sharerIds = parseSharerData(request.sharers());
+        sharerIds.add(userId);
 
-        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
-        });
-
-        // 생성자를 sharer에 추가
-        sharerData.add(userId);
-
-        List<ObjetSharer> objetSharers = sharerData.stream()
-                .map(sharerId -> {
-                    User user = userRepository.findById(sharerId)
-                            .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-                    ObjetSharer newObjetSharer = ObjetSharer.builder()
-                            .user(user)
-                            .objet(objet)
-                            .build();
-
-                    objetSharerRepository.save(newObjetSharer);
-                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
-
-                    return newObjetSharer;
-                })
-                .toList();
-
+        List<ObjetSharer> objetSharers = manageSharers(objet, sharerIds, userId);
         objet.updateUserObjets(objetSharers);
 
         return ObjetCreateResponseDto.of(objet);
@@ -319,6 +295,40 @@ public class ObjetService {
         if (!findObjet.getUser().getId().equals(userId)) {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
+    }
+
+    private Lounge getLoungeById(Long loungeId) {
+        return loungeRepository.findById(loungeId)
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    }
+
+    private List<Long> parseSharerData(String sharers) {
+        try {
+            return objectMapper.readValue(sharers, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<ObjetSharer> manageSharers(Objet objet, List<Long> sharerIds, Long userId) {
+        return sharerIds.stream()
+                .map(sharerId -> {
+                    User user = getUserById(sharerId);
+                    ObjetSharer newObjetSharer = ObjetSharer.builder()
+                            .user(user)
+                            .objet(objet)
+                            .build();
+                    objetSharerRepository.save(newObjetSharer);
+                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
+                    return newObjetSharer;
+                })
+                .toList();
     }
 }
 

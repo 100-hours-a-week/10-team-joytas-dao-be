@@ -16,7 +16,6 @@ public record ObjetDetailInfoDto(
         Boolean isActive,
         Long callingUserNum,
         List<ViewerInfo> viewers,
-        List<ChattingInfo> chattings,
         List<SharerInfo> sharers
 ) {
     @Builder

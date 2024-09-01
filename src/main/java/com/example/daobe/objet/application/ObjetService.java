@@ -133,12 +133,10 @@ public class ObjetService {
     }
 
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
-        Objet findObjet = objetRepository.findById(objetId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+        Objet findObjet = getObjetById(objetId);
         findObjet.isActiveOrThrow();
 
-        List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
-        List<SharerInfo> sharerInfos = objetSharers.stream()
+        List<SharerInfo> sharerInfos = findObjet.getObjetSharers().stream()
                 .map(sharer -> SharerInfo.of(
                         sharer.getUser().getId(),
                         sharer.getUser().getNickname())
@@ -159,8 +157,6 @@ public class ObjetService {
                 .isActive(true)
                 // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
                 .viewers(null)
-                // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
-                .chattings(null)
                 .callingUserNum(callingUserNum)
                 .sharers(sharerInfos)
                 .build();

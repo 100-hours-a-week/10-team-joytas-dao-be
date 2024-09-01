@@ -62,12 +62,7 @@ public class ObjetController {
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
-        ObjetCreateResponseDto ObjetCreateResponse = null;
-        try {
-            ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));

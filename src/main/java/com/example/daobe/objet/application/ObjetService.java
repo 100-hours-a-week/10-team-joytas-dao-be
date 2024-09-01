@@ -174,18 +174,11 @@ public class ObjetService {
 
     @Transactional
     public ObjetCreateResponseDto delete(Long objetId, Long userId) {
-        // 오브제 조회
-        Objet findObjet = objetRepository.findById(objetId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-
-        // 해당 유저가 생성한 오브제가 아닌 경우
+        Objet findObjet = getObjetById(objetId);
         validateObjetOwner(findObjet, userId);
 
-        // 오브제 삭제 - status 변경
         findObjet.updateStatus(ObjetStatus.DELETED);
-
         objetRepository.save(findObjet);
-
         return ObjetCreateResponseDto.of(findObjet);
     }
 

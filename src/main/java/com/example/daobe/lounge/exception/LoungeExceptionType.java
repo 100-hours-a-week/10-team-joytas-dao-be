@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public enum LoungeExceptionType implements BaseExceptionType {
     INVALID_LOUNGE_ID_EXCEPTION("유효하지 않은 라운지 ID입니다.", HttpStatus.NOT_FOUND),
-    NOT_ACTIVE_LOUNGE_EXCEPTION("활성 상태가 아닌 라운지입니다.", HttpStatus.METHOD_NOT_ALLOWED),
+    NOT_ACTIVE_LOUNGE_EXCEPTION("활성 상태가 아닌 라운지입니다.", HttpStatus.NOT_FOUND),
     INVALID_LOUNGE_OWNER_EXCEPTION("유효하지 않은 라운지 주인입니다.", HttpStatus.FORBIDDEN),
     INVALID_LOUNGE_SHARER_EXCEPTION("유효하지 않은 라운지 공유자입니다.", HttpStatus.FORBIDDEN),
     ALREADY_INVITED_USER_EXCEPTION("이미 라운지에 소속된 유저입니다.", HttpStatus.METHOD_NOT_ALLOWED),

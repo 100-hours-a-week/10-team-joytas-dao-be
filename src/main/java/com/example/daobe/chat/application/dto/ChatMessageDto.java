@@ -13,15 +13,6 @@ public record ChatMessageDto(
         String message,
         LocalDateTime createdAt
 ) {
-    public record EnterAndLeaveMessage(
-            String Type,
-            Long senderId,
-            String roomToken,
-            String message,
-            LocalDateTime createdAt
-    ) {
-    }
-
     public static ChatMessageDto of(ChatMessage message) {
         return new ChatMessageDto(
                 message.getId(),
@@ -33,5 +24,29 @@ public record ChatMessageDto(
                 message.getMessage(),
                 message.getCreatedAt()
         );
+    }
+
+    public record EnterAndLeaveMessage(
+            String type,
+            Long senderId,
+            String roomToken,
+            String message,
+            LocalDateTime createdAt
+    ) {
+        public static EnterAndLeaveMessage of(
+                String type,
+                Long senderId,
+                String roomToken,
+                String message,
+                LocalDateTime createdAt
+        ) {
+            return new EnterAndLeaveMessage(
+                    type,
+                    senderId,
+                    roomToken,
+                    message,
+                    createdAt
+            );
+        }
     }
 }

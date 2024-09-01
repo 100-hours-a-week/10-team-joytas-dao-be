@@ -33,7 +33,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,15 +55,12 @@ public class ObjetService {
     private final ChatRoomService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl)
-            throws JsonProcessingException {
-        Lounge lounge = loungeRepository.findById(request.loungeId())
-                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
-
-        User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
+        Lounge lounge = getLoungeById(request.loungeId());
+        User creator = getUserById(userId);
         ChatRoom chatRoom = chatRoomService.createChatRoom();
 
         Objet objet = Objet.builder()
@@ -77,153 +73,44 @@ public class ObjetService {
                 .imageUrl((imageUrl))
                 .chatRoom(chatRoom)
                 .build();
-
         objetRepository.save(objet);
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        List<Long> sharerIds = parseSharerData(request.sharers());
+        sharerIds.add(userId);
 
-        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
-        });
-
-        // 생성자를 sharer에 추가
-        sharerData.add(userId);
-
-        List<ObjetSharer> objetSharers = sharerData.stream()
-                .map(sharerId -> {
-                    User user = userRepository.findById(sharerId)
-                            .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-                    ObjetSharer newObjetSharer = ObjetSharer.builder()
-                            .user(user)
-                            .objet(objet)
-                            .build();
-
-                    objetSharerRepository.save(newObjetSharer);
-                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
-
-                    return newObjetSharer;
-                })
-                .toList();
-
+        List<ObjetSharer> objetSharers = manageSharers(objet, sharerIds, userId);
         objet.updateUserObjets(objetSharers);
 
         return ObjetCreateResponseDto.of(objet);
     }
 
     @Transactional
-    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) throws JsonProcessingException {
-        // Objet 찾기
-        Objet findObjet = objetRepository.findById(request.objetId())
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) {
 
-        // NOTE : 우선 권한의 주체는 생성자로 하되, 도메인 별 권한의 주체를 고려해봐야 한다.
-        // 해당 유저가 생성한 오브제가 아닌 경우
+        Objet findObjet = getObjetById(request.objetId());
         validateObjetOwner(findObjet, userId);
-
-        // Objet 업데이트
         findObjet.updateDetails(request.name(), request.description());
 
-        // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentSharerIds = findObjet.getObjetSharers().stream()
-                .map(objetSharer -> objetSharer.getUser().getId())
-                .collect(Collectors.toSet());
+        Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
+        List<Long> newSharerIds = parseSharerData(request.sharers());
+        manageAndSyncSharers(findObjet, currentSharerIds, newSharerIds, userId);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
-        });
-
-        // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(sharerData);
-
-        // 추가된 관계 삽입
-        for (Long newSharerId : newSharerIds) {
-            if (!currentSharerIds.contains(newSharerId)) {
-                User user = userRepository.findById(newSharerId)
-                        .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-
-                ObjetSharer newObjetSharer = ObjetSharer.builder()
-                        .user(user)
-                        .objet(findObjet)
-                        .build();
-                objetSharerRepository.save(newObjetSharer);
-
-                eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
-
-                // 관계 설정
-                findObjet.getObjetSharers().add(newObjetSharer);
-            }
-        }
-
-        // 제거된 관계 삭제
-        findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
-                objetSharerRepository.delete(objetSharer);
-                return true;
-            }
-            return false;
-        });
-
-        // Objet 엔티티 저장
         objetRepository.save(findObjet);
-
         return ObjetCreateResponseDto.of(findObjet);
     }
 
     @Transactional
-    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl)
-            throws JsonProcessingException {
-        // Objet 찾기
-        Objet findObjet = objetRepository.findById(request.objetId())
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl) {
 
-        // 해당 유저가 생성한 오브제가 아닌 경우
+        Objet findObjet = getObjetById(request.objetId());
         validateObjetOwner(findObjet, userId);
-
-        // Objet 업데이트
         findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
 
-        // 기존 관계에서 ID만 추출하여 Set으로 관리
-        Set<Long> currentSharerId = findObjet.getObjetSharers().stream()
-                .map(objetSharer -> objetSharer.getUser().getId())
-                .collect(Collectors.toSet());
+        Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
+        List<Long> newSharerIds = parseSharerData(request.sharers());
+        manageAndSyncSharers(findObjet, currentSharerIds, newSharerIds, userId);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        List<Long> sharerData = objectMapper.readValue(request.sharers(), new TypeReference<List<Long>>() {
-        });
-
-        // 새로운 관계에서 ID를 Set으로 관리
-        Set<Long> newSharerIds = new HashSet<>(sharerData);
-
-        // 추가된 관계 삽입
-        for (Long newSharerId : newSharerIds) {
-            if (!currentSharerId.contains(newSharerId)) {
-                User user = userRepository.findById(newSharerId)
-                        .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-
-                ObjetSharer newObjetSharer = ObjetSharer.builder()
-                        .user(user)
-                        .objet(findObjet)
-                        .build();
-                objetSharerRepository.save(newObjetSharer);
-
-                // 관계 설정
-                findObjet.getObjetSharers().add(newObjetSharer);
-            }
-        }
-
-        // 제거된 관계 삭제
-        findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
-                objetSharerRepository.delete(objetSharer);
-                return true;
-            }
-            return false;
-        });
-
-        // Objet 엔티티 저장
         objetRepository.save(findObjet);
-
         return ObjetCreateResponseDto.of(findObjet);
     }
 
@@ -246,14 +133,10 @@ public class ObjetService {
     }
 
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
-        Objet findObjet = objetRepository.findById(objetId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-
-        // 활성화된 오브제가 아니라면 예외 발
+        Objet findObjet = getObjetById(objetId);
         findObjet.isActiveOrThrow();
 
-        List<ObjetSharer> objetSharers = findObjet.getObjetSharers();
-        List<SharerInfo> sharerInfos = objetSharers.stream()
+        List<SharerInfo> sharerInfos = findObjet.getObjetSharers().stream()
                 .map(sharer -> SharerInfo.of(
                         sharer.getUser().getId(),
                         sharer.getUser().getNickname())
@@ -274,44 +157,28 @@ public class ObjetService {
                 .isActive(true)
                 // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
                 .viewers(null)
-                // TODO : 오브제 최근 채팅 목록 로직 구현 후 변경
-                .chattings(null)
                 .callingUserNum(callingUserNum)
                 .sharers(sharerInfos)
                 .build();
     }
 
     public List<ObjetMeInfoDto> getMyRecentObjets(Long userId) {
-        List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserId(userId);
-
-        // ObjetSharer 목록에서 Objet 엔티티만 추출합니다.
-        List<Objet> objets = objetSharerList.stream()
+        return objetSharerRepository.findByUserId(userId).stream()
                 .map(ObjetSharer::getObjet)
-                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE
-                        && objet.getDeletedAt() == null)
+                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE && objet.getDeletedAt() == null)
                 .sorted(Comparator.comparing(Objet::getCreatedAt).reversed())
                 .limit(4)
-                .toList();
-
-        return objets.stream()
                 .map(ObjetMeInfoDto::of)
                 .toList();
     }
 
     @Transactional
     public ObjetCreateResponseDto delete(Long objetId, Long userId) {
-        // 오브제 조회
-        Objet findObjet = objetRepository.findById(objetId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-
-        // 해당 유저가 생성한 오브제가 아닌 경우
+        Objet findObjet = getObjetById(objetId);
         validateObjetOwner(findObjet, userId);
 
-        // 오브제 삭제 - status 변경
         findObjet.updateStatus(ObjetStatus.DELETED);
-
         objetRepository.save(findObjet);
-
         return ObjetCreateResponseDto.of(findObjet);
     }
 
@@ -319,6 +186,79 @@ public class ObjetService {
         if (!findObjet.getUser().getId().equals(userId)) {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
+    }
+
+    private Lounge getLoungeById(Long loungeId) {
+        return loungeRepository.findById(loungeId)
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    }
+
+    private Objet getObjetById(Long objetId) {
+        return objetRepository.findById(objetId)
+                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+    }
+
+    private Set<Long> getCurrentSharerIds(Objet findObjet) {
+        return findObjet.getObjetSharers().stream()
+                .map(objetSharer -> objetSharer.getUser().getId())
+                .collect(Collectors.toSet());
+    }
+
+    private List<Long> parseSharerData(String sharers) {
+        try {
+            return objectMapper.readValue(sharers, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<ObjetSharer> manageSharers(Objet objet, List<Long> sharerIds, Long userId) {
+        return sharerIds.stream()
+                .map(sharerId -> {
+                    User user = getUserById(sharerId);
+                    ObjetSharer newObjetSharer = ObjetSharer.builder()
+                            .user(user)
+                            .objet(objet)
+                            .build();
+                    objetSharerRepository.save(newObjetSharer);
+                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
+                    return newObjetSharer;
+                })
+                .toList();
+    }
+
+    private void manageAndSyncSharers(
+            Objet findObjet,
+            Set<Long> currentSharerIds,
+            List<Long> newSharerIds,
+            Long userId
+    ) {
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerIds.contains(newSharerId)) {
+                User user = getUserById(newSharerId);
+                ObjetSharer newObjetSharer = ObjetSharer.builder()
+                        .user(user)
+                        .objet(findObjet)
+                        .build();
+                objetSharerRepository.save(newObjetSharer);
+                eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
+                findObjet.getObjetSharers().add(newObjetSharer);
+            }
+        }
+
+        findObjet.getObjetSharers().removeIf(objetSharer -> {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
+                objetSharerRepository.delete(objetSharer);
+                return true;
+            }
+            return false;
+        });
     }
 }
 

@@ -14,7 +14,6 @@ import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.upload.application.dto.UploadImageResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,12 +61,7 @@ public class ObjetController {
         UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
 
         ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
-        ObjetCreateResponseDto ObjetCreateResponse = null;
-        try {
-            ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
@@ -114,7 +108,7 @@ public class ObjetController {
             @RequestParam("sharers") String sharers,
             @RequestParam("description") String description,
             @RequestParam(value = "objet_image", required = false) MultipartFile file
-    ) throws JsonProcessingException {
+    ) {
 
         ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
 

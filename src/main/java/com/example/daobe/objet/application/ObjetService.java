@@ -5,7 +5,7 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
-import com.example.daobe.chat.application.ChatRoomService;
+import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
@@ -52,7 +52,7 @@ public class ObjetService {
     private final LoungeRepository loungeRepository;
     private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
-    private final ChatRoomService chatRoomService;
+    private final ChatService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();

@@ -163,18 +163,11 @@ public class ObjetService {
     }
 
     public List<ObjetMeInfoDto> getMyRecentObjets(Long userId) {
-        List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserId(userId);
-
-        // ObjetSharer 목록에서 Objet 엔티티만 추출합니다.
-        List<Objet> objets = objetSharerList.stream()
+        return objetSharerRepository.findByUserId(userId).stream()
                 .map(ObjetSharer::getObjet)
-                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE
-                        && objet.getDeletedAt() == null)
+                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE && objet.getDeletedAt() == null)
                 .sorted(Comparator.comparing(Objet::getCreatedAt).reversed())
                 .limit(4)
-                .toList();
-
-        return objets.stream()
                 .map(ObjetMeInfoDto::of)
                 .toList();
     }

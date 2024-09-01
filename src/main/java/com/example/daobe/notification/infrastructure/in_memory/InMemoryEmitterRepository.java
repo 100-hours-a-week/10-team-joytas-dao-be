@@ -2,48 +2,36 @@ package com.example.daobe.notification.infrastructure.in_memory;
 
 import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.repository.EmitterRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-@Slf4j
 @Repository
 public class InMemoryEmitterRepository implements EmitterRepository {
 
-    private static final Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
+    private static final Map<Long, Map<String, NotificationEmitter>> emitterMap = new ConcurrentHashMap<>();
 
     @Override
-    public NotificationEmitter save(String emitterId, SseEmitter sseEmitter) {
-        sseEmitter.onCompletion(() -> remove(emitterId));
-        sseEmitter.onTimeout(() -> {
-            remove(emitterId);
-            sseEmitter.complete();
-        });
-        sseEmitter.onError((error) -> {
-            log.error(error.getMessage());
-            remove(emitterId);
-            sseEmitter.completeWithError(error);
-        });
-
-        emitterMap.put(emitterId, sseEmitter);
-
-        return new NotificationEmitter(Map.of(emitterId, sseEmitter));
+    public void save(NotificationEmitter notificationEmitter) {
+        emitterMap
+                .computeIfAbsent(notificationEmitter.getUserId(), userId -> new ConcurrentHashMap<>())
+                .put(notificationEmitter.getEmitterId(), notificationEmitter);
     }
 
     @Override
-    public NotificationEmitter findAllEmitterByUserId(String userId) {
-        Map<String, SseEmitter> emitter = emitterMap.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(userId))
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-
-        return new NotificationEmitter(emitter);
+    public void deleteById(String emitterId) {
+        emitterMap.values().forEach(map -> map.remove(emitterId));
     }
 
-    private void remove(String emitterId) {
-        emitterMap.remove(emitterId);
+    @Override
+    public List<NotificationEmitter> findAllByUserId(Long receiveUserId) {
+        Map<String, NotificationEmitter> emitters = emitterMap.get(receiveUserId);
+        if (emitters == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(emitters.values());
     }
 }

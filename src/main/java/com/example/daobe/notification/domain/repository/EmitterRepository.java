@@ -1,11 +1,13 @@
 package com.example.daobe.notification.domain.repository;
 
 import com.example.daobe.notification.domain.NotificationEmitter;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import java.util.List;
 
 public interface EmitterRepository {
 
-    NotificationEmitter save(String emitterId, SseEmitter emitter);
+    void save(NotificationEmitter notificationEmitter);
 
-    NotificationEmitter findAllEmitterByUserId(String emitterId);
+    void deleteById(String emitterId);
+
+    List<NotificationEmitter> findAllByUserId(Long receiveUserId);
 }

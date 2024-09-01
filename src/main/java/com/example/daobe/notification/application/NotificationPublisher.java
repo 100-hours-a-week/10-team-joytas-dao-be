@@ -14,6 +14,7 @@ import com.example.daobe.notification.domain.repository.NotificationRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,8 +48,6 @@ public class NotificationPublisher {
         User receiveUser = userRepository.findById(receiveUserId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
-        String receiveEmitterId = receiveUserId.toString();
-        NotificationEmitter emitters = emitterRepository.findAllEmitterByUserId(receiveEmitterId);
         NotificationEventType eventType = NotificationEventType.getEventTypeByDomainEvent(domainEvent);
 
         Notification newNotification = Notification.builder()
@@ -61,6 +60,8 @@ public class NotificationPublisher {
 
         DomainInfo domainInfo = domainEventConvertMapper.convert(eventType, domainEvent.getDomainId());
         NotificationInfoResponseDto payload = NotificationInfoResponseDto.of(notification, domainInfo);
-        emitters.sendToClient(payload);
+
+        List<NotificationEmitter> emitterList = emitterRepository.findAllByUserId(receiveUserId);
+        emitterList.forEach((emitter) -> emitter.sendToClient(payload));
     }
 }

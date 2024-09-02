@@ -1,9 +1,6 @@
 package com.example.daobe.objet.presentation;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_IMAGE_EXTENSIONS;
-
 import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.common.utils.DaoFileExtensionUtils;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
@@ -11,9 +8,7 @@ import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
-import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
-import com.example.daobe.upload.application.dto.UploadImageResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/objets")
@@ -53,17 +47,6 @@ public class ObjetController {
         ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
-    }
-
-    @PostMapping("/image")
-    public ResponseEntity<ApiResponse<UploadImageResponseDto>> uploadImage(
-            @RequestParam("objet_image") MultipartFile file) {
-        if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
-            throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(OBJET_IMAGE_UPLOADED_SUCCESS, uploadService.upload(file)));
     }
 
     @GetMapping

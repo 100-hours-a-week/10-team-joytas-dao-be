@@ -8,7 +8,6 @@ import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
-import com.example.daobe.upload.application.UploadService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +33,8 @@ public class ObjetController {
     private static final String OBJET_CREATED_SUCCESS = "OBJET_CREATED_SUCCESS";
     private static final String OBJET_UPDATED_SUCCESS = "OBJET_UPDATED_SUCCESS";
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
-    private static final String OBJET_IMAGE_UPLOADED_SUCCESS = "OBJET_IMAGE_UPLOADED_SUCCESS";
 
     private final ObjetService objetService;
-    private final UploadService uploadService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(

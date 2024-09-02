@@ -53,7 +53,7 @@ jobs:
           file: ./Dockerfile-dev
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.IMAGE_TAG }}
+          tags: ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.DEV_IMAGE_TAG }}
 
   docker-pull-and-run:
     runs-on: [ self-hosted, Linux, X64, dev ]

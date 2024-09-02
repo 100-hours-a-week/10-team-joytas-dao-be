@@ -58,7 +58,7 @@ public class ObjetService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request, String imageUrl) {
+    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request) {
         Lounge lounge = getLoungeById(request.loungeId());
         User creator = getUserById(userId);
         ChatRoom chatRoom = chatRoomService.createChatRoom();
@@ -70,7 +70,7 @@ public class ObjetService {
                 .status(ObjetStatus.ACTIVE)
                 .user(creator)
                 .lounge(lounge)
-                .imageUrl((imageUrl))
+                .imageUrl(request.objetImage())
                 .chatRoom(chatRoom)
                 .build();
         objetRepository.save(objet);

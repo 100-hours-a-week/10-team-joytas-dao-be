@@ -5,6 +5,7 @@ public record ObjetCreateRequestDto(
         String name,
         String description,
         String type,
-        Long loungeId
+        Long loungeId,
+        String objetImage
 ) {
 }

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   docker-build-and-push:
@@ -43,28 +43,28 @@ jobs:
       - name: Docker Hub 로그인
         uses: docker/login-action@v2.2.0
         with:
-          username: ${{ secrets.DEV_DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DEV_DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ secrets.PROD_DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.PROD_DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Docker 이미지 빌드 및 푸시
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile-dev
+          file: ./Dockerfile-prod
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.DEV_IMAGE_TAG }}
+          tags: ${{ secrets.PROD_DOCKER_HUB_REPOSITORY }}:${{ secrets.PROD_IMAGE_TAG }}
 
   docker-pull-and-run:
-    runs-on: [ self-hosted, Linux, X64, dev ]
+    runs-on: [ self-hosted, Linux, X64, prod ]
     needs: [ docker-build-and-push ]
     if: ${{ needs.docker-build-and-push.result == 'success' }}
 
     steps:
       - name: 도커 허브 리포지토리에서 최신 이미지 가져오기
         run: |
-          sudo docker login --username ${{ secrets.DEV_DOCKER_HUB_USERNAME }} --password ${{ secrets.DEV_DOCKER_HUB_ACCESS_TOKEN }}
-          sudo docker pull ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.IMAGE_TAG }}
+          sudo docker login --username ${{ secrets.PROD_DOCKER_HUB_USERNAME }} --password ${{ secrets.PROD_DOCKER_HUB_ACCESS_TOKEN }}
+          sudo docker pull ${{ secrets.PROD_DOCKER_HUB_REPOSITORY }}:${{ secrets.PROD_IMAGE_TAG }}
 
       - name: blue green 배포
         run: |

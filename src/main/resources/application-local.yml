@@ -1,0 +1,92 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+  cors:
+    allowed-methods: ${ALLOWED_METHODS}
+    allowed-origins: ${ALLOWED_ORIGINS}
+
+  cookie:
+    max-age: 1234567890
+    path: /
+    same-site: Lax
+    domain: localhost
+    secure: false
+    http-only: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/dao-local-db
+    username: dao-local-user
+    password: dao-local-password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:mysql://localhost:3306/dao-local-db
+    user: dao-local-user
+    password: dao-local-password
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/dao-local-db?authSource=admin
+      database: dao-local-db
+      auto-index-creation: true
+      authentication-database: admin
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+    open-in-view: false
+
+  security:
+    oauth2:
+      success-redirect: http://localhost:5173
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-name: kakao
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+security:
+  jwt:
+    secret-key: afdakfjlkasjfaioefjklasfmakl;fjaklfmakl;dfaklfadsflka
+    access-expired: 987654321
+    refresh-expired: 987654321
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+cloud:
+  aws:
+    s3:
+      bucket-name: ${S3_BUCKET_NAME}
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+      region: ${S3_REGION}
+      image-url: ${S3_IMAGE_URL}

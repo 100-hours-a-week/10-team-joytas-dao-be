@@ -1,0 +1,18 @@
+<included>
+    <appender name="INFO-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <maxHistory>5</maxHistory>
+            <maxFileSize>500MB</maxFileSize>
+            <totalSizeCap>500MB</totalSizeCap>
+            <fileNamePattern>${INFO_FILE_PATH}/info-${BASE_FILE_NAME_PATTERN}</fileNamePattern>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+</included>

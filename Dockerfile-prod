@@ -1,0 +1,8 @@
+FROM amazoncorretto:17-alpine-jdk
+
+WORKDIR /app
+COPY ./build/libs/dao-be-0.0.1-SNAPSHOT.jar /app/dao-be-app.jar
+
+ENV TZ=Asia/Seoul
+
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "dao-be-app.jar"]

@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.3.0
+    container_name: mysql8
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_USER: dao-local-user
+      MYSQL_PASSWORD: dao-local-password
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dao-local-db
+      TZ: 'Asia/Seoul'
+    volumes:
+      - dao-mysqldb:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: redis7
+    command: redis-server --port 6379
+    restart: always
+    hostname: root
+    labels:
+      - 'mode:standalone'
+    ports:
+      - '6379:6379'
+
+  mongodb:
+    image: mongo:7.0.1
+    container_name: mongo7
+    ports:
+      - '27017:27017'
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: dao-local-db
+    volumes:
+      - mongo-data:/data/db
+      - ./init.js:/docker-entrypoint-initdb.d/init.js
+
+volumes:
+  dao-mysqldb:
+  mongo-data:

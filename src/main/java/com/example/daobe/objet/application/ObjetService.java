@@ -29,8 +29,6 @@ import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Comparator;
 import java.util.List;
@@ -75,7 +73,7 @@ public class ObjetService {
                 .build();
         objetRepository.save(objet);
 
-        List<Long> sharerIds = parseSharerData(request.sharers());
+        List<Long> sharerIds = request.sharers();
         sharerIds.add(userId);
 
         List<ObjetSharer> objetSharers = manageSharers(objet, sharerIds, userId);
@@ -97,7 +95,7 @@ public class ObjetService {
         }
 
         Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
-        List<Long> newSharerIds = parseSharerData(request.sharers());
+        List<Long> newSharerIds = request.sharers();
         manageAndSyncSharers(findObjet, currentSharerIds, newSharerIds, userId);
 
         objetRepository.save(findObjet);
@@ -197,15 +195,6 @@ public class ObjetService {
         return findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
-    }
-
-    private List<Long> parseSharerData(String sharers) {
-        try {
-            return objectMapper.readValue(sharers, new TypeReference<>() {
-            });
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private List<ObjetSharer> manageSharers(Objet objet, List<Long> sharerIds, Long userId) {

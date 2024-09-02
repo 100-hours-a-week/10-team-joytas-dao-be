@@ -29,7 +29,6 @@ import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,6 @@ public class ObjetService {
     private final ChatService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
     public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request) {

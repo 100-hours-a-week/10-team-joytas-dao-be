@@ -44,7 +44,7 @@ jobs:
         uses: docker/login-action@v2.2.0
         with:
           username: ${{ secrets.PROD_DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.RPOD_DOCKER_HUB_ACCESS_TOKEN }}
+          password: ${{ secrets.PROD_DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Docker 이미지 빌드 및 푸시
         uses: docker/build-push-action@v4
@@ -53,7 +53,7 @@ jobs:
           file: ./Dockerfile-prod
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.PROD_DOCKER_HUB_REPOSITORY }}:${{ secrets.IMAGE_TAG }}
+          tags: ${{ secrets.PROD_DOCKER_HUB_REPOSITORY }}:${{ secrets.PROD_IMAGE_TAG }}
 
   docker-pull-and-run:
     runs-on: [ self-hosted, Linux, X64, prod ]

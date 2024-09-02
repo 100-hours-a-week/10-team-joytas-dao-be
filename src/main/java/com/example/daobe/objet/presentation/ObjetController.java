@@ -13,7 +13,6 @@ import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
-import com.example.daobe.upload.application.dto.UploadImageResponse;
 import com.example.daobe.upload.application.dto.UploadImageResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -104,26 +103,9 @@ public class ObjetController {
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
-            @RequestParam("name") String name,
-            @RequestParam("sharers") String sharers,
-            @RequestParam("description") String description,
-            @RequestParam(value = "objet_image", required = false) MultipartFile file
+            @RequestBody ObjetUpdateRequestDto request
     ) {
-
-        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
-
-        ObjetCreateResponseDto objetUpdateResponse;
-
-        if (file != null && !file.isEmpty()) {
-            if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
-                throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-            }
-            UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-            objetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
-        } else {
-            objetUpdateResponse = objetService.update(userId, request);
-        }
-
+        ObjetCreateResponseDto objetUpdateResponse = objetService.update(userId, objetId, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }

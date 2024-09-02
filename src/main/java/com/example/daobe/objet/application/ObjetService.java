@@ -85,26 +85,16 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto update(Long userId, ObjetUpdateRequestDto request) {
+    public ObjetCreateResponseDto update(Long userId, Long objetId, ObjetUpdateRequestDto request) {
 
-        Objet findObjet = getObjetById(request.objetId());
+        Objet findObjet = getObjetById(objetId);
         validateObjetOwner(findObjet, userId);
-        findObjet.updateDetails(request.name(), request.description());
 
-        Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
-        List<Long> newSharerIds = parseSharerData(request.sharers());
-        manageAndSyncSharers(findObjet, currentSharerIds, newSharerIds, userId);
-
-        objetRepository.save(findObjet);
-        return ObjetCreateResponseDto.of(findObjet);
-    }
-
-    @Transactional
-    public ObjetCreateResponseDto updateWithFile(Long userId, ObjetUpdateRequestDto request, String imageUrl) {
-
-        Objet findObjet = getObjetById(request.objetId());
-        validateObjetOwner(findObjet, userId);
-        findObjet.updateDetailsWithImage(request.name(), request.description(), imageUrl);
+        if (request.objetImage() == null) {
+            findObjet.updateDetails(request.name(), request.description());
+        } else {
+            findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
+        }
 
         Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
         List<Long> newSharerIds = parseSharerData(request.sharers());

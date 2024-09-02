@@ -13,7 +13,7 @@ import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.upload.application.UploadService;
-import com.example.daobe.upload.application.dto.UploadImageResponse;
+import com.example.daobe.upload.application.dto.UploadImageResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +40,7 @@ public class ObjetController {
     private static final String OBJET_CREATED_SUCCESS = "OBJET_CREATED_SUCCESS";
     private static final String OBJET_UPDATED_SUCCESS = "OBJET_UPDATED_SUCCESS";
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
+    private static final String OBJET_IMAGE_UPLOADED_SUCCESS = "OBJET_IMAGE_UPLOADED_SUCCESS";
 
     private final ObjetService objetService;
     private final UploadService uploadService;
@@ -46,25 +48,22 @@ public class ObjetController {
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
             @AuthenticationPrincipal Long userId,
-            @RequestParam("name") String name,
-            @RequestParam("type") String type,
-            @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("sharers") String sharers,
-            @RequestParam("description") String description,
-            @RequestParam("objet_image") MultipartFile file
+            @RequestBody ObjetCreateRequestDto request
     ) {
+        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
+    }
 
+    @PostMapping("/image")
+    public ResponseEntity<ApiResponse<UploadImageResponseDto>> uploadImage(
+            @RequestParam("objet_image") MultipartFile file) {
         if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
             throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
         }
 
-        UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-
-        ObjetCreateRequestDto request = new ObjetCreateRequestDto(sharers, name, description, type, loungeId);
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request, uploadImageResponse.image());
-
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
+                .body(new ApiResponse<>(OBJET_IMAGE_UPLOADED_SUCCESS, uploadService.upload(file)));
     }
 
     @GetMapping
@@ -104,26 +103,9 @@ public class ObjetController {
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
-            @RequestParam("name") String name,
-            @RequestParam("sharers") String sharers,
-            @RequestParam("description") String description,
-            @RequestParam(value = "objet_image", required = false) MultipartFile file
+            @RequestBody ObjetUpdateRequestDto request
     ) {
-
-        ObjetUpdateRequestDto request = new ObjetUpdateRequestDto(objetId, sharers, name, description);
-
-        ObjetCreateResponseDto objetUpdateResponse;
-
-        if (file != null && !file.isEmpty()) {
-            if (!DaoFileExtensionUtils.isValidFileExtension(file)) {
-                throw new ObjetException(INVALID_OBJET_IMAGE_EXTENSIONS);
-            }
-            UploadImageResponse uploadImageResponse = uploadService.uploadImage(file);
-            objetUpdateResponse = objetService.updateWithFile(userId, request, uploadImageResponse.image());
-        } else {
-            objetUpdateResponse = objetService.update(userId, request);
-        }
-
+        ObjetCreateResponseDto objetUpdateResponse = objetService.update(userId, objetId, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }

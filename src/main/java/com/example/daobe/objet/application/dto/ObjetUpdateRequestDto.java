@@ -7,6 +7,7 @@ public record ObjetUpdateRequestDto(
         Long objetId,
         String sharers,
         String name,
-        String description
+        String description,
+        String objetImage
 ) {
 }

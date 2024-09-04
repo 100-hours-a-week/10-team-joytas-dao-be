@@ -74,7 +74,7 @@ public class UserController {
     ) {
         return ResponseEntity.ok(new ApiResponse<>(
                 "UPDATE_PROFILE_SUCCESS",
-                userService.updateNickname(userId, request)
+                userService.updateProfile(userId, request)
         ));
     }
 

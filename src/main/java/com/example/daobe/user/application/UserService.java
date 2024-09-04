@@ -49,7 +49,7 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponseDto updateNickname(Long userId, UpdateProfileRequestDto request) {
+    public UpdateProfileResponseDto updateProfile(Long userId, UpdateProfileRequestDto request) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
 
@@ -77,7 +77,7 @@ public class UserService {
         eventPublisher.publishEvent(userPokeEvent);
     }
 
-    // FIXME: External Service
+    // FIXME: EDA 기반으로 수정
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));

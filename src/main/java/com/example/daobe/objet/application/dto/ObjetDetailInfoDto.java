@@ -8,6 +8,7 @@ import lombok.Builder;
 public record ObjetDetailInfoDto(
         Long objetId,
         Long userId,
+        Long loungeId,
         String name,
         String nickname,
         String objetImage,

@@ -136,6 +136,7 @@ public class ObjetService {
                 .name(findObjet.getName())
                 .userId(findObjet.getUser().getId())
                 .nickname(findObjet.getUser().getNickname())
+                .loungeId(findObjet.getLounge().getId())
                 .objetImage(findObjet.getImageUrl())
                 .description(findObjet.getExplanation())
                 .type(findObjet.getType())

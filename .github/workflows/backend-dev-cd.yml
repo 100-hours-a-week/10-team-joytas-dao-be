@@ -64,7 +64,7 @@ jobs:
       - name: 도커 허브 리포지토리에서 최신 이미지 가져오기
         run: |
           sudo docker login --username ${{ secrets.DEV_DOCKER_HUB_USERNAME }} --password ${{ secrets.DEV_DOCKER_HUB_ACCESS_TOKEN }}
-          sudo docker pull ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.IMAGE_TAG }}
+          sudo docker pull ${{ secrets.DEV_DOCKER_HUB_REPOSITORY }}:${{ secrets.DEV_IMAGE_TAG }}
 
       - name: blue green 배포
         run: |

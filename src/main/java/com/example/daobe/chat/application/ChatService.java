@@ -11,15 +11,21 @@ import com.example.daobe.chat.application.dto.ChatMessageDto.EnterAndLeaveMessag
 import com.example.daobe.chat.application.dto.ChatRoomTokenDto;
 import com.example.daobe.chat.domain.ChatMessage;
 import com.example.daobe.chat.domain.ChatRoom;
+import com.example.daobe.chat.domain.ChatUser;
 import com.example.daobe.chat.domain.repository.ChatMessageRepository;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
+import com.example.daobe.chat.domain.repository.ChatUserRepository;
 import com.example.daobe.chat.exception.ChatException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -40,6 +46,7 @@ public class ChatService {
 
     private final UserService userService;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
@@ -78,32 +85,44 @@ public class ChatService {
     }
 
     public ChatMessageDto createMessage(ChatMessageDto message, String roomToken) {
-        Long senderId = message.senderId();
-        UserInfoResponseDto findUser = userService.getUserInfoWithId(senderId);
+        ChatUser findUser = chatUserRepository.findByUserId(message.senderId())
+                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_USER_EXCEPTION"));
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .type(TALK)
                 .roomToken(roomToken)
-                .senderId(findUser.userId())
-                .sender(findUser.nickname())
-                .senderProfileUrl(findUser.profileUrl())
+                .senderId(findUser.getUserId())
                 .message(message.message())
                 .build();
 
         // MongoDB 저장
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
-        return ChatMessageDto.of(savedChatMessage);
+        return ChatMessageDto.of(savedChatMessage, findUser);
     }
 
     public List<ChatMessageDto> getMessagesByRoomToken(String roomToken, boolean isAll) {
+        List<ChatMessage> chatMessages;
         if (isAll) {
-            return chatMessageRepository.findAllByRoomToken(roomToken).stream()
-                    .map(ChatMessageDto::of)
+            chatMessages = chatMessageRepository.findAllByRoomToken(roomToken);
+        } else {
+            chatMessages = chatMessageRepository.findAllByRoomTokenOrderByCreatedAtDesc(roomToken)
+                    .stream()
+                    .limit(RECENT_MESSAGES_COUNT)
                     .toList();
         }
-        return chatMessageRepository.findAllByRoomTokenOrderByCreatedAtDesc(roomToken).stream()
-                .limit(RECENT_MESSAGES_COUNT)
-                .map(ChatMessageDto::of)
+
+        // TODO: Redis 활용한 캐싱 처리 필요
+        Set<Long> userIds = chatMessages.stream()
+                .map(ChatMessage::getSenderId)
+                .collect(Collectors.toSet());
+        List<ChatUser> chatUsers = chatUserRepository.findAllByUserIdIn(userIds);
+        Map<Long, ChatUser> userInfos = chatUsers.stream()
+                .collect(Collectors.toMap(ChatUser::getUserId, Function.identity()));
+        return chatMessages.stream()
+                .map(chatMessage -> {
+                    ChatUser chatUser = userInfos.get(chatMessage.getSenderId());
+                    return ChatMessageDto.of(chatMessage, chatUser);
+                })
                 .sorted(Comparator.comparing(ChatMessageDto::createdAt))
                 .toList();
     }

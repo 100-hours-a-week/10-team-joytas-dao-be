@@ -34,24 +34,15 @@ public class ChatMessage {
     @Field("sender_id")
     private Long senderId;
 
-    @Field("sender")
-    private String sender;
-
-    @Field("sender_profile_url")
-    private String senderProfileUrl;
-
     @Field("created_at")
     @CreatedDate
     private LocalDateTime createdAt;
 
     @Builder
-    public ChatMessage(String roomToken, MessageType type, String message, Long senderId, String sender,
-                       String senderProfileUrl) {
+    public ChatMessage(String roomToken, MessageType type, String message, Long senderId) {
         this.roomToken = roomToken;
         this.type = type.name();
         this.message = message;
         this.senderId = senderId;
-        this.sender = sender;
-        this.senderProfileUrl = senderProfileUrl;
     }
 }

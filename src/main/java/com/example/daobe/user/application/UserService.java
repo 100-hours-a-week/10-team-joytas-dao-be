@@ -10,6 +10,7 @@ import com.example.daobe.user.application.dto.UserPokeRequestDto;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.UserStatus;
 import com.example.daobe.user.domain.event.UserPokeEvent;
+import com.example.daobe.user.domain.event.UserUpdateEvent;
 import com.example.daobe.user.domain.repository.UserPokeRepository;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
@@ -52,10 +53,11 @@ public class UserService {
     public UpdateProfileResponseDto updateProfile(Long userId, UpdateProfileRequestDto request) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-
         findUser.updateUserInfo(request.nickname(), request.profileUrl());
 
         userRepository.save(findUser);
+        eventPublisher.publishEvent(UserUpdateEvent.of(findUser));
+
         return UpdateProfileResponseDto.of(findUser);
     }
 

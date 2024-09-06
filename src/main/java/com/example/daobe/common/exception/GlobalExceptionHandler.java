@@ -1,7 +1,6 @@
 package com.example.daobe.common.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final String SERVER_ERROR_MESSAGE = "INTERNAL_SERVER_ERROR";
     private static final String MISSING_REQUEST_PARAMETER = "MISSING_REQUEST_PARAMETER";
 
     // Custom Exception 응답
@@ -40,15 +38,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(BAD_REQUEST)
                 .body(new ExceptionResponseDto(BAD_REQUEST.value(), ex.getMessage()));
-    }
-
-    // Custom Exception 이외의 예외 응답
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponseDto> handleException(Exception ex) {
-        log.error(ex.getMessage(), ex);
-
-        return ResponseEntity.internalServerError()
-                .body(new ExceptionResponseDto(INTERNAL_SERVER_ERROR.value(), SERVER_ERROR_MESSAGE));
     }
 
     // Request Parameter 예외 응답

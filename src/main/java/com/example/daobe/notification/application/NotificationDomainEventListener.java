@@ -24,9 +24,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class NotificationPublisher {
+public class NotificationDomainEventListener {
 
     private final UserRepository userRepository;
     private final EmitterRepository emitterRepository;
@@ -39,7 +38,7 @@ public class NotificationPublisher {
             classes = DomainEvent.class
     )
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void publishEvent(DomainEvent domainEvent) {
+    public void listenDomainEvent(DomainEvent domainEvent) {
         Long sendUserId = domainEvent.getSendUserId();
         User sendUser = userRepository.findById(sendUserId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));

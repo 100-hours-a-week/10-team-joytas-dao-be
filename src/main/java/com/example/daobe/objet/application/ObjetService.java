@@ -41,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ObjetService {
 
@@ -54,30 +53,24 @@ public class ObjetService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public ObjetCreateResponseDto create(Long userId, ObjetCreateRequestDto request) {
-        Lounge lounge = getLoungeById(request.loungeId());
-        User creator = getUserById(userId);
-        ChatRoom chatRoom = chatRoomService.createChatRoom();
-
+    public Objet createAndSaveObjet(
+            ObjetCreateRequestDto request,
+            User user,
+            Lounge lounge,
+            ChatRoom chatRoom
+    ) {
         Objet objet = Objet.builder()
                 .name(request.name())
                 .explanation(request.description())
                 .type(ObjetType.from(request.type()))
-                .status(ObjetStatus.ACTIVE)
-                .user(creator)
+                .user(user)
                 .lounge(lounge)
                 .imageUrl(request.objetImage())
                 .chatRoom(chatRoom)
                 .build();
         objetRepository.save(objet);
 
-        List<Long> sharerIds = request.sharers();
-        sharerIds.add(userId);
-
-        List<ObjetSharer> objetSharers = manageSharers(objet, sharerIds, userId);
-        objet.updateUserObjets(objetSharers);
-
-        return ObjetCreateResponseDto.of(objet);
+        return objet;
     }
 
     @Transactional
@@ -194,21 +187,6 @@ public class ObjetService {
         return findObjet.getObjetSharers().stream()
                 .map(objetSharer -> objetSharer.getUser().getId())
                 .collect(Collectors.toSet());
-    }
-
-    private List<ObjetSharer> manageSharers(Objet objet, List<Long> sharerIds, Long userId) {
-        return sharerIds.stream()
-                .map(sharerId -> {
-                    User user = getUserById(sharerId);
-                    ObjetSharer newObjetSharer = ObjetSharer.builder()
-                            .user(user)
-                            .objet(objet)
-                            .build();
-                    objetSharerRepository.save(newObjetSharer);
-                    eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
-                    return newObjetSharer;
-                })
-                .toList();
     }
 
     private void manageAndSyncSharers(

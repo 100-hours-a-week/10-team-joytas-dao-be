@@ -1,6 +1,7 @@
 package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
+import com.example.daobe.objet.application.ObjetFacadeService;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
@@ -35,13 +36,14 @@ public class ObjetController {
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
 
     private final ObjetService objetService;
+    private final ObjetFacadeService objetFacadeService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
             @AuthenticationPrincipal Long userId,
             @RequestBody ObjetCreateRequestDto request
     ) {
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request);
+        ObjetCreateResponseDto ObjetCreateResponse = objetFacadeService.createObjet(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
     }

@@ -3,18 +3,16 @@ package com.example.daobe.notification.application;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.common.domain.DomainEvent;
+import com.example.daobe.notification.application.dto.NotificationEventPayloadDto;
 import com.example.daobe.notification.application.dto.NotificationInfoResponseDto;
 import com.example.daobe.notification.domain.Notification;
-import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.NotificationEventType;
 import com.example.daobe.notification.domain.convert.DomainEventConvertMapper;
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
-import com.example.daobe.notification.domain.repository.EmitterRepository;
 import com.example.daobe.notification.domain.repository.NotificationRepository;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,9 +26,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationDomainEventListener {
 
     private final UserRepository userRepository;
-    private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final DomainEventConvertMapper domainEventConvertMapper;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     @Async
     @TransactionalEventListener(
@@ -59,8 +57,6 @@ public class NotificationDomainEventListener {
 
         DomainInfo domainInfo = domainEventConvertMapper.convert(eventType, domainEvent.getDomainId());
         NotificationInfoResponseDto payload = NotificationInfoResponseDto.of(notification, domainInfo);
-
-        List<NotificationEmitter> emitterList = emitterRepository.findAllByUserId(receiveUserId);
-        emitterList.forEach((emitter) -> emitter.sendToClient(payload));
+        notificationEventPublisher.publishNotificationEvent(NotificationEventPayloadDto.of(receiveUserId, payload));
     }
 }

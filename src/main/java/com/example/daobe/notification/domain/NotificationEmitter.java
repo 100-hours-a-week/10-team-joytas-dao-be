@@ -34,16 +34,12 @@ public class NotificationEmitter {
         return userId + DELIMITER + System.currentTimeMillis();
     }
 
-    public void sendToClient(Object data) {
-        try {
-            emitter.send(SseEmitter.event()
-                    .id(generateEventId())
-                    .name(NOTIFICATION_EVENT_NAME)
-                    .data(extractEventDataAsJson(data))
-            );
-        } catch (IOException | RuntimeException ex) {
-            emitter.completeWithError(ex);
-        }
+    public void sendToClient(Object data) throws IOException {
+        emitter.send(SseEmitter.event()
+                .id(generateEventId())
+                .name(NOTIFICATION_EVENT_NAME)
+                .data(extractEventDataAsJson(data))
+        );
     }
 
     private String generateEventId() {

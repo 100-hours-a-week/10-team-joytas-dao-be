@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -38,6 +39,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(BAD_REQUEST)
                 .body(new ExceptionResponseDto(BAD_REQUEST.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleException(AsyncRequestNotUsableException ex) {
+        // SSE 통신시 `DefaultHandlerExceptionResolver` 에서 발생하는 `AsyncRequestNotUsableException` 예외 경고 무시
+        // 참고: https://github.com/spring-projects/spring-framework/issues/33225
     }
 
     // Request Parameter 예외 응답

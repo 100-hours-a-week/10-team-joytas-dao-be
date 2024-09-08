@@ -55,7 +55,7 @@ public class ObjetController {
             @RequestParam Boolean sharer
     ) {
         ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, sharer)
+                "OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getAllObjetsInLounge(userId, loungeId, sharer)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

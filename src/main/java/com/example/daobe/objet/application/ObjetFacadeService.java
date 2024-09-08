@@ -6,14 +6,18 @@ import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,5 +48,15 @@ public class ObjetFacadeService {
         Objet updatedObjet = objetService.updateAndSaveObjet(request, findObjet, userId);
         objetSharerService.updateAndSaveObjetSharer(request, findUser, updatedObjet);
         return ObjetCreateResponseDto.of(updatedObjet);
+    }
+
+    // 오브제 목록 조회
+    public List<ObjetInfoDto> getAllObjetsInLounge(Long userId, Long loungeId, Boolean sharer) {
+        
+        if (Boolean.TRUE.equals(sharer)) {
+            return objetService.getObjetListInLoungeOfSharer(userId, loungeId, sharer);
+        } else {
+            return objetService.getObjetListInLounge(loungeId);
+        }
     }
 }

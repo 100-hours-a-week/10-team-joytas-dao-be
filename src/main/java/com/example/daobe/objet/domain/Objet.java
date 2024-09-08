@@ -93,7 +93,7 @@ public class Objet extends BaseTimeEntity {
         this.imageUrl = imageUrl;
         this.explanation = explanation;
         this.type = type;
-        this.status = status;
+        this.status = ObjetStatus.ACTIVE;
         this.chatRoom = chatRoom;
     }
 

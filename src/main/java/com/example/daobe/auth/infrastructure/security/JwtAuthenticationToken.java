@@ -27,8 +27,8 @@ public class JwtAuthenticationToken extends UsernamePasswordAuthenticationToken 
     }
 
     // 인증 후의 토큰 객체 생성
-    public static JwtAuthenticationToken afterOf(Long memberId) {
-        return new JwtAuthenticationToken(memberId, "", null);
+    public static JwtAuthenticationToken afterOf(Long userId) {
+        return new JwtAuthenticationToken(userId, "", null);
     }
 
     public String getAccessToken() {

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider implements TokenProvider {
 
-    private static final String MEMBER_ID = "member_id";
+    private static final String USER_ID = "user_id";
     private static final String TOKEN_ID = "token_id";
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
@@ -29,8 +29,8 @@ public class JwtProvider implements TokenProvider {
     }
 
     @Override
-    public String generatedAccessToken(Long memberId) {
-        Claims claims = generatedClaims(MEMBER_ID, memberId);
+    public String generatedAccessToken(Long userId) {
+        Claims claims = generatedClaims(USER_ID, userId);
         return generatedToken(claims, ACCESS_TOKEN, jwtProperties.accessExpired());
     }
 

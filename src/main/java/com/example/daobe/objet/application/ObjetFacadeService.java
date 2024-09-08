@@ -6,6 +6,7 @@ import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
@@ -33,5 +34,15 @@ public class ObjetFacadeService {
         Objet createdObjet = objetService.createAndSaveObjet(request, findUser, lounge, chatRoom);
         objetSharerService.createAndSaveObjetSharer(request, findUser, createdObjet);
         return ObjetCreateResponseDto.of(createdObjet);
+    }
+
+    // 오브제 수정
+    @Transactional
+    public ObjetCreateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
+        User findUser = userService.getUserById(userId);
+        Objet findObjet = objetService.getObjetById(objetId);
+        Objet updatedObjet = objetService.updateAndSaveObjet(request, findObjet, userId);
+        objetSharerService.updateAndSaveObjetSharer(request, findUser, updatedObjet);
+        return ObjetCreateResponseDto.of(updatedObjet);
     }
 }

@@ -3,6 +3,7 @@ package com.example.daobe.objet.application;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.event.ObjetInviteEvent;
@@ -11,6 +12,8 @@ import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,37 @@ public class ObjetSharerService {
         objet.updateUserObjets(objetSharers);
     }
 
+    public void updateAndSaveObjetSharer(ObjetUpdateRequestDto request, User findUser, Objet findObjet) {
+        Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
+        List<Long> newSharerIds = request.sharers();
+
+        for (Long newSharerId : newSharerIds) {
+            if (!currentSharerIds.contains(newSharerId)) {
+                User user = getUserById(newSharerId);
+                ObjetSharer newObjetSharer = ObjetSharer.builder()
+                        .user(user)
+                        .objet(findObjet)
+                        .build();
+                objetSharerRepository.save(newObjetSharer);
+                eventPublisher.publishEvent(new ObjetInviteEvent(findUser.getId(), newObjetSharer));
+                findObjet.getObjetSharers().add(newObjetSharer);
+            }
+        }
+
+        findObjet.getObjetSharers().removeIf(objetSharer -> {
+            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
+                objetSharerRepository.delete(objetSharer);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private Set<Long> getCurrentSharerIds(Objet findObjet) {
+        return findObjet.getObjetSharers().stream()
+                .map(objetSharer -> objetSharer.getUser().getId())
+                .collect(Collectors.toSet());
+    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)

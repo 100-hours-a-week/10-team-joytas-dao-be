@@ -1,15 +1,10 @@
 package com.example.daobe.objet.application;
 
-import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
-import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
-import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.lounge.domain.repository.LoungeRepository;
-import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
@@ -21,21 +16,15 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
-import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.repository.UserRepository;
-import com.example.daobe.user.exception.UserException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,12 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ObjetService {
 
     private final ObjetRepository objetRepository;
-    private final LoungeRepository loungeRepository;
-    private final UserRepository userRepository;
     private final ObjetSharerRepository objetSharerRepository;
-    private final ChatService chatRoomService;
     private final ObjetCallRepository objetCallRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Objet createAndSaveObjet(
@@ -74,23 +59,11 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto update(Long userId, Long objetId, ObjetUpdateRequestDto request) {
-
-        Objet findObjet = getObjetById(objetId);
-        validateObjetOwner(findObjet, userId);
-
-        if (request.objetImage() == null) {
-            findObjet.updateDetails(request.name(), request.description());
-        } else {
-            findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
-        }
-
-        Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
-        List<Long> newSharerIds = request.sharers();
-        manageAndSyncSharers(findObjet, currentSharerIds, newSharerIds, userId);
-
-        objetRepository.save(findObjet);
-        return ObjetCreateResponseDto.of(findObjet);
+    public Objet updateAndSaveObjet(ObjetUpdateRequestDto request, Objet objet, Long userId) {
+        validateObjetOwner(objet, userId);
+        objet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
+        objetRepository.save(objet);
+        return objet;
     }
 
     public List<ObjetInfoDto> getObjetList(Long userId, Long loungeId, Boolean sharer) {
@@ -162,59 +135,16 @@ public class ObjetService {
         return ObjetCreateResponseDto.of(findObjet);
     }
 
+    public Objet getObjetById(Long objetId) {
+        return objetRepository.findById(objetId)
+                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+    }
+
     private void validateObjetOwner(Objet findObjet, Long userId) {
         if (!findObjet.getUser().getId().equals(userId)) {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
     }
 
-    private Lounge getLoungeById(Long loungeId) {
-        return loungeRepository.findById(loungeId)
-                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
-    }
-
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
-    }
-
-    private Objet getObjetById(Long objetId) {
-        return objetRepository.findById(objetId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-    }
-
-    private Set<Long> getCurrentSharerIds(Objet findObjet) {
-        return findObjet.getObjetSharers().stream()
-                .map(objetSharer -> objetSharer.getUser().getId())
-                .collect(Collectors.toSet());
-    }
-
-    private void manageAndSyncSharers(
-            Objet findObjet,
-            Set<Long> currentSharerIds,
-            List<Long> newSharerIds,
-            Long userId
-    ) {
-        for (Long newSharerId : newSharerIds) {
-            if (!currentSharerIds.contains(newSharerId)) {
-                User user = getUserById(newSharerId);
-                ObjetSharer newObjetSharer = ObjetSharer.builder()
-                        .user(user)
-                        .objet(findObjet)
-                        .build();
-                objetSharerRepository.save(newObjetSharer);
-                eventPublisher.publishEvent(new ObjetInviteEvent(userId, newObjetSharer));
-                findObjet.getObjetSharers().add(newObjetSharer);
-            }
-        }
-
-        findObjet.getObjetSharers().removeIf(objetSharer -> {
-            if (!newSharerIds.contains(objetSharer.getUser().getId())) {
-                objetSharerRepository.delete(objetSharer);
-                return true;
-            }
-            return false;
-        });
-    }
 }
 

@@ -87,7 +87,7 @@ public class ObjetController {
             @PathVariable(name = "objetId") Long objetId,
             @RequestBody ObjetUpdateRequestDto request
     ) {
-        ObjetCreateResponseDto objetUpdateResponse = objetService.update(userId, objetId, request);
+        ObjetCreateResponseDto objetUpdateResponse = objetFacadeService.updateObjet(request, objetId, userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }

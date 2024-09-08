@@ -1,5 +1,8 @@
 package com.example.daobe.auth.domain;
 
+import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
+
+import com.example.daobe.auth.exception.AuthException;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -20,8 +23,10 @@ public class Token {
         this.tokenId = generatedTokenId();
     }
 
-    public boolean isMatchUserId(Long userId) {
-        return Objects.equals(userId, this.userId);
+    public void isMatchOrElseThrow(Long userId) {
+        if (!Objects.equals(userId, this.userId)) {
+            throw new AuthException(UN_MATCH_USER_INFO);
+        }
     }
 
     private String generatedTokenId() {

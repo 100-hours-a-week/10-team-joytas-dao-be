@@ -1,7 +1,6 @@
 package com.example.daobe.auth.application;
 
 import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN;
-import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
 
 import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.application.dto.WithdrawRequestDto;
@@ -63,9 +62,7 @@ public class AuthService {
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
-        if (!findToken.isMatchUserId(userId)) {
-            throw new AuthException(UN_MATCH_USER_INFO);
-        }
+        findToken.isMatchOrElseThrow(userId);
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }
@@ -75,9 +72,7 @@ public class AuthService {
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
-        if (!findToken.isMatchUserId(userId)) {
-            throw new AuthException(UN_MATCH_USER_INFO);
-        }
+        findToken.isMatchOrElseThrow(userId);
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
 

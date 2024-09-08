@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Token {
 
-    private Long memberId;
+    private Long userId;
     private String tokenId;
 
     @Builder
-    public Token(Long memberId) {
-        this.memberId = memberId;
+    public Token(Long userId) {
+        this.userId = userId;
         this.tokenId = generatedTokenId();
     }
 
-    public boolean isMatchMemberId(Long memberId) {
-        return Objects.equals(memberId, this.memberId);
+    public boolean isMatchUserId(Long userId) {
+        return Objects.equals(userId, this.userId);
     }
 
     private String generatedTokenId() {

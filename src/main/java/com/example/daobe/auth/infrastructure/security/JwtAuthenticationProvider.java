@@ -24,8 +24,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
         //  access_token 검증 결과를 가지고 토큰 객체를 만들어 반환
         try {
-            Long memberId = jwtExtractor.extractAccessToken(accessToken);
-            return JwtAuthenticationToken.afterOf(memberId);
+            Long userId = jwtExtractor.extractAccessToken(accessToken);
+            return JwtAuthenticationToken.afterOf(userId);
         } catch (RuntimeException ex) {
             throw new SecurityException(INVALID_TOKEN);
         }

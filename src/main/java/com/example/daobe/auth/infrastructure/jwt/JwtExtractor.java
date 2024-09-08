@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtExtractor implements TokenExtractor {
 
-    private static final String MEMBER_ID = "member_id";
+    private static final String USER_ID = "user_id";
     private static final String TOKEN_ID = "token_id";
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
@@ -34,7 +34,7 @@ public class JwtExtractor implements TokenExtractor {
 
     @Override
     public Long extractAccessToken(String token) {
-        return extract(token, ACCESS_TOKEN, MEMBER_ID, Long.class);
+        return extract(token, ACCESS_TOKEN, USER_ID, Long.class);
     }
 
     @Override

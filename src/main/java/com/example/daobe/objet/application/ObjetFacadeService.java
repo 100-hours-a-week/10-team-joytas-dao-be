@@ -56,7 +56,7 @@ public class ObjetFacadeService {
     public List<ObjetInfoDto> getAllObjetsInLounge(Long userId, Long loungeId, Boolean sharer) {
 
         if (Boolean.TRUE.equals(sharer)) {
-            return objetService.getObjetListInLoungeOfSharer(userId, loungeId, sharer);
+            return objetService.getObjetListInLoungeOfSharer(userId, loungeId);
         }
         return objetService.getObjetListInLounge(loungeId);
 

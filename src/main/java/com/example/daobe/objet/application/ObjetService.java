@@ -66,8 +66,8 @@ public class ObjetService {
         return objet;
     }
 
-    public List<ObjetInfoDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId, Boolean sharer) {
-        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserId(
+    public List<ObjetInfoDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
+        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserIdOrderByIdDesc(
                         loungeId,
                         ObjetStatus.ACTIVE,
                         userId
@@ -78,7 +78,7 @@ public class ObjetService {
     }
 
     public List<ObjetInfoDto> getObjetListInLounge(Long loungeId) {
-        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatus(loungeId, ObjetStatus.ACTIVE)
+        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusOrderByIdDesc(loungeId, ObjetStatus.ACTIVE)
                 .stream()
                 .map(ObjetInfoDto::of)
                 .toList();
@@ -86,7 +86,7 @@ public class ObjetService {
 
     public ObjetDetailInfoDto getObjetDetailInfo(Objet objet) {
         Long objetId = objet.getId();
-        Objet findObjet = getObjetById(objetId);
+        Objet findObjet = getObjetById(objet.getId());
         findObjet.isActiveOrThrow();
 
         List<SharerInfo> sharerInfos = findObjet.getObjetSharers().stream()

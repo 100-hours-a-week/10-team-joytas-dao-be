@@ -36,7 +36,7 @@ public class Objet extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "objet_id")
-    private Long objetId;
+    private Long id;
 
     @JoinColumn(name = "lounge_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -98,7 +98,7 @@ public class Objet extends BaseTimeEntity {
     }
 
     public ObjetInfoResponseDto toObjetCreateResponseDto() {
-        return new ObjetInfoResponseDto(objetId);
+        return new ObjetInfoResponseDto(id);
     }
 
     public void updateUserObjets(List<ObjetSharer> objetSharers) {

@@ -7,6 +7,6 @@ public record ObjetInfoResponseDto(
 ) {
 
     public static ObjetInfoResponseDto of(Objet objet) {
-        return new ObjetInfoResponseDto(objet.getObjetId());
+        return new ObjetInfoResponseDto(objet.getId());
     }
 }

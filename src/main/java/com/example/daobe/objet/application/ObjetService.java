@@ -85,7 +85,7 @@ public class ObjetService {
     }
 
     public ObjetDetailInfoDto getObjetDetailInfo(Objet objet) {
-        Long objetId = objet.getObjetId();
+        Long objetId = objet.getId();
         Objet findObjet = getObjetById(objetId);
         findObjet.isActiveOrThrow();
 

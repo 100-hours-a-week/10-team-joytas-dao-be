@@ -13,7 +13,7 @@ public record ObjetMeInfoDto(
 ) {
     public static ObjetMeInfoDto of(Objet objet) {
         return new ObjetMeInfoDto(
-                objet.getObjetId(),
+                objet.getId(),
                 objet.getName(),
                 objet.getImageUrl(),
                 objet.getExplanation(),

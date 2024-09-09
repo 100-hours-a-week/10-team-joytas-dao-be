@@ -10,7 +10,7 @@ public record ObjetInfoDto(
 ) {
     public static ObjetInfoDto of(Objet objet) {
         return new ObjetInfoDto(
-                objet.getObjetId(),
+                objet.getId(),
                 objet.getType(),
                 objet.getName()
         );

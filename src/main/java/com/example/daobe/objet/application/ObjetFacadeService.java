@@ -6,6 +6,7 @@ import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
@@ -52,11 +53,16 @@ public class ObjetFacadeService {
 
     // 오브제 목록 조회
     public List<ObjetInfoDto> getAllObjetsInLounge(Long userId, Long loungeId, Boolean sharer) {
-        
+
         if (Boolean.TRUE.equals(sharer)) {
             return objetService.getObjetListInLoungeOfSharer(userId, loungeId, sharer);
         } else {
             return objetService.getObjetListInLounge(loungeId);
         }
+    }
+
+    public ObjetDetailInfoDto getObjetDetail(Long objetId) {
+        Objet findObjet = objetService.getObjetById(objetId);
+        return objetService.getObjetDetailInfo(findObjet);
     }
 }

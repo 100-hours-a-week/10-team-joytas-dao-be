@@ -65,7 +65,7 @@ public class ObjetController {
             @PathVariable(name = "objetId") Long objetId
     ) {
         ApiResponse<ObjetDetailInfoDto> response = new ApiResponse<>(
-                "OBJET_DETAIL_LOADED_SUCCESS", objetService.getObjetDetail(objetId)
+                "OBJET_DETAIL_LOADED_SUCCESS", objetFacadeService.getObjetDetail(objetId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

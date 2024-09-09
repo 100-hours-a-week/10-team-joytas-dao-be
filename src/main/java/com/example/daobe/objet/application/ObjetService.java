@@ -6,10 +6,10 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSION
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
@@ -127,12 +127,12 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto delete(Objet findObjet, Long userId) {
+    public ObjetInfoResponseDto delete(Objet findObjet, Long userId) {
         validateObjetOwner(findObjet, userId);
 
         findObjet.updateStatus(ObjetStatus.DELETED);
         objetRepository.save(findObjet);
-        return ObjetCreateResponseDto.of(findObjet);
+        return ObjetInfoResponseDto.of(findObjet);
     }
 
     public Objet getObjetById(Long objetId) {

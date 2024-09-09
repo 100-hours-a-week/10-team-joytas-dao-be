@@ -75,7 +75,7 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId
     ) {
         ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
-                "USER_OBJET_LIST_LOADED_SUCCESS", objetService.getMyRecentObjets(userId)
+                "USER_OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getMyObjetList(userId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

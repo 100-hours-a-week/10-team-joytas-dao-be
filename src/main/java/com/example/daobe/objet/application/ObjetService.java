@@ -116,7 +116,7 @@ public class ObjetService {
                 .build();
     }
 
-    public List<ObjetMeInfoDto> getMyRecentObjets(Long userId) {
+    public List<ObjetMeInfoDto> getMyRecentObjetList(Long userId) {
         return objetSharerRepository.findByUserId(userId).stream()
                 .map(ObjetSharer::getObjet)
                 .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE && objet.getDeletedAt() == null)

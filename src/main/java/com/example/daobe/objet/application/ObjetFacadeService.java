@@ -8,6 +8,7 @@ import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.application.UserService;
@@ -61,8 +62,14 @@ public class ObjetFacadeService {
         }
     }
 
+    // 오브제 상세 조회
     public ObjetDetailInfoDto getObjetDetail(Long objetId) {
         Objet findObjet = objetService.getObjetById(objetId);
         return objetService.getObjetDetailInfo(findObjet);
+    }
+
+    // 유저 오브제 조회
+    public List<ObjetMeInfoDto> getMyObjetList(Long userId) {
+        return objetService.getMyRecentObjetList(userId);
     }
 }

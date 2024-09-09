@@ -5,7 +5,7 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.NO_ACTIVE_OBJ
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
@@ -36,7 +36,7 @@ public class Objet extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "objet_id")
-    private Long objetId;
+    private Long id;
 
     @JoinColumn(name = "lounge_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -93,12 +93,12 @@ public class Objet extends BaseTimeEntity {
         this.imageUrl = imageUrl;
         this.explanation = explanation;
         this.type = type;
-        this.status = status;
+        this.status = ObjetStatus.ACTIVE;
         this.chatRoom = chatRoom;
     }
 
-    public ObjetCreateResponseDto toObjetCreateResponseDto() {
-        return new ObjetCreateResponseDto(objetId);
+    public ObjetInfoResponseDto toObjetCreateResponseDto() {
+        return new ObjetInfoResponseDto(id);
     }
 
     public void updateUserObjets(List<ObjetSharer> objetSharers) {

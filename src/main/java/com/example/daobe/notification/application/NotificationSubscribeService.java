@@ -1,5 +1,6 @@
 package com.example.daobe.notification.application;
 
+import com.example.daobe.notification.application.dto.DummyResponseDto;
 import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.repository.EmitterRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,21 +23,29 @@ public class NotificationSubscribeService {
                 .build();
         emitterRepository.save(notificationEmitter);
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(notificationEmitter.getEmitterId()));
-        emitter.onTimeout(emitter::complete);
-        emitter.onError(emitter::completeWithError);
+        configurationEmitter(emitter, notificationEmitter.getEmitterId());
+        sendDummyNotification(notificationEmitter);
 
-        notificationEmitter.sendToClient(DummyPayload.of());
         return emitter;
     }
 
-    // Nested
-    public record DummyPayload(
-            String message
-    ) {
+    private void configurationEmitter(SseEmitter emitter, String emitterId) {
+        emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
+        emitter.onTimeout(() -> {
+            emitter.complete();
+            emitterRepository.deleteById(emitterId);
+        });
+        emitter.onError((error) -> {
+            emitter.complete();
+            emitterRepository.deleteById(emitterId);
+        });
+    }
 
-        public static DummyPayload of() {
-            return new DummyPayload("connect success");
+    private void sendDummyNotification(NotificationEmitter emitter) {
+        try {
+            emitter.sendToClient(DummyResponseDto.of());
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

@@ -13,7 +13,7 @@ public class ObjetInviteEvent implements DomainEvent {
 
     public ObjetInviteEvent(Long sendUserId, ObjetSharer objetSharer) {
         validate(objetSharer);
-        this.domainId = objetSharer.getObjet().getObjetId();
+        this.domainId = objetSharer.getObjet().getId();
         this.sendUserId = sendUserId;
         this.receiveUserId = objetSharer.getUser().getId();
     }

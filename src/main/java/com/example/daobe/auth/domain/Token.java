@@ -1,5 +1,8 @@
 package com.example.daobe.auth.domain;
 
+import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
+
+import com.example.daobe.auth.exception.AuthException;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -11,17 +14,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Token {
 
-    private Long memberId;
+    private Long userId;
     private String tokenId;
 
     @Builder
-    public Token(Long memberId) {
-        this.memberId = memberId;
+    public Token(Long userId) {
+        this.userId = userId;
         this.tokenId = generatedTokenId();
     }
 
-    public boolean isMatchMemberId(Long memberId) {
-        return Objects.equals(memberId, this.memberId);
+    public void isMatchOrElseThrow(Long userId) {
+        if (!Objects.equals(userId, this.userId)) {
+            throw new AuthException(UN_MATCH_USER_INFO);
+        }
     }
 
     private String generatedTokenId() {

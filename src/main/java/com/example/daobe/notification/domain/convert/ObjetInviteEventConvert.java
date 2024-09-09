@@ -28,7 +28,7 @@ public class ObjetInviteEventConvert implements DomainEventConvert {
         Objet findObjet = objetRepository.findById(domainId)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
         return new DomainInfo(
-                findObjet.getObjetId(),
+                findObjet.getId(),
                 findObjet.getName()
         );
     }

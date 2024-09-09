@@ -1,7 +1,6 @@
 package com.example.daobe.auth.application;
 
 import static com.example.daobe.auth.exception.AuthExceptionType.INVALID_TOKEN;
-import static com.example.daobe.auth.exception.AuthExceptionType.UN_MATCH_USER_INFO;
 
 import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.auth.application.dto.WithdrawRequestDto;
@@ -32,11 +31,11 @@ public class AuthService {
                 .orElseGet(() -> saveAndPublishEvent(oAuthId));
 
         Token newToken = Token.builder()
-                .memberId(findUser.getId())
+                .userId(findUser.getId())
                 .build();
         tokenRepository.save(newToken);
 
-        String accessToken = tokenProvider.generatedAccessToken(newToken.getMemberId());
+        String accessToken = tokenProvider.generatedAccessToken(newToken.getUserId());
         String refreshToken = tokenProvider.generatedRefreshToken(newToken.getTokenId());
         return TokenResponseDto.of(accessToken, refreshToken);
     }
@@ -48,12 +47,12 @@ public class AuthService {
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
         Token newToken = Token.builder()
-                .memberId(findToken.getMemberId())
+                .userId(findToken.getUserId())
                 .build();
 
         tokenRepository.save(newToken);
 
-        String accessToken = tokenProvider.generatedAccessToken(newToken.getMemberId());
+        String accessToken = tokenProvider.generatedAccessToken(newToken.getUserId());
         String refreshToken = tokenProvider.generatedRefreshToken(newToken.getTokenId());
         return TokenResponseDto.of(accessToken, refreshToken);
     }
@@ -63,9 +62,7 @@ public class AuthService {
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
-        if (!findToken.isMatchMemberId(userId)) {
-            throw new AuthException(UN_MATCH_USER_INFO);
-        }
+        findToken.isMatchOrElseThrow(userId);
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }
@@ -75,9 +72,7 @@ public class AuthService {
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new AuthException(INVALID_TOKEN));
 
-        if (!findToken.isMatchMemberId(userId)) {
-            throw new AuthException(UN_MATCH_USER_INFO);
-        }
+        findToken.isMatchOrElseThrow(userId);
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
 

@@ -72,4 +72,11 @@ public class ObjetFacadeService {
     public List<ObjetMeInfoDto> getMyObjetList(Long userId) {
         return objetService.getMyRecentObjetList(userId);
     }
+
+    // 오브제 삭제
+    @Transactional
+    public ObjetCreateResponseDto deleteObjet(Long objetId, Long userId) {
+        Objet findObjet = objetService.getObjetById(objetId);
+        return objetService.delete(findObjet, userId);
+    }
 }

@@ -127,8 +127,7 @@ public class ObjetService {
     }
 
     @Transactional
-    public ObjetCreateResponseDto delete(Long objetId, Long userId) {
-        Objet findObjet = getObjetById(objetId);
+    public ObjetCreateResponseDto delete(Objet findObjet, Long userId) {
         validateObjetOwner(findObjet, userId);
 
         findObjet.updateStatus(ObjetStatus.DELETED);

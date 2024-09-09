@@ -97,7 +97,7 @@ public class ObjetController {
             @PathVariable(name = "objetId") Long objetId,
             @AuthenticationPrincipal Long userId
     ) {
-        ObjetCreateResponseDto ObjetDeleteReponse = objetService.delete(objetId, userId);
+        ObjetCreateResponseDto ObjetDeleteReponse = objetFacadeService.deleteObjet(objetId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
     }
 }

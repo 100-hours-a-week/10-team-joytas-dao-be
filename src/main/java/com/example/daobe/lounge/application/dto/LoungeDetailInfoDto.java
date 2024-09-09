@@ -23,7 +23,7 @@ public record LoungeDetailInfoDto(
 
     public record ObjetInfo(
             Long objetId,
-            String type,
+            String objetType,
             String name
     ) {
         public static ObjetInfo of(Objet objet) {

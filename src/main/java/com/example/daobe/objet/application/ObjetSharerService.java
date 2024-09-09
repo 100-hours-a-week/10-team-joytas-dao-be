@@ -49,19 +49,20 @@ public class ObjetSharerService {
     public void updateAndSaveObjetSharer(ObjetUpdateRequestDto request, User findUser, Objet findObjet) {
         Set<Long> currentSharerIds = getCurrentSharerIds(findObjet);
         List<Long> newSharerIds = request.sharers();
+        newSharerIds.add(findUser.getId());
 
-        for (Long newSharerId : newSharerIds) {
-            if (!currentSharerIds.contains(newSharerId)) {
-                User user = getUserById(newSharerId);
-                ObjetSharer newObjetSharer = ObjetSharer.builder()
-                        .user(user)
-                        .objet(findObjet)
-                        .build();
-                objetSharerRepository.save(newObjetSharer);
-                eventPublisher.publishEvent(new ObjetInviteEvent(findUser.getId(), newObjetSharer));
-                findObjet.getObjetSharers().add(newObjetSharer);
-            }
-        }
+        newSharerIds.stream()
+                .filter(newSharerId -> !currentSharerIds.contains(newSharerId))
+                .forEach(newSharerId -> {
+                    User user = getUserById(newSharerId);
+                    ObjetSharer newObjetSharer = ObjetSharer.builder()
+                            .user(user)
+                            .objet(findObjet)
+                            .build();
+                    objetSharerRepository.save(newObjetSharer);
+                    eventPublisher.publishEvent(new ObjetInviteEvent(findUser.getId(), newObjetSharer));
+                    findObjet.getObjetSharers().add(newObjetSharer);
+                });
 
         findObjet.getObjetSharers().removeIf(objetSharer -> {
             if (!newSharerIds.contains(objetSharer.getUser().getId())) {

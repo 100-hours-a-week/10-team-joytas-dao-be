@@ -28,7 +28,7 @@ public record LoungeDetailInfoDto(
     ) {
         public static ObjetInfo of(Objet objet) {
             return new ObjetInfo(
-                    objet.getObjetId(),
+                    objet.getId(),
                     objet.getType().getType(),
                     objet.getName()
             );

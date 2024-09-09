@@ -1,11 +1,11 @@
 package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.objet.application.ObjetService;
+import com.example.daobe.objet.application.ObjetFacadeService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
 import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import java.util.List;
@@ -34,14 +34,14 @@ public class ObjetController {
     private static final String OBJET_UPDATED_SUCCESS = "OBJET_UPDATED_SUCCESS";
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
 
-    private final ObjetService objetService;
+    private final ObjetFacadeService objetFacadeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
+    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> generateObjet(
             @AuthenticationPrincipal Long userId,
             @RequestBody ObjetCreateRequestDto request
     ) {
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.create(userId, request);
+        ObjetInfoResponseDto ObjetCreateResponse = objetFacadeService.createObjet(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
     }
@@ -53,7 +53,7 @@ public class ObjetController {
             @RequestParam Boolean sharer
     ) {
         ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getObjetList(userId, loungeId, sharer)
+                "OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getAllObjetsInLounge(userId, loungeId, sharer)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -63,7 +63,7 @@ public class ObjetController {
             @PathVariable(name = "objetId") Long objetId
     ) {
         ApiResponse<ObjetDetailInfoDto> response = new ApiResponse<>(
-                "OBJET_DETAIL_LOADED_SUCCESS", objetService.getObjetDetail(objetId)
+                "OBJET_DETAIL_LOADED_SUCCESS", objetFacadeService.getObjetDetail(objetId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -73,29 +73,28 @@ public class ObjetController {
             @AuthenticationPrincipal Long userId
     ) {
         ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
-                "USER_OBJET_LIST_LOADED_SUCCESS", objetService.getMyRecentObjets(userId)
+                "USER_OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getMyObjetList(userId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-
     @PatchMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(
+    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestBody ObjetUpdateRequestDto request
     ) {
-        ObjetCreateResponseDto objetUpdateResponse = objetService.update(userId, objetId, request);
+        ObjetInfoResponseDto objetUpdateResponse = objetFacadeService.updateObjet(request, objetId, userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }
 
     @DeleteMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> deleteObjet(
+    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> deleteObjet(
             @PathVariable(name = "objetId") Long objetId,
             @AuthenticationPrincipal Long userId
     ) {
-        ObjetCreateResponseDto ObjetDeleteReponse = objetService.delete(objetId, userId);
+        ObjetInfoResponseDto ObjetDeleteReponse = objetFacadeService.deleteObjet(objetId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
     }
 }

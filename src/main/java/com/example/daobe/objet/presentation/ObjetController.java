@@ -2,7 +2,6 @@ package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetFacadeService;
-import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
@@ -35,7 +34,6 @@ public class ObjetController {
     private static final String OBJET_UPDATED_SUCCESS = "OBJET_UPDATED_SUCCESS";
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
 
-    private final ObjetService objetService;
     private final ObjetFacadeService objetFacadeService;
 
     @PostMapping
@@ -79,7 +77,6 @@ public class ObjetController {
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 
     @PatchMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> updateObjet(

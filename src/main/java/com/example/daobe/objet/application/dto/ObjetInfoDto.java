@@ -5,7 +5,7 @@ import com.example.daobe.objet.domain.ObjetType;
 
 public record ObjetInfoDto(
         Long objetId,
-        ObjetType type,
+        ObjetType objetType,
         String name
 ) {
     public static ObjetInfoDto of(Objet objet) {

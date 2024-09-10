@@ -50,7 +50,6 @@ public class ChatController {
             @DestinationVariable("roomToken") String token,
             @Payload ChatMessageDto message
     ) {
-        log.info("payload: {}", message.toString());
         messagingTemplate.convertAndSend(
                 SUBSCRIBE_URL.formatted(token),
                 chatService.createMessage(message, token)

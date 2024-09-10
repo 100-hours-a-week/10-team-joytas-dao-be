@@ -2,11 +2,13 @@ package com.example.daobe.chat.presentation;
 
 import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.chat.application.dto.ChatMessageDto;
+import com.example.daobe.chat.application.dto.ChatMessageInfoDto;
+import com.example.daobe.chat.application.dto.ChatMessageResponseDto;
 import com.example.daobe.chat.application.dto.ChatRoomTokenDto;
 import com.example.daobe.common.response.ApiResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -32,10 +34,10 @@ public class ChatController {
     @MessageMapping("/chat-rooms/{roomToken}/enter")
     public void enterChatRoom(
             @DestinationVariable("roomToken") String token,
-            @Payload ChatMessageDto message,
+            @Payload ChatMessageInfoDto message,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        ChatMessageDto.EnterAndLeaveMessage newMessage = chatService.createEnterMessageAndSetSessionAttribute(
+        ChatMessageInfoDto.EnterAndLeaveMessage newMessage = chatService.createEnterMessageAndSetSessionAttribute(
                 message,
                 token,
                 headerAccessor
@@ -48,6 +50,7 @@ public class ChatController {
             @DestinationVariable("roomToken") String token,
             @Payload ChatMessageDto message
     ) {
+        log.info("payload: {}", message.toString());
         messagingTemplate.convertAndSend(
                 SUBSCRIBE_URL.formatted(token),
                 chatService.createMessage(message, token)
@@ -78,18 +81,27 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    /**
-     * ?all=true : 전체 메시지 ?all=false : 최근 3개 메시지
-     */
     @GetMapping("/api/v1/chat-rooms/{roomToken}/messages")
-    public ResponseEntity<ApiResponse<List<ChatMessageDto>>> getChatMessages(
-            @PathVariable(name = "roomToken") String token,
-            @RequestParam(name = "all") boolean isAll
+    public ResponseEntity<ApiResponse<ChatMessageResponseDto>> getChatMessages(
+            @PathVariable(value = "roomToken") String token,
+            @RequestParam(value = "cursorId", required = false) ObjectId cursorId,
+            @RequestParam(defaultValue = "20") int limit
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(
                         "MESSAGES_LOADED_SUCCESS",
-                        chatService.getMessagesByRoomToken(token, isAll)
+                        chatService.getMessagesByRoomToken(token, cursorId, limit)
+                ));
+    }
+
+    @GetMapping("/api/v1/chat-rooms/{roomToken}/messages/recent")
+    public ResponseEntity<ApiResponse<ChatMessageResponseDto>> getRecentChatMessages(
+            @PathVariable(value = "roomToken") String token
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(
+                        "MESSAGES_LOADED_SUCCESS",
+                        chatService.getRecentMessagesByRoomToken(token)
                 ));
     }
 }

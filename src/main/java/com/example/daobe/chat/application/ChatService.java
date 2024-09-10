@@ -93,15 +93,12 @@ public class ChatService {
     public ChatMessageInfoDto createMessage(ChatMessageDto message, String roomToken) {
         ChatUser findUser = chatUserRepository.findByUserId(message.senderId())
                 .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
-
         ChatMessage chatMessage = ChatMessage.builder()
                 .type(TALK)
                 .roomToken(roomToken)
                 .senderId(findUser.getUserId())
                 .message(message.message())
                 .build();
-
-        // MongoDB 저장
         ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
         return ChatMessageInfoDto.of(savedChatMessage, findUser);
     }
@@ -136,7 +133,6 @@ public class ChatService {
     }
 
     private List<ChatMessage> getPagedChatMessages(String roomToken, ObjectId cursorId, int limit) {
-        // 요청 limit 보다 데이터를 하나 더 가져옴
         PageRequest pageRequest = PageRequest.of(
                 0,
                 limit + 1,
@@ -144,7 +140,6 @@ public class ChatService {
         );
 
         if (cursorId == null) {
-            // 첫 페이지인 경우 (마지막 ID가 없을 때)
             return chatMessageRepository.findByRoomToken(roomToken, pageRequest).getContent();
         }
         return chatMessageRepository.findByRoomTokenAndIdLessThan(roomToken, cursorId, pageRequest).getContent();
@@ -155,7 +150,6 @@ public class ChatService {
     }
 
     private List<ChatMessage> getChatMessagesToLimit(List<ChatMessage> chatMessages, boolean hasNext, int limit) {
-        // 다음 데이터 존재 여부
         if (hasNext) {
             return chatMessages.subList(0, limit);
         }

@@ -1,12 +1,13 @@
 package com.example.daobe.chat.domain;
 
-import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -19,7 +20,7 @@ public class ChatMessage {
 
     @Id
     @Field(value = "_id", targetType = FieldType.OBJECT_ID)
-    private String id;
+    private ObjectId id;
 
     @Indexed
     @Field("room_token")

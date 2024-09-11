@@ -20,8 +20,12 @@ public enum LoungeType {
 
     public static LoungeType from(String type) {
         return Arrays.stream(values())
-                .filter(loungeType -> loungeType.typeName.equals(type))
+                .filter(loungeType -> loungeType.getTypeName().equals(type))
                 .findFirst()
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_TYPE_EXCEPTION));
+    }
+
+    public String getTypeName() {
+        return typeName;
     }
 }

@@ -1,9 +1,7 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
-import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
-import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION;
 
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
@@ -13,7 +11,6 @@ import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -50,35 +47,23 @@ public class LoungeSharerService {
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
     }
 
-    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
-        // 초대자가 라운지에 소속되어있는지 검증
-        if (!isExistUserInLounge(userId, loungeId)) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
-
+    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {
+        lounge.isSharerOrThrow(userId);
         List<LoungeSharer> byUserId = loungeSharerRepository
-                .findByLounge_IdAndUser_NicknameContaining(loungeId, nickname);
+                .findByLounge_IdAndUser_NicknameContaining(lounge.getId(), nickname);
         return LoungeSharerInfoResponseDto.of(byUserId);
     }
 
     public void withdraw(User user, Lounge lounge) {
         lounge.isActiveOrThrow();
-        if (!isExistUserInLounge(user.getId(), lounge.getId())) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
-        if (isLoungeCreator(user, lounge.getUser())) {
-            throw new LoungeException(NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION);
-        }
+        lounge.isPossibleToWithdrawOrThrow(user.getId());
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
     }
 
     // TODO: 추후 도메인 로직으로 분리
     private void validateInvite(User user, Lounge lounge, Long inviterId) {
         lounge.isActiveOrThrow();
-
-        if (!isExistUserInLounge(inviterId, lounge.getId())) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
+        lounge.isSharerOrThrow(inviterId);
 
         if (isExistUserInLounge(user.getId(), lounge.getId())) {
             throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
@@ -95,9 +80,5 @@ public class LoungeSharerService {
 
     private boolean isMaximumCountLounge(Long userId) {
         return loungeSharerRepository.countActiveLoungeSharerByUserId(userId) == MAX_LOUNGE_COUNT;
-    }
-
-    private boolean isLoungeCreator(User user, User loungeUser) {
-        return Objects.equals(user, loungeUser);
     }
 }

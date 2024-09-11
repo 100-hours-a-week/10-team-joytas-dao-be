@@ -2,46 +2,63 @@ package com.example.daobe.objet.application.dto;
 
 import com.example.daobe.objet.domain.ObjetType;
 import java.util.List;
-import lombok.Builder;
 
-@Builder
 public record ObjetDetailInfoDto(
         Long objetId,
-        Long userId,
-        Long loungeId,
-        String name,
-        String nickname,
-        String objetImage,
-        String description,
-        ObjetType type,
+        ObjetMetadataDto objetMetadataDto,
         Boolean isActive,
         Long callingUserNum,
         List<ViewerInfo> viewers,
         List<SharerInfo> sharers
 ) {
-    @Builder
     public record SharerInfo(
             Long userId,
             String nickname
     ) {
         public static SharerInfo of(Long userId, String nickname) {
-            return SharerInfo.builder()
-                    .userId(userId)
-                    .nickname(nickname)
-                    .build();
+            return new SharerInfo(
+                    userId,
+                    nickname
+            );
         }
     }
 
-    @Builder
     public record ViewerInfo(
             Long userId,
             String profileImage
     ) {
         public static ViewerInfo of(Long userId, String profileImage) {
-            return ViewerInfo.builder()
-                    .userId(userId)
-                    .profileImage(profileImage)
-                    .build();
+            return new ViewerInfo(userId, profileImage);
+        }
+    }
+
+    public record ObjetMetadataDto(
+            Long userId,
+            Long loungeId,
+            String name,
+            String nickname,
+            String objetImage,
+            String description,
+            ObjetType type
+    ) {
+        public static ObjetMetadataDto of(
+                Long userId,
+                Long loungeId,
+                String name,
+                String nickname,
+                String objetImage,
+                String description,
+                ObjetType type
+        ) {
+            return new ObjetMetadataDto(
+                    userId,
+                    loungeId,
+                    name,
+                    nickname,
+                    objetImage,
+                    description,
+                    type
+            );
         }
     }
 }

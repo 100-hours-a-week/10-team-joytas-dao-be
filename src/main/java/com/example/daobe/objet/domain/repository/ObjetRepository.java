@@ -1,6 +1,6 @@
 package com.example.daobe.objet.domain.repository;
 
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
@@ -31,9 +31,9 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             AND s.user.id = :userId 
             ORDER BY o.id DESC
             """)
-    List<ObjetInfoDto> findActiveObjetsInLoungeOfSharer(@Param("userId") Long userId,
-                                                        @Param("loungeId") Long loungeId,
-                                                        @Param("status") ObjetStatus status);
+    List<ObjetResponseDto> findActiveObjetsInLoungeOfSharer(@Param("userId") Long userId,
+                                                            @Param("loungeId") Long loungeId,
+                                                            @Param("status") ObjetStatus status);
 
     @Query("""
             SELECT o FROM Objet o
@@ -42,7 +42,8 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             AND o.status = :status
             ORDER BY o.id DESC
             """)
-    List<ObjetInfoDto> findActiveObjetsInLounge(@Param("loungeId") Long loungeId, @Param("status") ObjetStatus status);
+    List<ObjetResponseDto> findActiveObjetsInLounge(@Param("loungeId") Long loungeId,
+                                                    @Param("status") ObjetStatus status);
 
 
 }

@@ -3,7 +3,7 @@ package com.example.daobe.objet.application.dto;
 import com.example.daobe.objet.domain.ObjetType;
 import java.util.List;
 
-public record ObjetDetailInfoDto(
+public record ObjetDetailResponseDto(
         Long objetId,
         ObjetMetadataDto objetMetadataDto,
         Boolean isActive,

@@ -5,10 +5,10 @@ import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.application.UserService;
@@ -49,7 +49,7 @@ public class ObjetFacadeService {
         return ObjetInfoResponseDto.of(updatedObjet);
     }
 
-    public List<ObjetInfoDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
+    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
 
         if (isSharer) {
             return objetService.getObjetListInLoungeOfSharer(userId, loungeId);
@@ -58,7 +58,7 @@ public class ObjetFacadeService {
 
     }
 
-    public ObjetDetailInfoDto getObjetDetail(Long objetId) {
+    public ObjetDetailResponseDto getObjetDetail(Long objetId) {
         return objetService.getObjetDetailInfo(objetId);
     }
 

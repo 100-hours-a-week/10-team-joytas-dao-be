@@ -6,12 +6,12 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSION
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.ObjetMetadataDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.SharerInfo;
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.ObjetMetadataDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetStatus;
@@ -66,7 +66,7 @@ public class ObjetService {
         return findObjet;
     }
 
-    public List<ObjetInfoDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
+    public List<ObjetResponseDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
         return objetRepository.findActiveObjetsInLoungeOfSharer(
                 userId,
                 loungeId,
@@ -74,11 +74,11 @@ public class ObjetService {
         );
     }
 
-    public List<ObjetInfoDto> getObjetListInLounge(Long loungeId) {
+    public List<ObjetResponseDto> getObjetListInLounge(Long loungeId) {
         return objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
     }
 
-    public ObjetDetailInfoDto getObjetDetailInfo(Long objetId) {
+    public ObjetDetailResponseDto getObjetDetailInfo(Long objetId) {
         Objet findObjet = getObjetById(objetId);
         findObjet.isActiveOrThrow();
 
@@ -91,7 +91,7 @@ public class ObjetService {
 
         Long callingUserNum = objetCallRepository.getObjetLength(objetId);
 
-        ObjetMetadataDto objetMetadataDto = ObjetDetailInfoDto.ObjetMetadataDto.of(
+        ObjetMetadataDto objetMetadataDto = ObjetDetailResponseDto.ObjetMetadataDto.of(
                 findObjet.getUser().getId(),
                 findObjet.getLounge().getId(),
                 findObjet.getName(),
@@ -101,7 +101,7 @@ public class ObjetService {
                 findObjet.getType()
         );
 
-        return new ObjetDetailInfoDto(
+        return new ObjetDetailResponseDto(
                 objetId,
                 objetMetadataDto,
                 true, // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경

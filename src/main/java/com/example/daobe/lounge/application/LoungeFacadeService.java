@@ -11,7 +11,6 @@ import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +65,6 @@ public class LoungeFacadeService {
     }
 
     // 라운지 탈퇴
-    @Modifying
     @Transactional
     public void withdraw(Long userId, Long loungeId) {
         User findUser = userService.getUserById(userId);

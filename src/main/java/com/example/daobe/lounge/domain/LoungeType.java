@@ -1,14 +1,16 @@
 package com.example.daobe.lounge.domain;
 
-import java.util.Arrays;
-import lombok.Getter;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_TYPE_EXCEPTION;
 
-@Getter
+import com.example.daobe.lounge.exception.LoungeException;
+import java.util.Arrays;
+
 public enum LoungeType {
 
     L0001("L0001"),
     L0002("L0002"),
-    L0003("L0003");
+    L0003("L0003"),
+    ;
 
     private final String typeName;
 
@@ -18,8 +20,8 @@ public enum LoungeType {
 
     public static LoungeType from(String type) {
         return Arrays.stream(values())
-                .filter(loungeType -> loungeType.getTypeName().equals(type))
+                .filter(loungeType -> loungeType.typeName.equals(type))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_LOUNGE_TYPE_EXCEPTION"));
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_TYPE_EXCEPTION));
     }
 }

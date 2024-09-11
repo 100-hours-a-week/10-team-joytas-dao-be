@@ -9,9 +9,12 @@ import org.springframework.data.repository.query.Param;
 public interface LoungeSharerRepository extends JpaRepository<LoungeSharer, Long> {
 
     @Query("""
-                SELECT CASE WHEN COUNT(ls) > 0 THEN true ELSE false END
-                FROM LoungeSharer ls WHERE ls.user.id = :userId
+            SELECT CASE WHEN EXISTS (
+                SELECT 1
+                FROM LoungeSharer ls
+                WHERE ls.user.id = :userId
                 AND ls.lounge.id = :loungeId
+            ) THEN true ELSE false END
             """)
     boolean existsByUserIdAndLoungeId(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
 

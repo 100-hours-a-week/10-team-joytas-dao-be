@@ -3,6 +3,7 @@ package com.example.daobe.lounge.domain;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_OWNER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ACTIVE_LOUNGE_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION;
 
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.exception.LoungeException;
@@ -82,7 +83,7 @@ public class Lounge extends BaseTimeEntity {
         }
     }
 
-    private void isOwnerOrThrow(Long userId) {
+    public void isOwnerOrThrow(Long userId) {
         if (userId != user.getId()) {
             throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
@@ -93,5 +94,11 @@ public class Lounge extends BaseTimeEntity {
                 .filter(loungeSharer -> loungeSharer.getUser().getId().equals(userId))
                 .findAny()
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION));
+    }
+
+    public void isPossibleToWithdrawOrThrow(Long userId) {
+        if (userId == user.getId()) {
+            throw new LoungeException(NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION);
+        }
     }
 }

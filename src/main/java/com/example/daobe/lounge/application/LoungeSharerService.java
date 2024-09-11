@@ -1,7 +1,6 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
-import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
 
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
@@ -48,33 +47,28 @@ public class LoungeSharerService {
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
     }
 
-    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
-        // 초대자가 라운지에 소속되어있는지 검증
-        if (!isExistUserInLounge(userId, loungeId)) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
-
+    public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {
+        lounge.isSharerOrThrow(userId);
         List<LoungeSharer> byUserId = loungeSharerRepository
-                .findByLounge_IdAndUser_NicknameContaining(loungeId, nickname);
+                .findByLounge_IdAndUser_NicknameContaining(lounge.getId(), nickname);
         return LoungeSharerInfoResponseDto.of(byUserId);
+    }
+
+    public void withdraw(User user, Lounge lounge) {
+        lounge.isActiveOrThrow();
+        lounge.isPossibleToWithdrawOrThrow(user.getId());
+        loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
     }
 
     // TODO: 추후 도메인 로직으로 분리
     private void validateInvite(User user, Lounge lounge, Long inviterId) {
-        // 활성 상태인 라운지인지 검증
         lounge.isActiveOrThrow();
+        lounge.isSharerOrThrow(inviterId);
 
-        // 초대자가 라운지에 소속되어있는지 검증
-        if (!isExistUserInLounge(inviterId, lounge.getId())) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
-
-        // 초대 대상자 라운지 소속 중복 여부 검증
         if (isExistUserInLounge(user.getId(), lounge.getId())) {
             throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
         }
 
-        // 라운지 최대 개수를 초과하는지 검증
         if (isMaximumCountLounge(user.getId())) {
             throw new LoungeException(MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION);
         }

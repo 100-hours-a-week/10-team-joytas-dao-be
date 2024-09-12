@@ -15,7 +15,6 @@ public interface ObjetSharerRepository extends JpaRepository<ObjetSharer, Long> 
             JOIN os.objet o
             WHERE os.user.id = :userId
             AND o.status = :status
-            AND o.deletedAt IS NULL
             ORDER BY o.createdAt DESC
             LIMIT 4
             """)

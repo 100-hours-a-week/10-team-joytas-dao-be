@@ -5,10 +5,10 @@ import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.application.UserService;
@@ -31,7 +31,6 @@ public class ObjetFacadeService {
     private final ObjetSharerService objetSharerService;
     private final ChatService chatRoomService;
 
-    // 오브제 생성
     @Transactional
     public ObjetInfoResponseDto createObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge lounge = loungeService.getLoungeById(request.loungeId());
@@ -42,41 +41,33 @@ public class ObjetFacadeService {
         return ObjetInfoResponseDto.of(createdObjet);
     }
 
-    // 오브제 수정
     @Transactional
     public ObjetInfoResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
         User findUser = userService.getUserById(userId);
-        Objet findObjet = objetService.getObjetById(objetId);
-        Objet updatedObjet = objetService.updateAndSaveObjet(request, findObjet, userId);
+        Objet updatedObjet = objetService.updateAndSaveObjet(request, objetId, userId);
         objetSharerService.updateAndSaveObjetSharer(request, findUser, updatedObjet);
         return ObjetInfoResponseDto.of(updatedObjet);
     }
 
-    // 오브제 목록 조회
-    public List<ObjetInfoDto> getAllObjetsInLounge(Long userId, Long loungeId, Boolean sharer) {
+    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
 
-        if (Boolean.TRUE.equals(sharer)) {
+        if (isSharer) {
             return objetService.getObjetListInLoungeOfSharer(userId, loungeId);
         }
         return objetService.getObjetListInLounge(loungeId);
 
     }
 
-    // 오브제 상세 조회
-    public ObjetDetailInfoDto getObjetDetail(Long objetId) {
-        Objet findObjet = objetService.getObjetById(objetId);
-        return objetService.getObjetDetailInfo(findObjet);
+    public ObjetDetailResponseDto getObjetDetail(Long objetId) {
+        return objetService.getObjetDetailInfo(objetId);
     }
 
-    // 유저 오브제 조회
-    public List<ObjetMeInfoDto> getMyObjetList(Long userId) {
+    public List<ObjetMeResponseDto> getMyObjetList(Long userId) {
         return objetService.getMyRecentObjetList(userId);
     }
 
-    // 오브제 삭제
     @Transactional
     public ObjetInfoResponseDto deleteObjet(Long objetId, Long userId) {
-        Objet findObjet = objetService.getObjetById(objetId);
-        return objetService.delete(findObjet, userId);
+        return objetService.delete(objetId, userId);
     }
 }

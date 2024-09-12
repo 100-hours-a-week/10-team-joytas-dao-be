@@ -6,14 +6,13 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSION
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto.SharerInfo;
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.repository.ObjetCallRepository;
@@ -21,7 +20,6 @@ import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
-import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,34 +57,28 @@ public class ObjetService {
     }
 
     @Transactional
-    public Objet updateAndSaveObjet(ObjetUpdateRequestDto request, Objet objet, Long userId) {
-        validateObjetOwner(objet, userId);
-        objet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
-        objetRepository.save(objet);
-        return objet;
+    public Objet updateAndSaveObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
+        Objet findObjet = getObjetById(objetId);
+        validateObjetOwner(findObjet, userId);
+        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
+        objetRepository.save(findObjet);
+        return findObjet;
     }
 
-    public List<ObjetInfoDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
-        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserIdOrderByIdDesc(
-                        loungeId,
-                        ObjetStatus.ACTIVE,
-                        userId
-                )
-                .stream()
-                .map(ObjetInfoDto::of)
-                .toList();
+    public List<ObjetResponseDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
+        return objetRepository.findActiveObjetsInLoungeOfSharer(
+                userId,
+                loungeId,
+                ObjetStatus.ACTIVE
+        );
     }
 
-    public List<ObjetInfoDto> getObjetListInLounge(Long loungeId) {
-        return objetRepository.findByLoungeIdAndDeletedAtIsNullAndStatusOrderByIdDesc(loungeId, ObjetStatus.ACTIVE)
-                .stream()
-                .map(ObjetInfoDto::of)
-                .toList();
+    public List<ObjetResponseDto> getObjetListInLounge(Long loungeId) {
+        return objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
     }
 
-    public ObjetDetailInfoDto getObjetDetailInfo(Objet objet) {
-        Long objetId = objet.getId();
-        Objet findObjet = getObjetById(objet.getId());
+    public ObjetDetailResponseDto getObjetDetailInfo(Long objetId) {
+        Objet findObjet = getObjetById(objetId);
         findObjet.isActiveOrThrow();
 
         List<SharerInfo> sharerInfos = findObjet.getObjetSharers().stream()
@@ -98,36 +90,24 @@ public class ObjetService {
 
         Long callingUserNum = objetCallRepository.getObjetLength(objetId);
 
-        return ObjetDetailInfoDto.builder()
-                .objetId(objetId)
-                .name(findObjet.getName())
-                .userId(findObjet.getUser().getId())
-                .nickname(findObjet.getUser().getNickname())
-                .loungeId(findObjet.getLounge().getId())
-                .objetImage(findObjet.getImageUrl())
-                .description(findObjet.getExplanation())
-                .type(findObjet.getType())
-                // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
-                .isActive(true)
-                // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
-                .viewers(null)
-                .callingUserNum(callingUserNum)
-                .sharers(sharerInfos)
-                .build();
+        return ObjetDetailResponseDto.of(
+                findObjet,
+                true, // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
+                callingUserNum,
+                null, // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
+                sharerInfos
+        );
+
     }
 
-    public List<ObjetMeInfoDto> getMyRecentObjetList(Long userId) {
-        return objetSharerRepository.findByUserId(userId).stream()
-                .map(ObjetSharer::getObjet)
-                .filter(objet -> objet.getStatus() == ObjetStatus.ACTIVE && objet.getDeletedAt() == null)
-                .sorted(Comparator.comparing(Objet::getCreatedAt).reversed())
-                .limit(4)
-                .map(ObjetMeInfoDto::of)
-                .toList();
+    public List<ObjetMeResponseDto> getMyRecentObjetList(Long userId) {
+        return objetSharerRepository.findMyRecentObjetByUserId(userId, ObjetStatus.ACTIVE).stream()
+                .map(ObjetMeResponseDto::of).toList();
     }
 
     @Transactional
-    public ObjetInfoResponseDto delete(Objet findObjet, Long userId) {
+    public ObjetInfoResponseDto delete(Long objetId, Long userId) {
+        Objet findObjet = getObjetById(objetId);
         validateObjetOwner(findObjet, userId);
 
         findObjet.updateStatus(ObjetStatus.DELETED);

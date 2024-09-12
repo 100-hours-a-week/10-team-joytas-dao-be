@@ -2,6 +2,7 @@ package com.example.daobe.objet.application.dto;
 
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ObjetDetailResponseDto(
@@ -14,7 +15,8 @@ public record ObjetDetailResponseDto(
         String description,
         ObjetType objetType,
         Long callingUserNum,
-        List<SharerInfo> sharers
+        List<SharerInfo> sharers,
+        LocalDateTime createdAt
 ) {
     public static ObjetDetailResponseDto of(
             Objet objet,
@@ -31,7 +33,8 @@ public record ObjetDetailResponseDto(
                 objet.getExplanation(),
                 objet.getType(),
                 callingUserNum,
-                sharers
+                sharers,
+                objet.getCreatedAt()
         );
 
     }

@@ -5,7 +5,7 @@ import com.example.daobe.objet.application.ObjetFacadeService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import java.util.List;
@@ -69,10 +69,10 @@ public class ObjetController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<ObjetMeInfoDto>>> getMyObjets(
+    public ResponseEntity<ApiResponse<List<ObjetMeResponseDto>>> getMyObjets(
             @AuthenticationPrincipal Long userId
     ) {
-        ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
+        ApiResponse<List<ObjetMeResponseDto>> response = new ApiResponse<>(
                 "USER_OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getMyObjetList(userId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);

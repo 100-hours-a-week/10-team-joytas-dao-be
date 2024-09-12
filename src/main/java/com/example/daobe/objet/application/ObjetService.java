@@ -10,7 +10,7 @@ import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.ObjetMetadataDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
@@ -112,9 +112,9 @@ public class ObjetService {
 
     }
 
-    public List<ObjetMeInfoDto> getMyRecentObjetList(Long userId) {
+    public List<ObjetMeResponseDto> getMyRecentObjetList(Long userId) {
         return objetSharerRepository.findMyRecentObjetByUserId(userId, ObjetStatus.ACTIVE).stream()
-                .map(ObjetMeInfoDto::of).toList();
+                .map(ObjetMeResponseDto::of).toList();
     }
 
     @Transactional

@@ -7,7 +7,7 @@ import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
@@ -62,7 +62,7 @@ public class ObjetFacadeService {
         return objetService.getObjetDetailInfo(objetId);
     }
 
-    public List<ObjetMeInfoDto> getMyObjetList(Long userId) {
+    public List<ObjetMeResponseDto> getMyObjetList(Long userId) {
         return objetService.getMyRecentObjetList(userId);
     }
 

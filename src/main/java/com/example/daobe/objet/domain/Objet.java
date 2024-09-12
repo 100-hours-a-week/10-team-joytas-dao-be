@@ -1,12 +1,9 @@
 package com.example.daobe.objet.domain;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.NO_ACTIVE_OBJET_EXCEPTION;
-
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -120,9 +117,4 @@ public class Objet extends BaseTimeEntity {
         this.status = status;
     }
 
-    public void isActiveOrThrow() {
-        if (!status.isActive()) {
-            throw new ObjetException(NO_ACTIVE_OBJET_EXCEPTION);
-        }
-    }
 }

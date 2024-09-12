@@ -92,9 +92,7 @@ public class ObjetService {
 
         return ObjetDetailResponseDto.of(
                 findObjet,
-                true, // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
                 callingUserNum,
-                null, // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경
                 sharerInfos
         );
 

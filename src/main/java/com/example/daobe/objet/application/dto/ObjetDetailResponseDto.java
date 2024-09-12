@@ -13,16 +13,12 @@ public record ObjetDetailResponseDto(
         String objetImage,
         String description,
         ObjetType objetType,
-        Boolean isActive,
         Long callingUserNum,
-        List<ViewerInfo> viewers,
         List<SharerInfo> sharers
 ) {
     public static ObjetDetailResponseDto of(
             Objet objet,
-            boolean isActive,
             Long callingUserNum,
-            List<ViewerInfo> viewers,
             List<SharerInfo> sharers
     ) {
         return new ObjetDetailResponseDto(
@@ -34,9 +30,7 @@ public record ObjetDetailResponseDto(
                 objet.getImageUrl(),
                 objet.getExplanation(),
                 objet.getType(),
-                isActive,
                 callingUserNum,
-                viewers,
                 sharers
         );
 
@@ -51,15 +45,6 @@ public record ObjetDetailResponseDto(
                     userId,
                     nickname
             );
-        }
-    }
-
-    public record ViewerInfo(
-            Long userId,
-            String profileImage
-    ) {
-        public static ViewerInfo of(Long userId, String profileImage) {
-            return new ViewerInfo(userId, profileImage);
         }
     }
 }

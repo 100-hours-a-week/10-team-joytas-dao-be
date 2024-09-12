@@ -2,6 +2,7 @@ package com.example.daobe.objet.application.dto;
 
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ObjetDetailResponseDto(
@@ -13,16 +14,13 @@ public record ObjetDetailResponseDto(
         String objetImage,
         String description,
         ObjetType objetType,
-        Boolean isActive,
         Long callingUserNum,
-        List<ViewerInfo> viewers,
-        List<SharerInfo> sharers
+        List<SharerInfo> sharers,
+        LocalDateTime createdAt
 ) {
     public static ObjetDetailResponseDto of(
             Objet objet,
-            boolean isActive,
             Long callingUserNum,
-            List<ViewerInfo> viewers,
             List<SharerInfo> sharers
     ) {
         return new ObjetDetailResponseDto(
@@ -34,10 +32,9 @@ public record ObjetDetailResponseDto(
                 objet.getImageUrl(),
                 objet.getExplanation(),
                 objet.getType(),
-                isActive,
                 callingUserNum,
-                viewers,
-                sharers
+                sharers,
+                objet.getCreatedAt()
         );
 
     }
@@ -51,15 +48,6 @@ public record ObjetDetailResponseDto(
                     userId,
                     nickname
             );
-        }
-    }
-
-    public record ViewerInfo(
-            Long userId,
-            String profileImage
-    ) {
-        public static ViewerInfo of(Long userId, String profileImage) {
-            return new ViewerInfo(userId, profileImage);
         }
     }
 }

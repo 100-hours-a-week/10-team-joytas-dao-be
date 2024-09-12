@@ -4,6 +4,7 @@ import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,5 +35,5 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
     );
 
-
+    Optional<Objet> findByIdAndStatus(Long loungeId, ObjetStatus status);
 }

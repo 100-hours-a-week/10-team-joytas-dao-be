@@ -12,38 +12,27 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ObjetRepository extends JpaRepository<Objet, Long> {
 
-    // 마이룸 - 라운지별 오브제 목록 조회
-    List<Objet> findByLoungeIdAndDeletedAtIsNullAndStatusAndObjetSharersUserIdOrderByIdDesc(
-            Long loungeId, ObjetStatus status, Long userId
-    );
-
-    // 라운지별 오브제 목록 조회
-    List<Objet> findByLoungeIdAndDeletedAtIsNullAndStatusOrderByIdDesc(
-            Long loungeId, ObjetStatus status
-    );
-
     @Query("""
             SELECT o FROM Objet o 
             JOIN o.objetSharers s 
-            WHERE o.lounge.id = :loungeId 
-            AND o.deletedAt IS NULL 
+            WHERE o.lounge.id = :loungeId
             AND o.status = :status 
             AND s.user.id = :userId 
             ORDER BY o.id DESC
             """)
-    List<ObjetResponseDto> findActiveObjetsInLoungeOfSharer(@Param("userId") Long userId,
-                                                            @Param("loungeId") Long loungeId,
-                                                            @Param("status") ObjetStatus status);
+    List<ObjetResponseDto> findActiveObjetsInLoungeOfSharer(
+            @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
+    );
 
     @Query("""
             SELECT o FROM Objet o
             WHERE o.lounge.id = :loungeId
-            AND o.deletedAt IS NULL
             AND o.status = :status
             ORDER BY o.id DESC
             """)
-    List<ObjetResponseDto> findActiveObjetsInLounge(@Param("loungeId") Long loungeId,
-                                                    @Param("status") ObjetStatus status);
+    List<ObjetResponseDto> findActiveObjetsInLounge(
+            @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
+    );
 
 
 }

@@ -1,16 +1,47 @@
 package com.example.daobe.objet.application.dto;
 
+import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
 import java.util.List;
 
 public record ObjetDetailResponseDto(
         Long objetId,
-        ObjetMetadataDto objetMetadataDto,
+        Long userId,
+        Long loungeId,
+        String name,
+        String nickname,
+        String objetImage,
+        String description,
+        ObjetType objetType,
         Boolean isActive,
         Long callingUserNum,
         List<ViewerInfo> viewers,
         List<SharerInfo> sharers
 ) {
+    public static ObjetDetailResponseDto of(
+            Objet objet,
+            boolean isActive,
+            Long callingUserNum,
+            List<ViewerInfo> viewers,
+            List<SharerInfo> sharers
+    ) {
+        return new ObjetDetailResponseDto(
+                objet.getId(),
+                objet.getUser().getId(),
+                objet.getLounge().getId(),
+                objet.getName(),
+                objet.getUser().getNickname(),
+                objet.getImageUrl(),
+                objet.getExplanation(),
+                objet.getType(),
+                isActive,
+                callingUserNum,
+                viewers,
+                sharers
+        );
+
+    }
+
     public record SharerInfo(
             Long userId,
             String nickname
@@ -29,36 +60,6 @@ public record ObjetDetailResponseDto(
     ) {
         public static ViewerInfo of(Long userId, String profileImage) {
             return new ViewerInfo(userId, profileImage);
-        }
-    }
-
-    public record ObjetMetadataDto(
-            Long userId,
-            Long loungeId,
-            String name,
-            String nickname,
-            String objetImage,
-            String description,
-            ObjetType type
-    ) {
-        public static ObjetMetadataDto of(
-                Long userId,
-                Long loungeId,
-                String name,
-                String nickname,
-                String objetImage,
-                String description,
-                ObjetType type
-        ) {
-            return new ObjetMetadataDto(
-                    userId,
-                    loungeId,
-                    name,
-                    nickname,
-                    objetImage,
-                    description,
-                    type
-            );
         }
     }
 }

@@ -7,7 +7,6 @@ import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
-import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.ObjetMetadataDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto.SharerInfo;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
@@ -91,19 +90,8 @@ public class ObjetService {
 
         Long callingUserNum = objetCallRepository.getObjetLength(objetId);
 
-        ObjetMetadataDto objetMetadataDto = ObjetDetailResponseDto.ObjetMetadataDto.of(
-                findObjet.getUser().getId(),
-                findObjet.getLounge().getId(),
-                findObjet.getName(),
-                findObjet.getUser().getNickname(),
-                findObjet.getImageUrl(),
-                findObjet.getExplanation(),
-                findObjet.getType()
-        );
-
-        return new ObjetDetailResponseDto(
-                objetId,
-                objetMetadataDto,
+        return ObjetDetailResponseDto.of(
+                findObjet,
                 true, // TODO : 실시간 오브제 상태 확인 로직 구현 후 변경
                 callingUserNum,
                 null, // TODO : 실시간 오브제 접속 유저 목록 로직 구현 후 변경

@@ -79,7 +79,6 @@ public class ObjetService {
 
     public ObjetDetailResponseDto getObjetDetailInfo(Long objetId) {
         Objet findObjet = getObjetById(objetId);
-        findObjet.isActiveOrThrow();
 
         List<SharerInfo> sharerInfos = findObjet.getObjetSharers().stream()
                 .map(sharer -> SharerInfo.of(
@@ -114,7 +113,7 @@ public class ObjetService {
     }
 
     public Objet getObjetById(Long objetId) {
-        return objetRepository.findById(objetId)
+        return objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
     }
 

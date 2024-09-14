@@ -66,15 +66,17 @@ public class ObjetService {
     }
 
     public List<ObjetResponseDto> getObjetListInLoungeOfSharer(Long userId, Long loungeId) {
-        return objetRepository.findActiveObjetsInLoungeOfSharer(
+        List<Objet> objetList = objetRepository.findActiveObjetsInLoungeOfSharer(
                 userId,
                 loungeId,
                 ObjetStatus.ACTIVE
         );
+        return ObjetResponseDto.listOf(objetList);
     }
 
     public List<ObjetResponseDto> getObjetListInLounge(Long loungeId) {
-        return objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
+        List<Objet> objetList = objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
+        return ObjetResponseDto.listOf(objetList);
     }
 
     public ObjetDetailResponseDto getObjetDetailInfo(Long objetId) {

@@ -7,8 +7,12 @@ import com.example.daobe.objet.domain.repository.ObjetRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component
@@ -17,7 +21,9 @@ public class ObjetEventListener {
 
     private final ObjetRepository objetRepository;
 
-    @EventListener
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleLoungeDeleted(LoungeDeleteEvent event) {
         List<Objet> objets = objetRepository.findActiveObjetsInLounge(event.getDomainId(), ObjetStatus.ACTIVE);
         objets.forEach(objet -> objet.updateStatus(ObjetStatus.DELETED));

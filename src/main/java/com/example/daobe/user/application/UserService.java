@@ -9,6 +9,7 @@ import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
 import com.example.daobe.user.domain.User;
+import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.event.UserPokeEvent;
 import com.example.daobe.user.domain.event.UserUpdateEvent;
 import com.example.daobe.user.domain.repository.UserPokeRepository;
@@ -85,7 +86,27 @@ public class UserService {
         eventPublisher.publishEvent(userPokeEvent);
     }
 
-    // FIXME: EDA 기반으로 수정
+    @Transactional
+    public User getOrRegisterByOAuthId(String oAuthId) {
+        return userRepository.findByKakaoId(oAuthId)
+                .map(this::activateIfDeleted)
+                .orElseGet(() -> registerNewUser(oAuthId));
+    }
+
+    private User activateIfDeleted(User user) {
+        if (user.isDeletedUser()) {
+            user.activateFirstLogin();
+        }
+        return user;
+    }
+
+    private User registerNewUser(String oAuthId) {
+        User newUser = User.builder().kakaoId(oAuthId).build();
+        eventPublisher.publishEvent(UserCreateEvent.of(newUser));
+        return userRepository.save(newUser);
+    }
+
+    // External Service
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));

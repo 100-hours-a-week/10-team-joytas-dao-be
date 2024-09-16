@@ -10,12 +10,14 @@ import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeStatus;
 import com.example.daobe.lounge.domain.LoungeType;
+import com.example.daobe.lounge.domain.event.LoungeDeleteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class LoungeService {
 
     private final LoungeRepository loungeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Lounge createAndSaveLounge(LoungeCreateRequestDto request, User user) {
         Lounge lounge = Lounge.builder()
@@ -60,6 +63,7 @@ public class LoungeService {
 
     public void deleteLoungeByUserId(User user, Lounge lounge) {
         lounge.softDelete(user.getId());
+        eventPublisher.publishEvent(new LoungeDeleteEvent(lounge.getId()));
     }
 
     // 조회 가능한 라운지인지  검증

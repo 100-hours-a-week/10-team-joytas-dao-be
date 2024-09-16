@@ -25,8 +25,8 @@ public class ObjetEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleLoungeDeleted(LoungeDeleteEvent event) {
-        List<Objet> objets = objetRepository.findActiveObjetsInLounge(event.getDomainId(), ObjetStatus.ACTIVE);
-        objets.forEach(objet -> objet.updateStatus(ObjetStatus.DELETED));
-        objetRepository.saveAll(objets);
+        List<Objet> objetList = objetRepository.findActiveObjetsInLounge(event.loungeId(), ObjetStatus.ACTIVE);
+        objetList.forEach(objet -> objet.updateStatus(ObjetStatus.DELETED));
+        objetRepository.saveAll(objetList);
     }
 }

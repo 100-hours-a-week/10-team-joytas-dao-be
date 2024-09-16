@@ -7,28 +7,26 @@ import com.example.daobe.auth.application.dto.WithdrawRequestDto;
 import com.example.daobe.auth.domain.Token;
 import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.auth.exception.AuthException;
+import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.exception.UserException;
 import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final UserService userService;
     private final TokenProvider tokenProvider;
     private final TokenExtractor tokenExtractor;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     public TokenResponseDto loginOrRegister(String oAuthId) {
-        User findUser = userRepository.findByKakaoId(oAuthId)
-                .orElseGet(() -> saveAndPublishEvent(oAuthId));
+        User findUser = userService.getOrRegisterByOAuthId(oAuthId);
 
         Token newToken = Token.builder()
                 .userId(findUser.getId())
@@ -80,11 +78,5 @@ public class AuthService {
                 .orElseThrow(() -> new UserException(UserExceptionType.NOT_EXIST_USER));
         findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
         userRepository.save(findUser);
-    }
-
-    private User saveAndPublishEvent(String oAuthId) {
-        User newUser = userRepository.save(User.builder().kakaoId(oAuthId).build());
-        eventPublisher.publishEvent(UserCreateEvent.of(newUser));
-        return newUser;
     }
 }

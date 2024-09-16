@@ -78,6 +78,18 @@ public class User extends BaseTimeEntity {
         }
     }
 
+    public boolean isDeletedUser() {
+        return status == UserStatus.DELETED;
+    }
+
+    public void activateFirstLogin() {
+        updateStatus(UserStatus.ACTIVE_FIRST_LOGIN);
+    }
+
+    private void updateStatus(UserStatus status) {
+        this.status = status;
+    }
+
     public void withdrawWithAddReason(List<String> stringReasonTypeList, String detail) {
         this.reasons = stringReasonTypeList.stream()
                 .map(ReasonType::getReasonTypeByString)

@@ -11,6 +11,7 @@ public enum LoungeResultType {
     LOUNGE_DELETED_SUCCESS(HttpStatus.OK),
     LOUNGE_INVITE_SUCCESS(HttpStatus.OK),
     LOUNGE_SHARER_INFO_LOADED_SUCCESS(HttpStatus.OK),
+    LOUNGE_WITHDRAW_SUCCESS(HttpStatus.OK),
     ;
 
     private final HttpStatus httpStatus;

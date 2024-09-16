@@ -3,7 +3,7 @@ package com.example.daobe.objet.application.dto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
 
-public record ObjetMeInfoDto(
+public record ObjetMeResponseDto(
         Long objetId,
         String name,
         String objetImage,
@@ -11,8 +11,8 @@ public record ObjetMeInfoDto(
         ObjetType objetType,
         Long loungeId
 ) {
-    public static ObjetMeInfoDto of(Objet objet) {
-        return new ObjetMeInfoDto(
+    public static ObjetMeResponseDto of(Objet objet) {
+        return new ObjetMeResponseDto(
                 objet.getId(),
                 objet.getName(),
                 objet.getImageUrl(),

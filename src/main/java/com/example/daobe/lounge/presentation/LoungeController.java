@@ -6,6 +6,7 @@ import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOU
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_SHARER_INFO_LOADED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_WITHDRAW_SUCCESS;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
@@ -70,6 +71,7 @@ public class LoungeController {
                 );
     }
 
+    // TODO: 비활성화된 라운지 탈퇴 요청시 예외 발생하는지 확인하기
     @DeleteMapping("/{loungeId}")
     public ResponseEntity<ApiResponse<Void>> deleteLounge(
             @AuthenticationPrincipal Long userId,
@@ -100,6 +102,19 @@ public class LoungeController {
                 .body(new ApiResponse<>(
                         LOUNGE_SHARER_INFO_LOADED_SUCCESS.name(),
                         loungeFacadeService.searchLoungeSharer(userId, nickname, loungeId)
+                ));
+    }
+
+    @PostMapping("/{loungeId}/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withDraw(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long loungeId
+    ) {
+        loungeFacadeService.withdraw(userId, loungeId);
+        return ResponseEntity.status(LOUNGE_WITHDRAW_SUCCESS.getHttpStatus())
+                .body(new ApiResponse<>(
+                        LOUNGE_WITHDRAW_SUCCESS.name(),
+                        null
                 ));
     }
 }

@@ -3,10 +3,10 @@ package com.example.daobe.objet.presentation;
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetFacadeService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetDetailInfoDto;
-import com.example.daobe.objet.application.dto.ObjetInfoDto;
+import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
-import com.example.daobe.objet.application.dto.ObjetMeInfoDto;
+import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,32 +47,32 @@ public class ObjetController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ObjetInfoDto>>> getAllObjets(
+    public ResponseEntity<ApiResponse<List<ObjetResponseDto>>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam("lounge_id") Long loungeId,
             @RequestParam Boolean sharer
     ) {
-        ApiResponse<List<ObjetInfoDto>> response = new ApiResponse<>(
+        ApiResponse<List<ObjetResponseDto>> response = new ApiResponse<>(
                 "OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getAllObjetsInLounge(userId, loungeId, sharer)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetDetailInfoDto>> getObjetDetail(
+    public ResponseEntity<ApiResponse<ObjetDetailResponseDto>> getObjetDetail(
             @PathVariable(name = "objetId") Long objetId
     ) {
-        ApiResponse<ObjetDetailInfoDto> response = new ApiResponse<>(
+        ApiResponse<ObjetDetailResponseDto> response = new ApiResponse<>(
                 "OBJET_DETAIL_LOADED_SUCCESS", objetFacadeService.getObjetDetail(objetId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<ObjetMeInfoDto>>> getMyObjets(
+    public ResponseEntity<ApiResponse<List<ObjetMeResponseDto>>> getMyObjets(
             @AuthenticationPrincipal Long userId
     ) {
-        ApiResponse<List<ObjetMeInfoDto>> response = new ApiResponse<>(
+        ApiResponse<List<ObjetMeResponseDto>> response = new ApiResponse<>(
                 "USER_OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getMyObjetList(userId)
         );
         return ResponseEntity.status(HttpStatus.OK).body(response);

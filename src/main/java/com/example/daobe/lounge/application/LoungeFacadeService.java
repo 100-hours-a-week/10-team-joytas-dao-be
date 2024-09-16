@@ -61,6 +61,15 @@ public class LoungeFacadeService {
 
     // 라운지 내 유저 검색
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
-        return loungeSharerService.searchLoungeSharer(userId, nickname, loungeId);
+        Lounge findLounge = loungeService.getLoungeById(loungeId);
+        return loungeSharerService.searchLoungeSharer(userId, nickname, findLounge);
+    }
+
+    // 라운지 탈퇴
+    @Transactional
+    public void withdraw(Long userId, Long loungeId) {
+        User findUser = userService.getUserById(userId);
+        Lounge findLounge = loungeService.getLoungeById(loungeId);
+        loungeSharerService.withdraw(findUser, findLounge);
     }
 }

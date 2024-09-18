@@ -6,15 +6,18 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOU
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
+import com.example.daobe.lounge.domain.LoungeSharerStatus;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoungeSharerService {
@@ -33,6 +36,7 @@ public class LoungeSharerService {
         LoungeSharer loungeSharer = LoungeSharer.builder()
                 .user(user)
                 .lounge(lounge)
+                .status(LoungeSharerStatus.ACTIVE)
                 .build();
         loungeSharerRepository.save(loungeSharer);
     }
@@ -45,6 +49,14 @@ public class LoungeSharerService {
                 .build();
         loungeSharerRepository.save(loungeSharer);
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
+    }
+
+    public void updateInvitedUserStatus(User user, Lounge lounge, boolean accept) {
+        LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(user.getId(), lounge.getId());
+        if (accept && !findSharer.isActive()) {
+            findSharer.update();
+            loungeSharerRepository.save(findSharer);
+        }
     }
 
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {

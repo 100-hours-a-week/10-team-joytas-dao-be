@@ -1,5 +1,6 @@
 package com.example.daobe.user.application;
 
+import static com.example.daobe.user.exception.UserExceptionType.ALREADY_POKE;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
@@ -17,7 +18,6 @@ import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.domain.repository.UserSearchRepository;
 import com.example.daobe.user.domain.repository.dto.UserSearchCondition;
 import com.example.daobe.user.exception.UserException;
-import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
@@ -71,7 +71,7 @@ public class UserService {
     public void poke(Long userId, UserPokeRequestDto request) {
         boolean alreadyPoke = userPokeRepository.existsByUserId(userId);
         if (alreadyPoke) {
-            throw new UserException(UserExceptionType.ALREADY_POKE);
+            throw new UserException(ALREADY_POKE);
         }
 
         Long receiveUserId = request.userId();
@@ -90,7 +90,7 @@ public class UserService {
     public User getOrRegisterByOAuthId(String oAuthId) {
         return userRepository.findByKakaoId(oAuthId)
                 .map(this::activateIfDeleted)
-                .orElseGet(() -> registerNewUser(oAuthId));
+                .orElseGet(() -> registerNewUserAndPublish(oAuthId));
     }
 
     private User activateIfDeleted(User user) {
@@ -100,10 +100,11 @@ public class UserService {
         return user;
     }
 
-    private User registerNewUser(String oAuthId) {
+    private User registerNewUserAndPublish(String oAuthId) {
         User newUser = User.builder().kakaoId(oAuthId).build();
-        eventPublisher.publishEvent(UserCreateEvent.of(newUser));
-        return userRepository.save(newUser);
+        User saveUser = userRepository.save(newUser);
+        eventPublisher.publishEvent(UserCreateEvent.of(saveUser));
+        return saveUser;
     }
 
     // External Service

@@ -14,6 +14,7 @@ public interface LoungeSharerRepository extends JpaRepository<LoungeSharer, Long
                 FROM LoungeSharer ls
                 WHERE ls.user.id = :userId
                 AND ls.lounge.id = :loungeId
+                AND ls.status = 'ACTIVE'
             ) THEN true ELSE false END
             """)
     boolean existsByUserIdAndLoungeId(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
@@ -28,4 +29,6 @@ public interface LoungeSharerRepository extends JpaRepository<LoungeSharer, Long
     long countActiveLoungeSharerByUserId(@Param("userId") Long userId);
 
     void deleteByUserIdAndLoungeId(Long userId, Long loungeId);
+
+    LoungeSharer findByUserIdAndLoungeId(Long userId, Long loungeId);
 }

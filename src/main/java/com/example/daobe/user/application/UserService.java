@@ -95,7 +95,7 @@ public class UserService {
 
     private User activateIfDeleted(User user) {
         if (user.isDeletedUser()) {
-            user.activateFirstLogin();
+            user.updateFirstLoginStatus();
         }
         return user;
     }

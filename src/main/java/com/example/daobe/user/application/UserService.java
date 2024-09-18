@@ -38,7 +38,7 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     public UserInfoResponseDto getUserInfoWithId(Long userId) {
-        User findUser = userRepository.findById(userId)
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
         return UserInfoResponseDto.of(findUser);
     }
@@ -95,7 +95,7 @@ public class UserService {
 
     private User activateIfDeleted(User user) {
         if (user.isDeletedUser()) {
-            user.updateFirstLoginStatus();
+            user.updateActiveStatus();
         }
         return user;
     }

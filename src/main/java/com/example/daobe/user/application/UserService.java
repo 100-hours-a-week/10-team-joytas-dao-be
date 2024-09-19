@@ -1,5 +1,6 @@
 package com.example.daobe.user.application;
 
+import static com.example.daobe.user.exception.UserExceptionType.ALREADY_POKE;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
@@ -8,6 +9,7 @@ import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
+import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.event.UserPokeEvent;
@@ -17,7 +19,6 @@ import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.domain.repository.UserSearchRepository;
 import com.example.daobe.user.domain.repository.dto.UserSearchCondition;
 import com.example.daobe.user.exception.UserException;
-import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
@@ -38,7 +39,7 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     public UserInfoResponseDto getUserInfoWithId(Long userId) {
-        User findUser = userRepository.findById(userId)
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
         return UserInfoResponseDto.of(findUser);
     }
@@ -71,7 +72,7 @@ public class UserService {
     public void poke(Long userId, UserPokeRequestDto request) {
         boolean alreadyPoke = userPokeRepository.existsByUserId(userId);
         if (alreadyPoke) {
-            throw new UserException(UserExceptionType.ALREADY_POKE);
+            throw new UserException(ALREADY_POKE);
         }
 
         Long receiveUserId = request.userId();
@@ -90,20 +91,29 @@ public class UserService {
     public User getOrRegisterByOAuthId(String oAuthId) {
         return userRepository.findByKakaoId(oAuthId)
                 .map(this::activateIfDeleted)
-                .orElseGet(() -> registerNewUser(oAuthId));
+                .orElseGet(() -> registerNewUserAndPublish(oAuthId));
     }
 
     private User activateIfDeleted(User user) {
         if (user.isDeletedUser()) {
-            user.activateFirstLogin();
+            user.updateActiveStatus();
         }
         return user;
     }
 
-    private User registerNewUser(String oAuthId) {
+    private User registerNewUserAndPublish(String oAuthId) {
         User newUser = User.builder().kakaoId(oAuthId).build();
-        eventPublisher.publishEvent(UserCreateEvent.of(newUser));
-        return userRepository.save(newUser);
+        User saveUser = userRepository.save(newUser);
+        eventPublisher.publishEvent(UserCreateEvent.of(saveUser));
+        return saveUser;
+    }
+
+    @Transactional
+    public void withdraw(Long userId, UserWithdrawRequestDto request) {
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
+        userRepository.save(findUser);
     }
 
     // External Service

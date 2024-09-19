@@ -17,7 +17,7 @@ public interface LoungeSharerRepository extends JpaRepository<LoungeSharer, Long
                 AND ls.status = 'ACTIVE'
             ) THEN true ELSE false END
             """)
-    boolean existsByUserIdAndLoungeId(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
+    boolean existsActiveLoungeSharerByUserIdAndLoungeId(@Param("userId") Long userId, @Param("loungeId") Long loungeId);
 
     List<LoungeSharer> findByLounge_IdAndUser_NicknameContaining(Long loungeId, String nickname);
 

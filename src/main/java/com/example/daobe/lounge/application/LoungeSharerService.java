@@ -51,9 +51,9 @@ public class LoungeSharerService {
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
     }
 
-    public void updateInvitedUserStatus(User user, Lounge lounge, boolean accept) {
-        LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(user.getId(), lounge.getId());
-        if (accept && !findSharer.isActive()) {
+    public void updateInvitedUserStatus(User invitedUser, Lounge lounge) {
+        LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUser.getId(), lounge.getId());
+        if (findSharer.isActive()) {
             findSharer.update();
             loungeSharerRepository.save(findSharer);
         }
@@ -87,7 +87,7 @@ public class LoungeSharerService {
     }
 
     private boolean isExistUserInLounge(Long userId, Long loungeId) {
-        return loungeSharerRepository.existsByUserIdAndLoungeId(userId, loungeId);
+        return loungeSharerRepository.existsActiveLoungeSharerByUserIdAndLoungeId(userId, loungeId);
     }
 
     private boolean isMaximumCountLounge(Long userId) {

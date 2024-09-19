@@ -19,7 +19,8 @@ public class ObjetSignalService {
     private final LoungeSharerRepository loungeSharerRepository;
 
     public void isObjetSharer(Long userId, ObjetSignalRequestDto request) {
-        boolean isLoungeSharer = loungeSharerRepository.existsByUserIdAndLoungeId(userId, request.loungeId());
+        boolean isLoungeSharer = loungeSharerRepository.existsActiveLoungeSharerByUserIdAndLoungeId(userId,
+                request.loungeId());
         if (!isLoungeSharer) {
             throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
         }

@@ -4,7 +4,6 @@ import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOU
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_DELETED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INFO_LOADED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_ACCEPTED_SUCCESS;
-import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_REFUSED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_SHARER_INFO_LOADED_SUCCESS;
@@ -93,19 +92,14 @@ public class LoungeController {
                 .body(new ApiResponse<>(LOUNGE_INVITE_SUCCESS.name(), null));
     }
 
-    @PatchMapping("/{loungeId}/invite")
+    @PatchMapping("/{loungeId}/invite/accept")
     public ResponseEntity<ApiResponse<Void>> updateInvitedUserStatus(
             @AuthenticationPrincipal Long userId,
-            @PathVariable Long loungeId,
-            @RequestParam boolean accept
+            @PathVariable Long loungeId
     ) {
-        if (accept) {
-            loungeFacadeService.updateInvitedUserStatus(accept, userId, loungeId);
-            return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
-                    .body(new ApiResponse<>(LOUNGE_INVITE_ACCEPTED_SUCCESS.name(), null));
-        }
-        return ResponseEntity.status(LOUNGE_INVITE_REFUSED_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_INVITE_REFUSED_SUCCESS.name(), null));
+        loungeFacadeService.updateInvitedUserStatus(userId, loungeId);
+        return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
+                .body(new ApiResponse<>(LOUNGE_INVITE_ACCEPTED_SUCCESS.name(), null));
     }
 
 

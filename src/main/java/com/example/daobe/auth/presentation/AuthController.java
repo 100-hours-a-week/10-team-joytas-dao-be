@@ -57,6 +57,7 @@ public class AuthController {
         ));
     }
 
+    @Deprecated(since = "2024-09-18")
     @PostMapping("/withdraw")
     public ResponseEntity<ApiResponse<Void>> withdraw(
             @AuthenticationPrincipal Long userId,

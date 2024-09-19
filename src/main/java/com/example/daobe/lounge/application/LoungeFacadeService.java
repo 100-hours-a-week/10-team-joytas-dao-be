@@ -61,11 +61,10 @@ public class LoungeFacadeService {
 
     // 라운치 초대 수락/거절
     @Transactional
-    public void updateInvitedUserStatus(boolean accept, Long userId, Long loungeId) {
-        // 초대된 대상
-        User findUser = userService.getUserById(userId);
+    public void updateInvitedUserStatus(Long userId, Long loungeId) {
+        User invitedUser = userService.getUserById(userId);
         Lounge findLounge = loungeService.getLoungeById(loungeId);
-        loungeSharerService.updateInvitedUserStatus(findUser, findLounge, accept);
+        loungeSharerService.updateInvitedUserStatus(invitedUser, findLounge);
     }
 
     // 라운지 내 유저 검색

@@ -9,6 +9,7 @@ import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
+import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.event.UserPokeEvent;
@@ -105,6 +106,14 @@ public class UserService {
         User saveUser = userRepository.save(newUser);
         eventPublisher.publishEvent(UserCreateEvent.of(saveUser));
         return saveUser;
+    }
+
+    @Transactional
+    public void withdraw(Long userId, UserWithdrawRequestDto request) {
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
+        userRepository.save(findUser);
     }
 
     // External Service

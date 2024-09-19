@@ -18,11 +18,7 @@ public class ChatUserEventListener {
 
     @EventListener
     public void handleUserCreated(UserCreateEvent event) {
-        ChatUser chatUser = ChatUser.builder()
-                .userId(event.userId())
-                .nickname(event.nickname())
-                .profileUrl(event.profileUrl())
-                .build();
+        ChatUser chatUser = createUserIfNotExistsOrUpdate(event);
         chatUserRepository.save(chatUser);
     }
 
@@ -32,5 +28,18 @@ public class ChatUserEventListener {
                 .orElseThrow(() -> new RuntimeException("NOT_EXISTS_USER_EXCEPTION"));
         findUser.updateUserInfo(event.nickname(), event.profileUrl());
         chatUserRepository.save(findUser);
+    }
+
+    private ChatUser createUserIfNotExistsOrUpdate(UserCreateEvent event) {
+        return chatUserRepository.findByUserId(event.userId())
+                .map(user -> {
+                    user.updateUserInfo(event.nickname(), event.profileUrl());
+                    return user;
+                })
+                .orElseGet(() -> ChatUser.builder()
+                        .userId(event.userId())
+                        .nickname(event.nickname())
+                        .profileUrl(event.profileUrl())
+                        .build());
     }
 }

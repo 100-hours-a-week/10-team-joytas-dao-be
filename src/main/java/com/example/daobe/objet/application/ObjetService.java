@@ -6,7 +6,6 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSION
 import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
-import com.example.daobe.lounge.application.LoungeSharerService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
@@ -19,7 +18,6 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
-import com.example.daobe.objet.domain.repository.ObjetCallRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.application.UserService;
@@ -39,14 +37,12 @@ public class ObjetService {
     private final LoungeService loungeService;
     private final UserService userService;
     private final ChatService chatService;
-    private final LoungeSharerService loungeSharerService;
-    private final ObjetCallRepository objetCallRepository;
 
     @Transactional
     public ObjetCreateResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         User findUser = userService.getUserById(userId);
-        ChatRoom newChatRoom = chatService.createChatRoom();  // 이거 어디에 포함시킬지 고민
+        ChatRoom newChatRoom = chatService.createChatRoom();
 
         Objet newObjet = Objet.builder()
                 .name(request.name())

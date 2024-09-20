@@ -56,7 +56,6 @@ public class ObjetSharerService {
         List<Long> deleteObjetSharerIdList = currentObjetSharerIdList.stream()
                 .filter(sharerId -> !distinctSharerIds.contains(sharerId))
                 .toList();
-        objetSharerRepository.deleteAllById(deleteObjetSharerIdList);
 
         objetSharerRepository.deleteAllByObjetAndUserIdIn(objet, deleteObjetSharerIdList);
 
@@ -67,7 +66,10 @@ public class ObjetSharerService {
 
         objetSharerRepository.saveAll(newObjetSharerList);
         newObjetSharerList.forEach(
-                objetSharer -> eventPublisher.publishEvent(new ObjetInviteEvent(objet.getUser().getId(), objetSharer)));
+                objetSharer -> eventPublisher.publishEvent(
+                        new ObjetInviteEvent(objet.getUser().getId(), objetSharer)
+                )
+        );
 
     }
 
@@ -83,6 +85,5 @@ public class ObjetSharerService {
                 .objet(objet)
                 .build();
     }
-
 }
 

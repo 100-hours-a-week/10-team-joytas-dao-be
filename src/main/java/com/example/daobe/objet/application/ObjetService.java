@@ -1,6 +1,5 @@
 package com.example.daobe.objet.application;
 
-import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 
@@ -9,7 +8,6 @@ import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.application.LoungeSharerService;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
@@ -91,23 +89,7 @@ public class ObjetService {
 
     public ObjetDetailResponseDto getObjetDetail(Long userId, Long objetId) {
         Objet findObjet = getObjetById(objetId);
-
-        // TODO : 분리
-        List<ObjetSharer> objetSharerList = objetSharerService.getObjetSharerList(objetId);
-        boolean isLoungeSharer = loungeSharerService.isUserInLounge(userId,
-                findObjet.getLounge().getId());
-        if (!isLoungeSharer) {
-            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
-        }
-
-        // TODO : 분리
-        Long callingUserNum = objetCallRepository.getObjetLength(objetId);
-
-        return ObjetDetailResponseDto.of(
-                findObjet,
-                callingUserNum,
-                objetSharerList
-        );
+        return ObjetDetailResponseDto.of(findObjet);
     }
 
     public List<ObjetMeResponseDto> getMyObjetList(Long userId) {

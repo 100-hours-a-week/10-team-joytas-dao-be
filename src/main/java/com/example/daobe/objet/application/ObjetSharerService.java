@@ -1,6 +1,7 @@
 package com.example.daobe.objet.application;
 
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetSharerResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.event.ObjetInviteEvent;
@@ -12,6 +13,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,8 +71,10 @@ public class ObjetSharerService {
 
     }
 
-    public List<ObjetSharer> getObjetSharerList(Long objetId) {
-        return objetSharerRepository.findAllByObjetId(objetId);
+    @Transactional
+    public ObjetSharerResponseDto getObjetSharerList(Long objetId) {
+        List<ObjetSharer> objetSharerList = objetSharerRepository.findAllByObjetId(objetId);
+        return ObjetSharerResponseDto.of(objetSharerList);
     }
 
     private ObjetSharer createSharer(Long sharerId, Objet objet) {

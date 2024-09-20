@@ -2,11 +2,13 @@ package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetService;
+import com.example.daobe.objet.application.ObjetSharerService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
+import com.example.daobe.objet.application.dto.ObjetSharerResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateResponseDto;
 import java.util.List;
@@ -36,6 +38,7 @@ public class ObjetController {
     private static final String OBJET_DELETED_SUCCESS = "OBJET_DELETED_SUCCESS";
 
     private final ObjetService objetService;
+    private final ObjetSharerService objetSharerService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
@@ -68,6 +71,15 @@ public class ObjetController {
                 "OBJET_DETAIL_LOADED_SUCCESS",
                 objetService.getObjetDetail(userId, objetId)
         );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{objetId}/sharers")
+    public ResponseEntity<ApiResponse<ObjetSharerResponseDto>> getObjetSharers(
+            @PathVariable(name = "objetId") Long objetId
+    ) {
+        ApiResponse<ObjetSharerResponseDto> response = new ApiResponse<>("OBJET_SHARER_LOADED_SUCCESS",
+                objetSharerService.getObjetSharerList(objetId));
         return ResponseEntity.ok(response);
     }
 

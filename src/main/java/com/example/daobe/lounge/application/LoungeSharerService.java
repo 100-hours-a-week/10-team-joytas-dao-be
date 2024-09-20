@@ -6,15 +6,18 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOU
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
+import com.example.daobe.lounge.domain.LoungeSharerStatus;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoungeSharerService {
@@ -33,6 +36,7 @@ public class LoungeSharerService {
         LoungeSharer loungeSharer = LoungeSharer.builder()
                 .user(user)
                 .lounge(lounge)
+                .status(LoungeSharerStatus.ACTIVE)
                 .build();
         loungeSharerRepository.save(loungeSharer);
     }
@@ -47,6 +51,14 @@ public class LoungeSharerService {
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
     }
 
+    public void updateInvitedUserStatus(User invitedUser, Lounge lounge) {
+        LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUser.getId(), lounge.getId());
+        if (!findSharer.isActive()) {
+            findSharer.updateStatusActive();
+            loungeSharerRepository.save(findSharer);
+        }
+    }
+
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {
         lounge.isSharerOrThrow(userId);
         List<LoungeSharer> byUserId = loungeSharerRepository
@@ -58,11 +70,6 @@ public class LoungeSharerService {
         lounge.isActiveOrThrow();
         lounge.isPossibleToWithdrawOrThrow(user.getId());
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
-    }
-
-    // TODO : 여기 있어야 하는 로직인지 다시 생각
-    public boolean isUserInLounge(Long userId, Long loungeId) {
-        return isExistUserInLounge(userId, loungeId);
     }
 
     // TODO: 추후 도메인 로직으로 분리
@@ -80,7 +87,7 @@ public class LoungeSharerService {
     }
 
     private boolean isExistUserInLounge(Long userId, Long loungeId) {
-        return loungeSharerRepository.existsByUserIdAndLoungeId(userId, loungeId);
+        return loungeSharerRepository.existsActiveLoungeSharerByUserIdAndLoungeId(userId, loungeId);
     }
 
     private boolean isMaximumCountLounge(Long userId) {

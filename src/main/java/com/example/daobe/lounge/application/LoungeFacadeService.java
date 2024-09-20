@@ -59,6 +59,14 @@ public class LoungeFacadeService {
         loungeSharerService.inviteUser(findUser, findLounge, inviterId);
     }
 
+    // 라운치 초대 수락/거절
+    @Transactional
+    public void updateInvitedUserStatus(Long userId, Long loungeId) {
+        User invitedUser = userService.getUserById(userId);
+        Lounge findLounge = loungeService.getLoungeById(loungeId);
+        loungeSharerService.updateInvitedUserStatus(invitedUser, findLounge);
+    }
+
     // 라운지 내 유저 검색
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
         Lounge findLounge = loungeService.getLoungeById(loungeId);

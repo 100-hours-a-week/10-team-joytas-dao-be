@@ -3,6 +3,7 @@ package com.example.daobe.lounge.presentation;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_CREATED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_DELETED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INFO_LOADED_SUCCESS;
+import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_ACCEPTED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_INVITE_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_LIST_LOADED_SUCCESS;
 import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOUNGE_SHARER_INFO_LOADED_SUCCESS;
@@ -18,11 +19,11 @@ import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/lounges")
 @RequiredArgsConstructor
@@ -91,6 +91,17 @@ public class LoungeController {
         return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
                 .body(new ApiResponse<>(LOUNGE_INVITE_SUCCESS.name(), null));
     }
+
+    @PatchMapping("/{loungeId}/invite/accept")
+    public ResponseEntity<ApiResponse<Void>> updateInvitedUserStatus(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long loungeId
+    ) {
+        loungeFacadeService.updateInvitedUserStatus(userId, loungeId);
+        return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
+                .body(new ApiResponse<>(LOUNGE_INVITE_ACCEPTED_SUCCESS.name(), null));
+    }
+
 
     @GetMapping("/{loungeId}/search")
     public ResponseEntity<ApiResponse<List<LoungeSharerInfoResponseDto>>> searchLoungeSharer(

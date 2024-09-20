@@ -9,9 +9,6 @@ import com.example.daobe.auth.domain.repository.TokenRepository;
 import com.example.daobe.auth.exception.AuthException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.repository.UserRepository;
-import com.example.daobe.user.exception.UserException;
-import com.example.daobe.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +19,6 @@ public class AuthService {
     private final UserService userService;
     private final TokenProvider tokenProvider;
     private final TokenExtractor tokenExtractor;
-    private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
 
     public TokenResponseDto loginOrRegister(String oAuthId) {
@@ -65,18 +61,25 @@ public class AuthService {
         tokenRepository.deleteByTokenId(findToken.getTokenId());
     }
 
+    /**
+     * <p>user 도메인으로 이동</p>
+     * <p>FE 측에서 엔드포인트 이전 전까지 auth 도메인의 엔드포인트에서 회원탈퇴를 책임집니다.</p>
+     *
+     * @param userId       사용자 식별자
+     * @param currentToken 현재 제공된 refresh token
+     * @param request      회원탈퇴 사유에 대한 정보가 담겨있는 요청
+     * @author Jihongkim98
+     * @deprecated since 09.18.2024
+     */
+    @Deprecated(since = "2024-09-18")
     public void withdraw(Long userId, String currentToken, WithdrawRequestDto request) {
         String tokenId = tokenExtractor.extractRefreshToken(currentToken);
         Token findToken = tokenRepository.findByTokenId(tokenId)
                 .orElseThrow(() -> new AuthException(INVALID_TOKEN));
-
         findToken.isMatchOrElseThrow(userId);
 
         tokenRepository.deleteByTokenId(findToken.getTokenId());
 
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserExceptionType.NOT_EXIST_USER));
-        findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
-        userRepository.save(findUser);
+        userService.withdraw(userId, request.toUserWithdrawRequestDto());
     }
 }

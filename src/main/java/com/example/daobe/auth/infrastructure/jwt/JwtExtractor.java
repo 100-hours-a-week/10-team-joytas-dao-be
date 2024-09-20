@@ -45,14 +45,10 @@ public class JwtExtractor implements TokenExtractor {
     private <T> T extract(String token, String expectedTokenType, String claimKey, Class<T> T) {
         Claims claims = parseClaim(token);
         String subject = claims.getSubject();
+        T claimValue = claims.get(claimKey, T);
 
-        if (subject.equals(expectedTokenType)) {
-            T t = claims.get(claimKey, T);
-            // FIXME: hotfix 라서 리팩토링 진행해야함
-            if (t == null) {
-                throw new AuthException(INVALID_TOKEN_TYPE);
-            }
-            return claims.get(claimKey, T);
+        if (claimValue != null && subject.equals(expectedTokenType)) {
+            return claimValue;
         }
         throw new AuthException(INVALID_TOKEN_TYPE);
     }

@@ -7,6 +7,7 @@ import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
+import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -61,6 +62,18 @@ public class UserController {
         userService.checkValidateByNickname(nickname);
         return ResponseEntity.ok(new ApiResponse<>(
                 "NICKNAME_DUPLICATE_CHECK_SUCCESS",
+                null
+        ));
+    }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withdrawUser(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody UserWithdrawRequestDto request
+    ) {
+        userService.withdraw(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "WITHDRAW_SUCCESS",
                 null
         ));
     }

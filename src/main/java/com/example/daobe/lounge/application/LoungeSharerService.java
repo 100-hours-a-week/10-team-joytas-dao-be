@@ -60,6 +60,11 @@ public class LoungeSharerService {
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
     }
 
+    // TODO : 여기 있어야 하는 로직인지 다시 생각
+    public boolean isUserInLounge(Long userId, Long loungeId) {
+        return isExistUserInLounge(userId, loungeId);
+    }
+
     // TODO: 추후 도메인 로직으로 분리
     private void validateInvite(User user, Lounge lounge, Long inviterId) {
         lounge.isActiveOrThrow();

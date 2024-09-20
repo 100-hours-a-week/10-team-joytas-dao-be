@@ -69,6 +69,10 @@ public class ObjetSharerService {
 
     }
 
+    public List<ObjetSharer> getObjetSharerList(Long objetId) {
+        return objetSharerRepository.findAllByObjetId(objetId);
+    }
+
     private ObjetSharer createSharer(Long sharerId, Objet objet) {
         return ObjetSharer.builder()
                 .user(userService.getUserById(sharerId))

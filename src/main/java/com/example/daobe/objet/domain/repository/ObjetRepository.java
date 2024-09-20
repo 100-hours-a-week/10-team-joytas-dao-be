@@ -1,5 +1,6 @@
 package com.example.daobe.objet.domain.repository;
 
+import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
@@ -13,14 +14,14 @@ import org.springframework.stereotype.Repository;
 public interface ObjetRepository extends JpaRepository<Objet, Long> {
 
     @Query("""
-            SELECT o FROM Objet o 
-            JOIN o.objetSharers s 
+            SELECT o FROM Objet o
+            JOIN ObjetSharer s ON o = s.objet
             WHERE o.lounge.id = :loungeId
-            AND o.status = :status 
-            AND s.user.id = :userId 
+            AND o.status = :status
+            AND s.user.id = :userId
             ORDER BY o.id DESC
             """)
-    List<Objet> findActiveObjetsInLoungeOfSharer(
+    List<ObjetResponseDto> findActiveObjetsInLoungeOfSharer(
             @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
     );
 

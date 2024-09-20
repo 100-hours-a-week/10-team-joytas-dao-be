@@ -1,6 +1,7 @@
 package com.example.daobe.objet.application.dto;
 
 import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +22,7 @@ public record ObjetDetailResponseDto(
     public static ObjetDetailResponseDto of(
             Objet objet,
             Long callingUserNum,
-            List<SharerInfo> sharers
+            List<ObjetSharer> objetSharerList
     ) {
         return new ObjetDetailResponseDto(
                 objet.getId(),
@@ -33,13 +34,14 @@ public record ObjetDetailResponseDto(
                 objet.getExplanation(),
                 objet.getType(),
                 callingUserNum,
-                sharers,
+                SharerInfo.listOf(objetSharerList),
                 objet.getCreatedAt()
         );
 
     }
 
-    public record SharerInfo(
+    // Nested
+    private record SharerInfo(
             Long userId,
             String nickname
     ) {
@@ -48,6 +50,13 @@ public record ObjetDetailResponseDto(
                     userId,
                     nickname
             );
+        }
+
+        public static List<SharerInfo> listOf(List<ObjetSharer> objetSharerList) {
+            return objetSharerList.stream()
+                    .map((objetSharer) -> SharerInfo.of(objetSharer.getUser().getId(),
+                            objetSharer.getUser().getNickname()))
+                    .toList();
         }
     }
 }

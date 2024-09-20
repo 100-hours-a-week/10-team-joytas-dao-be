@@ -11,6 +11,7 @@ import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
@@ -37,20 +38,18 @@ public class ObjetFacadeService {
         User findUser = userService.getUserById(userId);
         ChatRoom chatRoom = chatRoomService.createChatRoom();
         Objet createdObjet = objetService.createAndSaveObjet(request, findUser, lounge, chatRoom);
-        objetSharerService.createAndSaveObjetSharer(request, findUser, createdObjet);
+        objetSharerService.createAndSaveObjetSharer(request, userId, createdObjet);
         return ObjetInfoResponseDto.of(createdObjet);
     }
 
     @Transactional
     public ObjetInfoResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
-        User findUser = userService.getUserById(userId);
         Objet updatedObjet = objetService.updateAndSaveObjet(request, objetId, userId);
-        objetSharerService.updateAndSaveObjetSharer(request, findUser, updatedObjet);
+        objetSharerService.updateObjetSharerList(updatedObjet, request.sharers());
         return ObjetInfoResponseDto.of(updatedObjet);
     }
 
     public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
-
         if (isSharer) {
             return objetService.getObjetListInLoungeOfSharer(userId, loungeId);
         }
@@ -58,12 +57,15 @@ public class ObjetFacadeService {
 
     }
 
-    public ObjetDetailResponseDto getObjetDetail(Long objetId) {
-        return objetService.getObjetDetailInfo(objetId);
+    public ObjetDetailResponseDto getObjetDetail(Long userId, Long objetId) {
+        return objetService.getObjetDetailInfo(userId, objetId);
     }
 
     public List<ObjetMeResponseDto> getMyObjetList(Long userId) {
-        return objetService.getMyRecentObjetList(userId);
+        List<ObjetSharer> objetSharerList = objetSharerService.getRecentObjetSharerList(userId);
+        return objetSharerList.stream()
+                .map((objetSharer) -> ObjetMeResponseDto.of(objetSharer.getObjet()))
+                .toList();
     }
 
     @Transactional

@@ -55,17 +55,19 @@ public class ObjetController {
         ApiResponse<List<ObjetResponseDto>> response = new ApiResponse<>(
                 "OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getAllObjetsInLounge(userId, loungeId, sharer)
         );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{objetId}")
     public ResponseEntity<ApiResponse<ObjetDetailResponseDto>> getObjetDetail(
+            @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId
     ) {
         ApiResponse<ObjetDetailResponseDto> response = new ApiResponse<>(
-                "OBJET_DETAIL_LOADED_SUCCESS", objetFacadeService.getObjetDetail(objetId)
+                "OBJET_DETAIL_LOADED_SUCCESS",
+                objetFacadeService.getObjetDetail(userId, objetId)
         );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
@@ -75,7 +77,7 @@ public class ObjetController {
         ApiResponse<List<ObjetMeResponseDto>> response = new ApiResponse<>(
                 "USER_OBJET_LIST_LOADED_SUCCESS", objetFacadeService.getMyObjetList(userId)
         );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{objetId}")

@@ -53,7 +53,7 @@ public class LoungeSharerService {
 
     public void updateInvitedUserStatus(User invitedUser, Lounge lounge) {
         LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUser.getId(), lounge.getId());
-        if (findSharer.isActive()) {
+        if (!findSharer.isActive()) {
             findSharer.update();
             loungeSharerRepository.save(findSharer);
         }

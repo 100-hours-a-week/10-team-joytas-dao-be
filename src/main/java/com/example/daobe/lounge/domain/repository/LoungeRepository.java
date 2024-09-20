@@ -12,6 +12,7 @@ public interface LoungeRepository extends JpaRepository<Lounge, Long> {
             SELECT l FROM Lounge l
             LEFT JOIN LoungeSharer ls ON l = ls.lounge
             WHERE l.user.id = :userId OR ls.user.id = :userId
+            AND ls.status = 'ACTIVE'
             """)
     List<Lounge> findLoungeByUserId(@Param("userId") Long userId);
 }

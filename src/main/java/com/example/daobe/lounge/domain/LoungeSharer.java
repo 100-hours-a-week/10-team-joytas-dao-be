@@ -54,7 +54,7 @@ public class LoungeSharer {
         return status.isActive();
     }
 
-    public void update() {
+    public void updateStatusActive() {
         this.status = ACTIVE;
     }
 }

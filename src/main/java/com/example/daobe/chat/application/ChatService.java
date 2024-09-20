@@ -19,8 +19,6 @@ import com.example.daobe.chat.domain.repository.ChatMessageRepository;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
 import com.example.daobe.chat.domain.repository.ChatUserRepository;
 import com.example.daobe.chat.exception.ChatException;
-import com.example.daobe.user.application.UserService;
-import com.example.daobe.user.application.dto.UserInfoResponseDto;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -51,7 +49,6 @@ public class ChatService {
     private static final String MESSAGE_SORT_FIELD_CREATED_AT = "createdAt";
     private static final int RECENT_MESSAGES_COUNT = 3;
 
-    private final UserService userService;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -81,11 +78,12 @@ public class ChatService {
             throw new ChatException(SOCKET_CONNECTION_FAILED_EXCEPTION);
         }
 
-        UserInfoResponseDto findUser = userService.getUserInfoWithId(message.senderId());
+        ChatUser findUser = chatUserRepository.findByUserId(message.senderId())
+                .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
         return EnterAndLeaveMessage.of(
                 ENTER.name(),
                 roomToken,
-                ENTER.getMessage().formatted(findUser.nickname()),
+                ENTER.getMessage().formatted(findUser.getNickname()),
                 LocalDateTime.now()
         );
     }

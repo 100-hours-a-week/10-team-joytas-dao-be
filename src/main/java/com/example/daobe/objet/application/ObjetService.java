@@ -10,7 +10,6 @@ import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
-import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
@@ -105,13 +104,12 @@ public class ObjetService {
 
 
     @Transactional
-    public ObjetInfoResponseDto delete(Long objetId, Long userId) {
+    public void delete(Long objetId, Long userId) {
         Objet findObjet = getObjetById(objetId);
         validateObjetOwner(findObjet, userId);
 
         findObjet.updateStatus(ObjetStatus.DELETED);
         objetRepository.save(findObjet);
-        return ObjetInfoResponseDto.of(findObjet);
     }
 
     private Objet getObjetById(Long objetId) {

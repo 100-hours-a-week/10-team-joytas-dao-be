@@ -5,11 +5,12 @@ import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
-import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.user.application.UserService;
@@ -33,20 +34,20 @@ public class ObjetFacadeService {
     private final ChatService chatRoomService;
 
     @Transactional
-    public ObjetInfoResponseDto createObjet(ObjetCreateRequestDto request, Long userId) {
+    public ObjetCreateResponseDto createObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge lounge = loungeService.getLoungeById(request.loungeId());
         User findUser = userService.getUserById(userId);
         ChatRoom chatRoom = chatRoomService.createChatRoom();
         Objet createdObjet = objetService.createAndSaveObjet(request, findUser, lounge, chatRoom);
         objetSharerService.createAndSaveObjetSharer(request, userId, createdObjet);
-        return ObjetInfoResponseDto.of(createdObjet);
+        return ObjetCreateResponseDto.of(createdObjet);
     }
 
     @Transactional
-    public ObjetInfoResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
+    public ObjetUpdateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
         Objet updatedObjet = objetService.updateAndSaveObjet(request, objetId, userId);
         objetSharerService.updateObjetSharerList(updatedObjet, request.sharers());
-        return ObjetInfoResponseDto.of(updatedObjet);
+        return ObjetUpdateResponseDto.of(updatedObjet);
     }
 
     public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
@@ -69,7 +70,7 @@ public class ObjetFacadeService {
     }
 
     @Transactional
-    public ObjetInfoResponseDto deleteObjet(Long objetId, Long userId) {
-        return objetService.delete(objetId, userId);
+    public void deleteObjet(Long objetId, Long userId) {
+        objetService.delete(objetId, userId);
     }
 }

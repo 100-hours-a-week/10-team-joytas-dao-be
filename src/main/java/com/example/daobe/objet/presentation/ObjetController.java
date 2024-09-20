@@ -3,11 +3,12 @@ package com.example.daobe.objet.presentation;
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetFacadeService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
-import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
+import com.example.daobe.objet.application.dto.ObjetUpdateResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +38,11 @@ public class ObjetController {
     private final ObjetFacadeService objetFacadeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> generateObjet(
+    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
             @AuthenticationPrincipal Long userId,
             @RequestBody ObjetCreateRequestDto request
     ) {
-        ObjetInfoResponseDto ObjetCreateResponse = objetFacadeService.createObjet(request, userId);
+        ObjetCreateResponseDto ObjetCreateResponse = objetFacadeService.createObjet(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
     }
@@ -81,22 +82,22 @@ public class ObjetController {
     }
 
     @PatchMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> updateObjet(
+    public ResponseEntity<ApiResponse<ObjetUpdateResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestBody ObjetUpdateRequestDto request
     ) {
-        ObjetInfoResponseDto objetUpdateResponse = objetFacadeService.updateObjet(request, objetId, userId);
+        ObjetUpdateResponseDto objetUpdateResponse = objetFacadeService.updateObjet(request, objetId, userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }
 
     @DeleteMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> deleteObjet(
+    public ResponseEntity<ApiResponse<Void>> deleteObjet(
             @PathVariable(name = "objetId") Long objetId,
             @AuthenticationPrincipal Long userId
     ) {
-        ObjetInfoResponseDto ObjetDeleteReponse = objetFacadeService.deleteObjet(objetId, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, ObjetDeleteReponse));
+        objetFacadeService.deleteObjet(objetId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, null));
     }
 }

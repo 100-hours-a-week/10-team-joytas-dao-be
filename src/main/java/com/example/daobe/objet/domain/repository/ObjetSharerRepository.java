@@ -21,5 +21,13 @@ public interface ObjetSharerRepository extends JpaRepository<ObjetSharer, Long> 
     List<Objet> findMyRecentObjetByUserId(@Param("userId") Long userId,
                                           @Param("status") ObjetStatus status);
 
+    List<ObjetSharer> findTop4ByUserIdOrderByIdDesc(Long userId);
+
+    List<ObjetSharer> findAllByObjetId(Long objetId);
+
+    @Query("SELECT os.user.id FROM ObjetSharer os WHERE os.objet = :objet")
+    List<Long> findSharerIdsByObjet(@Param("objet") Objet objet);
+
+    void deleteAllByObjetAndUserIdIn(Objet objet, List<Long> userIds);
 
 }

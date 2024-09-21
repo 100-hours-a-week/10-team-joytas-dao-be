@@ -3,7 +3,6 @@ package com.example.daobe.objet.domain;
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,10 +14,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,11 +40,8 @@ public class Objet extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToMany(mappedBy = "objet")
-    private List<ObjetSharer> objetSharers;
-
-    @OneToOne
     @JoinColumn(name = "chat_room_id")
+    @OneToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
 
     @Column(name = "name")
@@ -94,18 +88,6 @@ public class Objet extends BaseTimeEntity {
         this.chatRoom = chatRoom;
     }
 
-    public ObjetInfoResponseDto toObjetCreateResponseDto() {
-        return new ObjetInfoResponseDto(id);
-    }
-
-    public void updateUserObjets(List<ObjetSharer> objetSharers) {
-        this.objetSharers = objetSharers;
-    }
-
-    public void updateDetails(String name, String description) {
-        this.name = name;
-        this.explanation = description;
-    }
 
     public void updateDetailsWithImage(String name, String description, String imageUrl) {
         this.name = name;

@@ -79,5 +79,6 @@ public class User extends BaseTimeEntity {
                 .toString();
         this.reasonDetail = detail;
         this.status = UserStatus.DELETED;
+        this.updateDeletedTime();
     }
 }

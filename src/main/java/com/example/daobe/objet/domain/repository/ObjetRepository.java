@@ -21,7 +21,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             AND s.user.id = :userId
             ORDER BY o.id DESC
             """)
-    List<ObjetResponseDto> findActiveObjetsInLoungeOfSharer(
+    List<ObjetResponseDto> findActiveObjetListInLoungeOfSharer(
             @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
     );
 
@@ -31,7 +31,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             AND o.status = :status
             ORDER BY o.id DESC
             """)
-    List<Objet> findActiveObjetsInLounge(
+    List<Objet> findActiveObjetListInLounge(
             @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
     );
 

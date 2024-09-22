@@ -26,7 +26,7 @@ public interface ObjetSharerRepository extends JpaRepository<ObjetSharer, Long> 
     List<ObjetSharer> findAllByObjetId(Long objetId);
 
     @Query("SELECT os.user.id FROM ObjetSharer os WHERE os.objet = :objet")
-    List<Long> findSharerIdsByObjet(@Param("objet") Objet objet);
+    List<Long> findSharerIdListByObjet(@Param("objet") Objet objet);
 
     void deleteAllByObjetAndUserIdIn(Objet objet, List<Long> userIds);
 

@@ -31,11 +31,11 @@ public class ObjetSharerService {
     public void createAndSaveObjetSharer(ObjetCreateRequestDto request, Long userId, Objet objet) {
         List<Long> sharerIdList = request.sharers();
         sharerIdList.add(userId);
-        List<Long> distinctSharerIds = sharerIdList.stream().distinct().toList();
+        List<Long> distinctSharerIdList = sharerIdList.stream().distinct().toList();
 
-        List<User> users = userRepository.findAllById(distinctSharerIds);
+        List<User> userList = userRepository.findAllById(distinctSharerIdList);
 
-        List<ObjetSharer> objetSharerList = users.stream()
+        List<ObjetSharer> objetSharerList = userList.stream()
                 .map(user -> ObjetSharer.builder()
                         .user(user)
                         .objet(objet)
@@ -50,16 +50,16 @@ public class ObjetSharerService {
 
     public void updateObjetSharerList(Objet objet, List<Long> sharerIdList) {
         sharerIdList.add(objet.getUser().getId());
-        List<Long> distinctSharerIds = sharerIdList.stream().distinct().toList();
-        List<Long> currentObjetSharerIdList = objetSharerRepository.findSharerIdsByObjet(objet);
+        List<Long> distinctSharerIdList = sharerIdList.stream().distinct().toList();
+        List<Long> currentObjetSharerIdList = objetSharerRepository.findSharerIdListByObjet(objet);
 
         List<Long> deleteObjetSharerIdList = currentObjetSharerIdList.stream()
-                .filter(sharerId -> !distinctSharerIds.contains(sharerId))
+                .filter(sharerId -> !distinctSharerIdList.contains(sharerId))
                 .toList();
 
         objetSharerRepository.deleteAllByObjetAndUserIdIn(objet, deleteObjetSharerIdList);
 
-        List<ObjetSharer> newObjetSharerList = distinctSharerIds.stream()
+        List<ObjetSharer> newObjetSharerList = distinctSharerIdList.stream()
                 .filter(sharerId -> !currentObjetSharerIdList.contains(sharerId))
                 .map((sharerId) -> createSharer(sharerId, objet))
                 .toList();

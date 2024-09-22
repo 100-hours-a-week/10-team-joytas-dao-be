@@ -73,13 +73,13 @@ public class ObjetService {
 
     public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
         if (isSharer) {
-            return objetRepository.findActiveObjetsInLoungeOfSharer(
+            return objetRepository.findActiveObjetListInLoungeOfSharer(
                     userId,
                     loungeId,
                     ObjetStatus.ACTIVE
             );
         }
-        List<Objet> objetList = objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
+        List<Objet> objetList = objetRepository.findActiveObjetListInLounge(loungeId, ObjetStatus.ACTIVE);
         return ObjetResponseDto.listOf(objetList);
     }
 

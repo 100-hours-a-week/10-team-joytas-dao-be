@@ -1,6 +1,5 @@
 package com.example.daobe.user.application;
 
-import static com.example.daobe.user.exception.UserExceptionType.ALREADY_POKE;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
@@ -14,7 +13,6 @@ import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.event.UserPokeEvent;
 import com.example.daobe.user.domain.event.UserUpdateEvent;
-import com.example.daobe.user.domain.repository.UserPokeRepository;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.domain.repository.UserSearchRepository;
 import com.example.daobe.user.domain.repository.dto.UserSearchCondition;
@@ -34,7 +32,6 @@ public class UserService {
     private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
 
     private final UserRepository userRepository;
-    private final UserPokeRepository userPokeRepository;
     private final UserSearchRepository userSearchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -70,11 +67,6 @@ public class UserService {
     }
 
     public void poke(Long userId, UserPokeRequestDto request) {
-        boolean alreadyPoke = userPokeRepository.existsByUserId(userId);
-        if (alreadyPoke) {
-            throw new UserException(ALREADY_POKE);
-        }
-
         Long receiveUserId = request.userId();
         boolean isExistUser = userRepository.existsById(receiveUserId);
         if (!isExistUser) {
@@ -82,7 +74,6 @@ public class UserService {
         }
 
         UserPokeEvent userPokeEvent = new UserPokeEvent(userId, receiveUserId);
-        userPokeRepository.save(userPokeEvent);
 
         eventPublisher.publishEvent(userPokeEvent);
     }

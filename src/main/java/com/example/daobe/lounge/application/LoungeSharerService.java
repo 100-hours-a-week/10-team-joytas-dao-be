@@ -1,6 +1,7 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
 
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
@@ -70,6 +71,13 @@ public class LoungeSharerService {
         lounge.isActiveOrThrow();
         lounge.isPossibleToWithdrawOrThrow(user.getId());
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
+    }
+
+    public void validateLoungeSharer(Long userId, Long loungeId) {
+        boolean isLoungeSharer = loungeSharerRepository.existsActiveLoungeSharerByUserIdAndLoungeId(userId, loungeId);
+        if (!isLoungeSharer) {
+            throw new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION);
+        }
     }
 
     // TODO: 추후 도메인 로직으로 분리

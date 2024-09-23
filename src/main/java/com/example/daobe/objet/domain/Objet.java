@@ -1,6 +1,5 @@
 package com.example.daobe.objet.domain;
 
-import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.domain.User;
@@ -14,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,10 +37,6 @@ public class Objet extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
-
-    @JoinColumn(name = "chat_room_id")
-    @OneToOne(fetch = FetchType.LAZY)
-    private ChatRoom chatRoom;
 
     @Column(name = "name")
     private String name;
@@ -74,8 +68,7 @@ public class Objet extends BaseTimeEntity {
             String name,
             String imageUrl,
             String explanation,
-            ObjetType type,
-            ChatRoom chatRoom
+            ObjetType type
     ) {
         this.lounge = lounge;
         this.user = user;
@@ -84,7 +77,6 @@ public class Objet extends BaseTimeEntity {
         this.explanation = explanation;
         this.type = type;
         this.status = ObjetStatus.ACTIVE;
-        this.chatRoom = chatRoom;
     }
 
 

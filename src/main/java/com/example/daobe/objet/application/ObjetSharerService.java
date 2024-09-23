@@ -8,7 +8,6 @@ import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ObjetSharerService {
 
     private final ObjetSharerRepository objetSharerRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -33,7 +31,7 @@ public class ObjetSharerService {
         sharerIdList.add(userId);
         List<Long> distinctSharerIdList = sharerIdList.stream().distinct().toList();
 
-        List<User> userList = userRepository.findAllById(distinctSharerIdList);
+        List<User> userList = userService.getUserListByIdList(distinctSharerIdList);
 
         List<ObjetSharer> objetSharerList = userList.stream()
                 .map(user -> ObjetSharer.builder()

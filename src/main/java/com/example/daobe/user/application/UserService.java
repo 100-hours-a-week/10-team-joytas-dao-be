@@ -19,6 +19,7 @@ import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.domain.repository.UserSearchRepository;
 import com.example.daobe.user.domain.repository.dto.UserSearchCondition;
 import com.example.daobe.user.exception.UserException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
@@ -120,5 +121,10 @@ public class UserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    }
+
+    // External Service
+    public List<User> getUserListByIdList(List<Long> userIdList) {
+        return userRepository.findAllById(userIdList);
     }
 }

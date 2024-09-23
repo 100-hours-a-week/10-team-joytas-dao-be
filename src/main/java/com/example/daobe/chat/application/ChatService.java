@@ -53,11 +53,6 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    @Transactional
-    public ChatRoom createChatRoom() {
-        return chatRoomRepository.save(new ChatRoom());
-    }
-
     public ChatRoomTokenDto getRoomTokenByObjetId(Long objetId) {
         // TODO: 사용자 인증, 오브제 존재 여부 등 검증
         ChatRoom findChatRoom = chatRoomRepository.findChatRoomTokenByObjetId(objetId)

@@ -2,7 +2,6 @@ package com.example.daobe.objet.application;
 
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
 
-import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -38,7 +37,6 @@ public class ObjetService {
     private final ObjetRepository objetRepository;
     private final LoungeService loungeService;
     private final UserService userService;
-    private final ChatService chatService;
 
     @Transactional
     public ObjetCreateResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {

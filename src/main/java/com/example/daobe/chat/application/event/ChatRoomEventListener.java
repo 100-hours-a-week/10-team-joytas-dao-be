@@ -17,7 +17,6 @@ public class ChatRoomEventListener {
 
     @EventListener
     public void handleChatRoomCreated(ObjetCreateEvent event) {
-        log.info("[Create ChatRoom!] - objet {}", event.objet().getId());
         chatRoomRepository.save(new ChatRoom(event.objet()));
     }
 }

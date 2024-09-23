@@ -27,15 +27,16 @@ public class RedisConfig {
     private final RedisNotificationMessageListener notificationMessageListener;
 
     @Bean
-    public StatefulRedisConnection<String, byte[]> statefulRedisConnection() {
+    public RedisClient redisClient() {
         RedisURI redisUri = RedisURI.Builder.redis(redisProperties.getHost())
                 .withPort(redisProperties.getPort())
                 .build();
-        try (RedisClient redisClient = RedisClient.create(redisUri)) {
-            return redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create Redis connection", ex);
-        }
+        return RedisClient.create(redisUri);
+    }
+
+    @Bean
+    public StatefulRedisConnection<String, byte[]> statefulRedisConnection(RedisClient redisClient) {
+        return redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
     }
 
     @Bean

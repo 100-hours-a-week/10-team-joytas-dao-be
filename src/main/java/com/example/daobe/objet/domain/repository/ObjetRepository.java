@@ -1,6 +1,5 @@
 package com.example.daobe.objet.domain.repository;
 
-import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
@@ -21,7 +20,7 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             AND s.user.id = :userId
             ORDER BY o.id DESC
             """)
-    List<ObjetResponseDto> findActiveObjetListInLoungeOfSharer(
+    List<Objet> findActiveObjetListInLoungeOfSharer(
             @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
     );
 

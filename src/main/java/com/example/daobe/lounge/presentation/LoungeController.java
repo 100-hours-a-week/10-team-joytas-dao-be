@@ -12,8 +12,8 @@ import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOU
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
-import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
+import com.example.daobe.lounge.application.dto.LoungeDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
@@ -39,11 +39,11 @@ public class LoungeController {
     private final LoungeFacadeService loungeFacadeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<LoungeCreateResponseDto>> createLounge(
+    public ResponseEntity<ApiResponse<LoungeDto>> createLounge(
             @AuthenticationPrincipal Long userId,
             @RequestBody LoungeCreateRequestDto request
     ) {
-        LoungeCreateResponseDto response = loungeFacadeService.createLounge(request, userId);
+        LoungeDto response = loungeFacadeService.createLounge(request, userId);
         return ResponseEntity.status(LOUNGE_CREATED_SUCCESS.getHttpStatus())
                 .body(new ApiResponse<>(LOUNGE_CREATED_SUCCESS.name(), response));
     }
@@ -127,5 +127,17 @@ public class LoungeController {
                         LOUNGE_WITHDRAW_SUCCESS.name(),
                         null
                 ));
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<ApiResponse<Void>> validate(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody LoungeDto request
+    ) {
+        loungeFacadeService.isLoungeSharer(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "AUTHENTICATION_SUCCESS", null
+        ));
+
     }
 }

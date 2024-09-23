@@ -16,22 +16,22 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             SELECT o FROM Objet o
             JOIN ObjetSharer s ON o = s.objet
             WHERE o.lounge.id = :loungeId
-            AND o.status = :status
+            AND o.status = 'ACTIVE'
             AND s.user.id = :userId
             ORDER BY o.id DESC
             """)
     List<Objet> findActiveObjetListInLoungeOfSharer(
-            @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
+            @Param("userId") Long userId, @Param("loungeId") Long loungeId
     );
 
     @Query("""
             SELECT o FROM Objet o
             WHERE o.lounge.id = :loungeId
-            AND o.status = :status
+            AND o.status = 'ACTIVE'
             ORDER BY o.id DESC
             """)
     List<Objet> findActiveObjetListInLounge(
-            @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
+            @Param("loungeId") Long loungeId
     );
 
     Optional<Objet> findByIdAndStatus(Long loungeId, ObjetStatus status);

@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.method.HandlerMethod;
@@ -56,8 +55,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
                 if (!probe.isConsumed()) {
                     long waitForRefillSeconds = TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill());
                     response.setHeader(RATE_LIMIT_RETRY_AFTER, String.valueOf(waitForRefillSeconds));
-                    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                    return false;
+                    throw new RateLimitException(RateLimitExceptionType.THROTTLING_EXCEPTION);
                 }
 
                 long remainingTokens = probe.getRemainingTokens();

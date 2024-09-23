@@ -10,8 +10,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("""
             SELECT cr FROM ChatRoom cr
-            LEFT JOIN Objet o ON o.chatRoom.id = cr.id
-            WHERE o.id = :objetId
+            WHERE cr.objet.id = :objetId
             """)
     Optional<ChatRoom> findChatRoomTokenByObjetId(@Param("objetId") Long objetId);
 }

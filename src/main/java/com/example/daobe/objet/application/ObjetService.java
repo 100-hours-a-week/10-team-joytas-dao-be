@@ -4,7 +4,6 @@ import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET
 import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 
 import com.example.daobe.chat.application.ChatService;
-import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -18,12 +17,15 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.objet.domain.event.ObjetCreateEvent;
+import com.example.daobe.objet.domain.event.ObjetDeleteEvent;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ObjetService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ObjetSharerService objetSharerService;
     private final ObjetRepository objetRepository;
     private final LoungeService loungeService;
@@ -42,7 +45,6 @@ public class ObjetService {
     public ObjetCreateResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         User findUser = userService.getUserById(userId);
-        ChatRoom newChatRoom = chatService.createChatRoom();
 
         Objet newObjet = Objet.builder()
                 .name(request.name())
@@ -51,11 +53,11 @@ public class ObjetService {
                 .user(findUser)
                 .lounge(findLounge)
                 .imageUrl(request.objetImage())
-                .chatRoom(newChatRoom)
                 .build();
         objetRepository.save(newObjet);
         objetSharerService.createAndSaveObjetSharer(request, userId, newObjet);
 
+        eventPublisher.publishEvent(new ObjetCreateEvent(newObjet.getId()));
         return ObjetCreateResponseDto.of(newObjet);
     }
 
@@ -102,6 +104,7 @@ public class ObjetService {
 
         findObjet.updateStatus(ObjetStatus.DELETED);
         objetRepository.save(findObjet);
+        eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
     }
 
 

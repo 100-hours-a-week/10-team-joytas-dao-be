@@ -1,7 +1,10 @@
 package com.example.daobe.objet.domain;
 
+import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
+
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
+import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,6 +91,12 @@ public class Objet extends BaseTimeEntity {
 
     public void updateStatus(ObjetStatus status) {
         this.status = status;
+    }
+
+    public void isOwnerOrThrow(Long userId) {
+        if (!this.getUser().getId().equals(userId)) {
+            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
+        }
     }
 
 }

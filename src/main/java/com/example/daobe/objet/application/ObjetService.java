@@ -1,7 +1,6 @@
 package com.example.daobe.objet.application;
 
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
-import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 
 import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.lounge.application.LoungeService;
@@ -65,7 +64,7 @@ public class ObjetService {
     public ObjetUpdateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
         Objet findObjet = objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-        validateObjetOwner(findObjet, userId);
+        findObjet.isOwnerOrThrow(userId);
         findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
 
         Objet updatedObjet = objetRepository.save(findObjet);
@@ -100,19 +99,12 @@ public class ObjetService {
     @Transactional
     public void deleteObjet(Long objetId, Long userId) {
         Objet findObjet = getObjetById(objetId);
-        validateObjetOwner(findObjet, userId);
-
+        findObjet.isOwnerOrThrow(userId);
         findObjet.updateStatus(ObjetStatus.DELETED);
         objetRepository.save(findObjet);
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
     }
 
-
-    private void validateObjetOwner(Objet findObjet, Long userId) {
-        if (!findObjet.getUser().getId().equals(userId)) {
-            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
-        }
-    }
 
     private Objet getObjetById(Long objetId) {
         return objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)

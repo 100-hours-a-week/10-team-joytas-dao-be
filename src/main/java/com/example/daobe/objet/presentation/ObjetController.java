@@ -54,10 +54,10 @@ public class ObjetController {
     public ResponseEntity<ApiResponse<List<ObjetResponseDto>>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam Boolean sharer
+            @RequestParam(("is_owner")) Boolean isOwner
     ) {
         ApiResponse<List<ObjetResponseDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getAllObjetsInLounge(userId, loungeId, sharer)
+                "OBJET_LIST_LOADED_SUCCESS", objetService.getAllObjetsInLounge(userId, loungeId, isOwner)
         );
         return ResponseEntity.ok(response);
     }

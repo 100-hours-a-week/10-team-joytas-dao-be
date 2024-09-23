@@ -71,8 +71,8 @@ public class ObjetService {
         return ObjetUpdateResponseDto.of(updatedObjet);
     }
 
-    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
-        if (isSharer) {
+    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isOwner) {
+        if (isOwner) {
             return ObjetResponseDto.listOf(objetRepository.findActiveObjetListInLoungeOfSharer(
                     userId, loungeId
             ));

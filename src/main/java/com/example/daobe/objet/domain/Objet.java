@@ -83,17 +83,23 @@ public class Objet extends BaseTimeEntity {
     }
 
 
-    public void updateDetailsWithImage(String name, String description, String imageUrl) {
+    public void updateDetailsWithImage(String name, String description, String imageUrl, Long userId) {
+        isOwnerOrThrow(userId);
         this.name = name;
         this.explanation = description;
         this.imageUrl = imageUrl;
     }
 
-    public void updateStatus(ObjetStatus status) {
-        this.status = status;
+    public void deleteStatusIfOwner(Long userId) {
+        isOwnerOrThrow(userId);
+        this.status = ObjetStatus.DELETED;
     }
 
-    public void isOwnerOrThrow(Long userId) {
+    public void deleteStatus() {
+        this.status = ObjetStatus.DELETED;
+    }
+
+    private void isOwnerOrThrow(Long userId) {
         if (!this.getUser().getId().equals(userId)) {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }

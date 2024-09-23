@@ -62,8 +62,7 @@ public class ObjetService {
     public ObjetUpdateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
         Objet findObjet = objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-        findObjet.isOwnerOrThrow(userId);
-        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
+        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage(), userId);
 
         Objet updatedObjet = objetRepository.save(findObjet);
         objetSharerService.updateObjetSharerList(updatedObjet, request.sharers());
@@ -97,8 +96,7 @@ public class ObjetService {
     @Transactional
     public void deleteObjet(Long objetId, Long userId) {
         Objet findObjet = getObjetById(objetId);
-        findObjet.isOwnerOrThrow(userId);
-        findObjet.updateStatus(ObjetStatus.DELETED);
+        findObjet.deleteStatusIfOwner(userId);
         objetRepository.save(findObjet);
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
     }

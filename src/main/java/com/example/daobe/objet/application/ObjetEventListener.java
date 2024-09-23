@@ -2,7 +2,6 @@ package com.example.daobe.objet.application;
 
 import com.example.daobe.lounge.domain.event.LoungeDeleteEvent;
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +23,9 @@ public class ObjetEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleLoungeDeleted(LoungeDeleteEvent event) {
+    public void loungeDeletedListener(LoungeDeleteEvent event) {
         List<Objet> objetList = objetRepository.findActiveObjetListInLounge(event.loungeId());
-        objetList.forEach(objet -> objet.updateStatus(ObjetStatus.DELETED));
+        objetList.forEach(Objet::deleteStatus);
         objetRepository.saveAll(objetList);
     }
 }

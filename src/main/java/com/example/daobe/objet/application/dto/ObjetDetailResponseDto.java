@@ -2,6 +2,7 @@ package com.example.daobe.objet.application.dto;
 
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.user.domain.User;
 import java.time.LocalDateTime;
 
 public record ObjetDetailResponseDto(
@@ -26,10 +27,7 @@ public record ObjetDetailResponseDto(
                 objet.getExplanation(),
                 objet.getType(),
                 objet.getCreatedAt(),
-                OwnerInfo.of(
-                        objet.getUser().getId(),
-                        objet.getUser().getNickname()
-                )
+                OwnerInfo.of(objet.getUser())
         );
     }
 
@@ -38,8 +36,8 @@ public record ObjetDetailResponseDto(
             String nickname
     ) {
 
-        public static ObjetDetailResponseDto.OwnerInfo of(Long userId, String nickname) {
-            return new ObjetDetailResponseDto.OwnerInfo(userId, nickname);
+        public static ObjetDetailResponseDto.OwnerInfo of(User user) {
+            return new ObjetDetailResponseDto.OwnerInfo(user.getId(), user.getNickname());
         }
     }
 }

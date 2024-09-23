@@ -1,10 +1,7 @@
 package com.example.daobe.objet.application;
 
 import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
-import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
 
-import com.example.daobe.chat.application.ChatService;
-import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -18,12 +15,15 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
+import com.example.daobe.objet.domain.event.ObjetCreateEvent;
+import com.example.daobe.objet.domain.event.ObjetDeleteEvent;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,17 +32,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ObjetService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final ObjetSharerService objetSharerService;
     private final ObjetRepository objetRepository;
     private final LoungeService loungeService;
     private final UserService userService;
-    private final ChatService chatService;
 
     @Transactional
     public ObjetCreateResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         User findUser = userService.getUserById(userId);
-        ChatRoom newChatRoom = chatService.createChatRoom();
 
         Objet newObjet = Objet.builder()
                 .name(request.name())
@@ -51,11 +50,11 @@ public class ObjetService {
                 .user(findUser)
                 .lounge(findLounge)
                 .imageUrl(request.objetImage())
-                .chatRoom(newChatRoom)
                 .build();
         objetRepository.save(newObjet);
         objetSharerService.createAndSaveObjetSharer(request, userId, newObjet);
 
+        eventPublisher.publishEvent(new ObjetCreateEvent(newObjet.getId()));
         return ObjetCreateResponseDto.of(newObjet);
     }
 
@@ -63,24 +62,22 @@ public class ObjetService {
     public ObjetUpdateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
         Objet findObjet = objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
                 .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-        validateObjetOwner(findObjet, userId);
-        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage());
+        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage(), userId);
 
         Objet updatedObjet = objetRepository.save(findObjet);
         objetSharerService.updateObjetSharerList(updatedObjet, request.sharers());
         return ObjetUpdateResponseDto.of(updatedObjet);
     }
 
-    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isSharer) {
-        if (isSharer) {
-            return objetRepository.findActiveObjetsInLoungeOfSharer(
-                    userId,
-                    loungeId,
-                    ObjetStatus.ACTIVE
-            );
+    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isOwner) {
+        if (isOwner) {
+            return ObjetResponseDto.listOf(objetRepository.findActiveObjetListInLoungeOfSharer(
+                    userId, loungeId
+            ));
         }
-        List<Objet> objetList = objetRepository.findActiveObjetsInLounge(loungeId, ObjetStatus.ACTIVE);
-        return ObjetResponseDto.listOf(objetList);
+        return ObjetResponseDto.listOf(
+                objetRepository.findActiveObjetListInLounge(loungeId)
+        );
     }
 
     public ObjetDetailResponseDto getObjetDetail(Long userId, Long objetId) {
@@ -99,18 +96,11 @@ public class ObjetService {
     @Transactional
     public void deleteObjet(Long objetId, Long userId) {
         Objet findObjet = getObjetById(objetId);
-        validateObjetOwner(findObjet, userId);
-
-        findObjet.updateStatus(ObjetStatus.DELETED);
+        findObjet.deleteStatusIfOwner(userId);
         objetRepository.save(findObjet);
+        eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
     }
 
-
-    private void validateObjetOwner(Objet findObjet, Long userId) {
-        if (!findObjet.getUser().getId().equals(userId)) {
-            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
-        }
-    }
 
     private Objet getObjetById(Long objetId) {
         return objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)

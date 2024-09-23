@@ -4,7 +4,7 @@ public record ObjetCallParticipantsResponseDto(
         Long callingUserNum
 ) {
 
-    public static ObjetCallParticipantsResponseDto of(Long objetid) {
-        return new ObjetCallParticipantsResponseDto(objetid);
+    public static ObjetCallParticipantsResponseDto of(Long objetId) {
+        return new ObjetCallParticipantsResponseDto(objetId);
     }
 }

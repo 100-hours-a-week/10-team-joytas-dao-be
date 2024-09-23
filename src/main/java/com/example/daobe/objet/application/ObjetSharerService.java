@@ -8,7 +8,6 @@ import com.example.daobe.objet.domain.event.ObjetInviteEvent;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ObjetSharerService {
 
     private final ObjetSharerRepository objetSharerRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -31,11 +29,11 @@ public class ObjetSharerService {
     public void createAndSaveObjetSharer(ObjetCreateRequestDto request, Long userId, Objet objet) {
         List<Long> sharerIdList = request.sharers();
         sharerIdList.add(userId);
-        List<Long> distinctSharerIds = sharerIdList.stream().distinct().toList();
+        List<Long> distinctSharerIdList = sharerIdList.stream().distinct().toList();
 
-        List<User> users = userRepository.findAllById(distinctSharerIds);
+        List<User> userList = userService.getUserListByIdList(distinctSharerIdList);
 
-        List<ObjetSharer> objetSharerList = users.stream()
+        List<ObjetSharer> objetSharerList = userList.stream()
                 .map(user -> ObjetSharer.builder()
                         .user(user)
                         .objet(objet)
@@ -50,16 +48,16 @@ public class ObjetSharerService {
 
     public void updateObjetSharerList(Objet objet, List<Long> sharerIdList) {
         sharerIdList.add(objet.getUser().getId());
-        List<Long> distinctSharerIds = sharerIdList.stream().distinct().toList();
-        List<Long> currentObjetSharerIdList = objetSharerRepository.findSharerIdsByObjet(objet);
+        List<Long> distinctSharerIdList = sharerIdList.stream().distinct().toList();
+        List<Long> currentObjetSharerIdList = objetSharerRepository.findSharerIdListByObjet(objet);
 
         List<Long> deleteObjetSharerIdList = currentObjetSharerIdList.stream()
-                .filter(sharerId -> !distinctSharerIds.contains(sharerId))
+                .filter(sharerId -> !distinctSharerIdList.contains(sharerId))
                 .toList();
 
         objetSharerRepository.deleteAllByObjetAndUserIdIn(objet, deleteObjetSharerIdList);
 
-        List<ObjetSharer> newObjetSharerList = distinctSharerIds.stream()
+        List<ObjetSharer> newObjetSharerList = distinctSharerIdList.stream()
                 .filter(sharerId -> !currentObjetSharerIdList.contains(sharerId))
                 .map((sharerId) -> createSharer(sharerId, objet))
                 .toList();

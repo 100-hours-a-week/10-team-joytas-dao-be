@@ -12,8 +12,7 @@ public record ObjetResponseDto(
         String objetImage,
         String description,
         LocalDateTime createdAt,
-        String nickname,
-        String profileImage
+        OwnerDto owner
 ) {
 
     public static ObjetResponseDto of(Objet objet) {
@@ -24,8 +23,10 @@ public record ObjetResponseDto(
                 objet.getImageUrl(),
                 objet.getExplanation(),
                 objet.getCreatedAt(),
-                objet.getUser().getNickname(),
-                objet.getUser().getProfileUrl()
+                new OwnerDto(
+                        objet.getUser().getNickname(),
+                        objet.getUser().getProfileUrl()
+                )
         );
     }
 
@@ -33,5 +34,11 @@ public record ObjetResponseDto(
         return objetList.stream()
                 .map(ObjetResponseDto::of)
                 .toList();
+    }
+
+    public record OwnerDto(
+            String nickname,
+            String profileImage
+    ) {
     }
 }

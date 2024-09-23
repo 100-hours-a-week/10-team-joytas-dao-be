@@ -75,7 +75,6 @@ public class Objet extends BaseTimeEntity {
             String imageUrl,
             String explanation,
             ObjetType type,
-            ObjetStatus status,
             ChatRoom chatRoom
     ) {
         this.lounge = lounge;

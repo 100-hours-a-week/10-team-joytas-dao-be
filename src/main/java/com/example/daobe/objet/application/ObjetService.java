@@ -54,7 +54,7 @@ public class ObjetService {
         objetRepository.save(newObjet);
         objetSharerService.createAndSaveObjetSharer(request, userId, newObjet);
 
-        eventPublisher.publishEvent(new ObjetCreateEvent(newObjet.getId()));
+        eventPublisher.publishEvent(new ObjetCreateEvent(newObjet));
         return ObjetCreateResponseDto.of(newObjet);
     }
 

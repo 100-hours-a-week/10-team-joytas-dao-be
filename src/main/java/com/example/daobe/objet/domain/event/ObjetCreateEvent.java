@@ -1,6 +1,8 @@
 package com.example.daobe.objet.domain.event;
 
+import com.example.daobe.objet.domain.Objet;
+
 public record ObjetCreateEvent(
-        Long objetId
+        Objet objet
 ) {
 }

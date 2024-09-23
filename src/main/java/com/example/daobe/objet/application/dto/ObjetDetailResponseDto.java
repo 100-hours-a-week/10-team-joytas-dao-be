@@ -12,8 +12,9 @@ public record ObjetDetailResponseDto(
         String description,
         ObjetType objetType,
         LocalDateTime createdAt,
-        OwnerDto owner
+        OwnerInfo owner
 ) {
+
     public static ObjetDetailResponseDto of(
             Objet objet
     ) {
@@ -25,16 +26,20 @@ public record ObjetDetailResponseDto(
                 objet.getExplanation(),
                 objet.getType(),
                 objet.getCreatedAt(),
-                new OwnerDto(
+                OwnerInfo.of(
                         objet.getUser().getId(),
                         objet.getUser().getNickname()
                 )
         );
     }
 
-    public record OwnerDto(
+    public record OwnerInfo(
             Long userId,
             String nickname
     ) {
+
+        public static ObjetDetailResponseDto.OwnerInfo of(Long userId, String nickname) {
+            return new ObjetDetailResponseDto.OwnerInfo(userId, nickname);
+        }
     }
 }

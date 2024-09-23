@@ -2,6 +2,7 @@ package com.example.daobe.user.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.common.response.SliceApiResponse;
+import com.example.daobe.common.throttling.annotation.RateLimited;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
@@ -89,6 +90,7 @@ public class UserController {
         ));
     }
 
+    @RateLimited(name = "userPoke", capacity = 3, refillSeconds = 3)
     @PostMapping("/poke")
     public ResponseEntity<ApiResponse<Void>> poke(
             @AuthenticationPrincipal Long userId,

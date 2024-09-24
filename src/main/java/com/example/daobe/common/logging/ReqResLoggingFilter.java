@@ -1,7 +1,5 @@
 package com.example.daobe.common.logging;
 
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-
 import com.example.daobe.common.utils.DaoStreamUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,11 +7,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,20 +28,13 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
     private static final String QUERY_COUNT_MDC_KEY = "QUERY_COUNT";
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        String contentType = request.getHeader(CONTENT_TYPE);
-        if (LoggingMediaType.isMatchType(contentType)) {
-            doReqResLogging(request, response, filterChain);
-        } else {
-            filterChain.doFilter(request, response);
-        }
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        return Objects.equals(acceptHeader, MediaType.TEXT_EVENT_STREAM_VALUE);
     }
 
-    private void doReqResLogging(
+    @Override
+    protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain
@@ -48,7 +42,6 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
         ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper cachedResponse = new ContentCachingResponseWrapper(response);
 
-        // Request Latency (밀리초)
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -59,13 +52,11 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
         cachedResponse.copyBodyToResponse();
     }
 
-    // TODO: 리팩토링
     private void logging(
             ContentCachingRequestWrapper request,
             ContentCachingResponseWrapper response,
             long requestDuration
     ) {
-        // Request & Response & QueryCount
         int status = response.getStatus();
         String method = request.getMethod();
         String requestURI = request.getRequestURI();

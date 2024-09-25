@@ -5,7 +5,6 @@ import static com.example.daobe.chat.domain.MessageType.LEAVE;
 import static com.example.daobe.chat.domain.MessageType.TALK;
 import static com.example.daobe.chat.exception.ChatExceptionType.INVALID_CHAT_ROOM_ID_EXCEPTION;
 import static com.example.daobe.chat.exception.ChatExceptionType.INVALID_CHAT_USER_ID_EXCEPTION;
-import static com.example.daobe.chat.exception.ChatExceptionType.SOCKET_CONNECTION_FAILED_EXCEPTION;
 
 import com.example.daobe.chat.application.dto.ChatMessageDto;
 import com.example.daobe.chat.application.dto.ChatMessageInfoDto;
@@ -15,6 +14,7 @@ import com.example.daobe.chat.application.dto.ChatRoomTokenDto;
 import com.example.daobe.chat.domain.ChatMessage;
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.chat.domain.ChatUser;
+import com.example.daobe.chat.domain.MessageType;
 import com.example.daobe.chat.domain.repository.ChatMessageRepository;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
 import com.example.daobe.chat.domain.repository.ChatUserRepository;
@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,20 +31,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// TODO: 인증 및 예외 처리 로직 작성
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatService {
 
-    private static final String SENDER_ID = "senderId";
-    private static final String SENDER_NAME = "senderName";
-    private static final String ROOM_TOKEN = "roomToken";
     private static final String MESSAGE_SORT_FIELD_CREATED_AT = "createdAt";
     private static final int RECENT_MESSAGES_COUNT = 3;
 
@@ -53,47 +49,29 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
 
+    private final ChannelTopic channelTopic;
+    private final RedisTemplate redisTemplate;
+
     public ChatRoomTokenDto getRoomTokenByObjetId(Long objetId) {
-        // TODO: 사용자 인증, 오브제 존재 여부 등 검증
         ChatRoom findChatRoom = chatRoomRepository.findChatRoomTokenByObjetId(objetId)
                 .orElseThrow(() -> new ChatException(INVALID_CHAT_ROOM_ID_EXCEPTION));
         return new ChatRoomTokenDto(findChatRoom.getRoomToken());
     }
 
-    public EnterAndLeaveMessage createEnterMessageAndSetSessionAttribute(
-            ChatMessageInfoDto message,
-            String roomToken,
-            SimpMessageHeaderAccessor headerAccessor
-    ) {
-        try {
-            Objects.requireNonNull(headerAccessor.getSessionAttributes()).put(SENDER_ID, message.senderId());
-            headerAccessor.getSessionAttributes().put(SENDER_NAME, message.senderName());
-            headerAccessor.getSessionAttributes().put(ROOM_TOKEN, roomToken);
-        } catch (Exception e) {
-            throw new ChatException(SOCKET_CONNECTION_FAILED_EXCEPTION);
-        }
-
-        ChatUser findUser = chatUserRepository.findByUserId(message.senderId())
-                .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
-        return EnterAndLeaveMessage.of(
-                ENTER.name(),
-                roomToken,
-                ENTER.getMessage().formatted(findUser.getNickname()),
-                LocalDateTime.now()
-        );
+    public void sendMessage(Long userId, ChatMessageDto message) {
+        String topic = channelTopic.getTopic();
+        ChatMessageInfoDto messageInfoDto = createAndSaveMessage(userId, message);
+        redisTemplate.convertAndSend(topic, messageInfoDto);
     }
 
-    public ChatMessageInfoDto createMessage(ChatMessageDto message, String roomToken) {
-        ChatUser findUser = chatUserRepository.findByUserId(message.senderId())
+    public void sendEnterLeaveMessage(Long userId, ChatMessageDto messageInfoDto) {
+        String topic = channelTopic.getTopic();
+        ChatUser findUser = chatUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
-        ChatMessage chatMessage = ChatMessage.builder()
-                .type(TALK)
-                .roomToken(roomToken)
-                .senderId(findUser.getUserId())
-                .message(message.message())
-                .build();
-        ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
-        return ChatMessageInfoDto.of(savedChatMessage, findUser);
+
+        String formattedMessage = formatEnterLeaveMessage(messageInfoDto.type(), findUser.getNickname());
+        EnterAndLeaveMessage messageInfo = createEnterLeaveMessage(messageInfoDto, formattedMessage);
+        redisTemplate.convertAndSend(topic, messageInfo);
     }
 
     public ChatMessageResponseDto getMessagesByRoomToken(String roomToken, ObjectId cursorId, int limit) {
@@ -113,14 +91,29 @@ public class ChatService {
         return mapMessagesToDto(chatMessages, userInfos, false);
     }
 
-    public EnterAndLeaveMessage leaveChatRoom(SimpMessageHeaderAccessor headerAccessor) {
-        String roomToken = (String) headerAccessor.getSessionAttributes().get(ROOM_TOKEN);
-        String senderName = (String) headerAccessor.getSessionAttributes().get(SENDER_NAME);
+    private ChatMessageInfoDto createAndSaveMessage(Long userId, ChatMessageDto message) {
+        ChatUser findUser = chatUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
+        ChatMessage chatMessage = ChatMessage.builder()
+                .type(TALK)
+                .roomToken(message.roomToken())
+                .senderId(userId)
+                .message(message.message())
+                .build();
+        ChatMessage savedChatMessage = chatMessageRepository.save(chatMessage);
+        return ChatMessageInfoDto.of(savedChatMessage, findUser);
+    }
 
+    private String formatEnterLeaveMessage(MessageType type, String nickname) {
+        return (type.equals(ENTER) ? ENTER.getMessage() : LEAVE.getMessage())
+                .formatted(nickname);
+    }
+
+    private EnterAndLeaveMessage createEnterLeaveMessage(ChatMessageDto messageDto, String message) {
         return EnterAndLeaveMessage.of(
-                LEAVE.name(),
-                roomToken,
-                LEAVE.getMessage().formatted(senderName),
+                messageDto.type().name(),
+                messageDto.roomToken(),
+                message,
                 LocalDateTime.now()
         );
     }

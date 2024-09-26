@@ -11,6 +11,7 @@ public record LoungeDetailInfoDto(
         Long userId,
         List<ObjetInfo> objets
 ) {
+
     public static LoungeDetailInfoDto of(Lounge lounge, List<ObjetInfo> objetInfos) {
         return new LoungeDetailInfoDto(
                 lounge.getId(),
@@ -26,6 +27,7 @@ public record LoungeDetailInfoDto(
             String objetType,
             String name
     ) {
+
         public static ObjetInfo of(Objet objet) {
             return new ObjetInfo(
                     objet.getId(),

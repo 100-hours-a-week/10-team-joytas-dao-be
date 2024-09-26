@@ -1,11 +1,12 @@
 package com.example.daobe.lounge.application;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
+import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
@@ -25,11 +26,11 @@ public class LoungeFacadeService {
 
     // 라운지 생성
     @Transactional
-    public LoungeDto createLounge(LoungeCreateRequestDto request, Long userId) {
+    public LoungeCreateResponseDto createLounge(LoungeCreateRequestDto request, Long userId) {
         User findUser = userService.getUserById(userId);
         Lounge createdLounge = loungeService.createAndSaveLounge(request, findUser);
         loungeSharerService.createAndSaveLoungeSharer(findUser, createdLounge);
-        return LoungeDto.of(createdLounge);
+        return LoungeCreateResponseDto.of(createdLounge);
     }
 
     // 라운지 목록 조회
@@ -82,7 +83,7 @@ public class LoungeFacadeService {
     }
 
     // 라운지 공유자 검증
-    public void isLoungeSharer(Long userId, LoungeDto request) {
+    public void isLoungeSharer(Long userId, LoungeValidateRequestDto request) {
         loungeSharerService.validateLoungeSharer(userId, request.loungeId());
     }
 }

@@ -14,7 +14,7 @@ public class RedisObjetCallRepository implements ObjetCallRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public Long getObjetLength(Long objetId) {
+    public Long getObjetCallCount(Long objetId) {
         String key = generateKey(objetId);
         return redisTemplate.opsForList().size(key);
     }

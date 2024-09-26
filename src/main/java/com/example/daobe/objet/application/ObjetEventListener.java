@@ -25,7 +25,7 @@ public class ObjetEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void loungeDeletedListener(LoungeDeleteEvent event) {
         List<Objet> objetList = objetRepository.findActiveObjetListInLounge(event.loungeId());
-        objetList.forEach(Objet::deleteStatus);
+        objetList.forEach(Objet::updateDeleteStatus);
         objetRepository.saveAll(objetList);
     }
 }

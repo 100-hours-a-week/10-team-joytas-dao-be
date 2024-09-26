@@ -1,16 +1,16 @@
 package com.example.daobe.objet.application;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
+import static com.example.daobe.objet.exception.ObjetExceptionType.OBJET_NOT_FOUND_EXCEPTION;
 
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDeleteResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
+import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetUpdateResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetStatus;
@@ -39,7 +39,7 @@ public class ObjetService {
     private final UserService userService;
 
     @Transactional
-    public ObjetCreateResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {
+    public ObjetInfoResponseDto createNewObjet(ObjetCreateRequestDto request, Long userId) {
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         User findUser = userService.getUserById(userId);
 
@@ -55,32 +55,31 @@ public class ObjetService {
         objetSharerService.createAndSaveObjetSharer(request, userId, newObjet);
 
         eventPublisher.publishEvent(new ObjetCreateEvent(newObjet));
-        return ObjetCreateResponseDto.of(newObjet);
+        return ObjetInfoResponseDto.of(newObjet);
     }
 
     @Transactional
-    public ObjetUpdateResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
-        Objet findObjet = objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
-        findObjet.updateDetailsWithImage(request.name(), request.description(), request.objetImage(), userId);
+    public ObjetInfoResponseDto updateObjet(ObjetUpdateRequestDto request, Long objetId, Long userId) {
+        Objet findObjet = objetRepository.findByIdAndActiveStatus(objetId)
+                .orElseThrow(() -> new ObjetException(OBJET_NOT_FOUND_EXCEPTION));
+        findObjet.updateObjetInfo(request.name(), request.description(), request.objetImage(), userId);
 
         Objet updatedObjet = objetRepository.save(findObjet);
         objetSharerService.updateObjetSharerList(updatedObjet, request.sharers());
-        return ObjetUpdateResponseDto.of(updatedObjet);
+        return ObjetInfoResponseDto.of(updatedObjet);
     }
 
-    public List<ObjetResponseDto> getAllObjetsInLounge(Long userId, Long loungeId, boolean isOwner) {
-        if (isOwner) {
-            return ObjetResponseDto.listOf(objetRepository.findActiveObjetListInLoungeOfSharer(
-                    userId, loungeId
-            ));
-        }
-        return ObjetResponseDto.listOf(
-                objetRepository.findActiveObjetListInLounge(loungeId)
-        );
+    public List<ObjetResponseDto> getObjetListByUserId(Long userId, Long loungeId) {
+        List<Objet> objetList = objetRepository.findActiveObjetListInLoungeOfSharer(userId, loungeId);
+        return ObjetResponseDto.listOf(objetList);
     }
 
-    public ObjetDetailResponseDto getObjetDetail(Long userId, Long objetId) {
+    public List<ObjetResponseDto> getObjetList(Long loungeId) {
+        List<Objet> objetList = objetRepository.findActiveObjetListInLounge(loungeId);
+        return ObjetResponseDto.listOf(objetList);
+    }
+
+    public ObjetDetailResponseDto getObjetDetail(Long objetId) {
         Objet findObjet = getObjetById(objetId);
         return ObjetDetailResponseDto.of(findObjet);
     }
@@ -94,17 +93,17 @@ public class ObjetService {
     }
 
     @Transactional
-    public void deleteObjet(Long objetId, Long userId) {
+    public ObjetDeleteResponseDto deleteObjet(Long objetId, Long userId) {
         Objet findObjet = getObjetById(objetId);
-        findObjet.deleteStatusIfOwner(userId);
+        findObjet.softDelete(userId);
         objetRepository.save(findObjet);
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
+        return ObjetDeleteResponseDto.of(findObjet);
     }
 
 
     private Objet getObjetById(Long objetId) {
-        return objetRepository.findByIdAndStatus(objetId, ObjetStatus.ACTIVE)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+        return objetRepository.findByIdAndActiveStatus(objetId)
+                .orElseThrow(() -> new ObjetException(OBJET_NOT_FOUND_EXCEPTION));
     }
-
 }

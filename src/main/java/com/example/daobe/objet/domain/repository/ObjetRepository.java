@@ -1,7 +1,6 @@
 package com.example.daobe.objet.domain.repository;
 
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,5 +33,10 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
             @Param("loungeId") Long loungeId
     );
 
-    Optional<Objet> findByIdAndStatus(Long loungeId, ObjetStatus status);
+    @Query("""
+            SELECT o FROM Objet o
+            WHERE o.id = :objetId
+            AND o.status = 'ACTIVE'
+            """)
+    Optional<Objet> findByIdAndActiveStatus(@Param("objetId") Long objetId);
 }

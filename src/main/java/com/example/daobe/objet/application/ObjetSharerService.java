@@ -68,7 +68,6 @@ public class ObjetSharerService {
                         new ObjetInviteEvent(objet.getUser().getId(), objetSharer)
                 )
         );
-
     }
 
     @Transactional

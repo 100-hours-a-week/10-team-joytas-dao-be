@@ -14,6 +14,6 @@ public class ObjetSignalService {
     private final ObjetCallRepository objetCallRepository;
 
     public ObjetCallParticipantsResponseDto getCallParticipantsByObjetId(Long objetId) {
-        return ObjetCallParticipantsResponseDto.of(objetCallRepository.getObjetLength(objetId));
+        return ObjetCallParticipantsResponseDto.of(objetCallRepository.getObjetCallCount(objetId));
     }
 }

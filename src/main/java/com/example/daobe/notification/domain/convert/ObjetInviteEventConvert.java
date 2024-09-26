@@ -1,6 +1,6 @@
 package com.example.daobe.notification.domain.convert;
 
-import static com.example.daobe.objet.exception.ObjetExceptionType.INVALID_OBJET_ID_EXCEPTION;
+import static com.example.daobe.objet.exception.ObjetExceptionType.OBJET_NOT_FOUND_EXCEPTION;
 
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
 import com.example.daobe.objet.domain.Objet;
@@ -26,7 +26,7 @@ public class ObjetInviteEventConvert implements DomainEventConvert {
     @Override
     public DomainInfo convertToDomainInfo(Long domainId) {
         Objet findObjet = objetRepository.findById(domainId)
-                .orElseThrow(() -> new ObjetException(INVALID_OBJET_ID_EXCEPTION));
+                .orElseThrow(() -> new ObjetException(OBJET_NOT_FOUND_EXCEPTION));
         return new DomainInfo(
                 findObjet.getId(),
                 findObjet.getName()

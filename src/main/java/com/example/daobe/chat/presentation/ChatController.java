@@ -5,6 +5,7 @@ import com.example.daobe.chat.application.dto.ChatMessageDto;
 import com.example.daobe.chat.application.dto.ChatMessageResponseDto;
 import com.example.daobe.chat.application.dto.ChatRoomTokenDto;
 import com.example.daobe.common.response.ApiResponse;
+import com.example.daobe.common.throttling.annotation.RateLimited;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -35,6 +36,7 @@ public class ChatController {
         chatService.sendEnterLeaveMessage(userId, messageDto);
     }
 
+    @RateLimited(name = "sendMessage", capacity = 20, refillTokens = 5, refillSeconds = 2)
     @PostMapping("/chat")
     public void sendMessage(
             @AuthenticationPrincipal Long userId,

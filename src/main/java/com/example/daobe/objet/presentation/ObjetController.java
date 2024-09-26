@@ -4,13 +4,13 @@ import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.ObjetSharerService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetCreateResponseDto;
+import com.example.daobe.objet.application.dto.ObjetDeleteResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
+import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
 import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetSharerResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
-import com.example.daobe.objet.application.dto.ObjetUpdateResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,25 +41,28 @@ public class ObjetController {
     private final ObjetSharerService objetSharerService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ObjetCreateResponseDto>> generateObjet(
+    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> generateObjet(
             @AuthenticationPrincipal Long userId,
             @RequestBody ObjetCreateRequestDto request
     ) {
-        ObjetCreateResponseDto ObjetCreateResponse = objetService.createNewObjet(request, userId);
+        ObjetInfoResponseDto objetCreateResponse = objetService.createNewObjet(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, ObjetCreateResponse));
+                .body(new ApiResponse<>(OBJET_CREATED_SUCCESS, objetCreateResponse));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ObjetResponseDto>>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam("lounge_id") Long loungeId,
-            @RequestParam(("is_owner")) Boolean isOwner
+            @RequestParam("is_owner") boolean isOwner
     ) {
-        ApiResponse<List<ObjetResponseDto>> response = new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS", objetService.getAllObjetsInLounge(userId, loungeId, isOwner)
-        );
-        return ResponseEntity.ok(response);
+        List<ObjetResponseDto> responseDto = isOwner ?
+                objetService.getObjetListByUserId(userId, loungeId) :
+                objetService.getObjetList(loungeId);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "OBJET_LIST_LOADED_SUCCESS",
+                responseDto
+        ));
     }
 
     @GetMapping("/{objetId}")
@@ -69,7 +72,7 @@ public class ObjetController {
     ) {
         ApiResponse<ObjetDetailResponseDto> response = new ApiResponse<>(
                 "OBJET_DETAIL_LOADED_SUCCESS",
-                objetService.getObjetDetail(userId, objetId)
+                objetService.getObjetDetail(objetId)
         );
         return ResponseEntity.ok(response);
     }
@@ -94,22 +97,22 @@ public class ObjetController {
     }
 
     @PatchMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<ObjetUpdateResponseDto>> updateObjet(
+    public ResponseEntity<ApiResponse<ObjetInfoResponseDto>> updateObjet(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "objetId") Long objetId,
             @RequestBody ObjetUpdateRequestDto request
     ) {
-        ObjetUpdateResponseDto objetUpdateResponse = objetService.updateObjet(request, objetId, userId);
+        ObjetInfoResponseDto objetUpdateResponse = objetService.updateObjet(request, objetId, userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(OBJET_UPDATED_SUCCESS, objetUpdateResponse));
     }
 
     @DeleteMapping("/{objetId}")
-    public ResponseEntity<ApiResponse<Void>> deleteObjet(
+    public ResponseEntity<ApiResponse<ObjetDeleteResponseDto>> deleteObjet(
             @PathVariable(name = "objetId") Long objetId,
             @AuthenticationPrincipal Long userId
     ) {
-        objetService.deleteObjet(objetId, userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(OBJET_DELETED_SUCCESS, null));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(OBJET_DELETED_SUCCESS, objetService.deleteObjet(objetId, userId)));
     }
 }

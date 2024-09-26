@@ -7,6 +7,7 @@ public record LoungeInfoDto(
         String name,
         String type
 ) {
+
     public static LoungeInfoDto of(Lounge lounge) {
         return new LoungeInfoDto(
                 lounge.getId(),

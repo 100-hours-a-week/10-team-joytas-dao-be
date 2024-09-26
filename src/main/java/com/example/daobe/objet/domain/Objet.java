@@ -58,12 +58,6 @@ public class Objet extends BaseTimeEntity {
     @Column(name = "status")
     private ObjetStatus status;
 
-    @Column(name = "reason")
-    private String reason;
-
-    @Column(columnDefinition = "TEXT", name = "reason_detail")
-    private String reasonDetail;
-
     @Builder
     public Objet(
             Lounge lounge,
@@ -83,24 +77,30 @@ public class Objet extends BaseTimeEntity {
     }
 
 
-    public void updateDetailsWithImage(String name, String description, String imageUrl, Long userId) {
+    public void updateObjetInfo(String name, String explanation, String imageUrl, Long userId) {
         isOwnerOrThrow(userId);
-        this.name = name;
-        this.explanation = description;
-        this.imageUrl = imageUrl;
+        if (name != null) {
+            this.name = name;
+        }
+        if (explanation != null) {
+            this.explanation = explanation;
+        }
+        if (imageUrl != null) {
+            this.imageUrl = imageUrl;
+        }
     }
 
-    public void deleteStatusIfOwner(Long userId) {
+    public void softDelete(Long userId) {
         isOwnerOrThrow(userId);
         this.status = ObjetStatus.DELETED;
     }
 
-    public void deleteStatus() {
+    public void updateDeleteStatus() {
         this.status = ObjetStatus.DELETED;
     }
 
     private void isOwnerOrThrow(Long userId) {
-        if (!this.getUser().getId().equals(userId)) {
+        if (!user.getId().equals(userId)) {
             throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
         }
     }

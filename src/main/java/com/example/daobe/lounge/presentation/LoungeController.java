@@ -12,11 +12,12 @@ import static com.example.daobe.lounge.presentation.support.LoungeResultType.LOU
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
+import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.application.dto.LoungeInviteDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +40,11 @@ public class LoungeController {
     private final LoungeFacadeService loungeFacadeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<LoungeDto>> createLounge(
+    public ResponseEntity<ApiResponse<LoungeCreateResponseDto>> createLounge(
             @AuthenticationPrincipal Long userId,
             @RequestBody LoungeCreateRequestDto request
     ) {
-        LoungeDto response = loungeFacadeService.createLounge(request, userId);
+        LoungeCreateResponseDto response = loungeFacadeService.createLounge(request, userId);
         return ResponseEntity.status(LOUNGE_CREATED_SUCCESS.getHttpStatus())
                 .body(new ApiResponse<>(LOUNGE_CREATED_SUCCESS.name(), response));
     }
@@ -75,7 +76,7 @@ public class LoungeController {
     @DeleteMapping("/{loungeId}")
     public ResponseEntity<ApiResponse<Void>> deleteLounge(
             @AuthenticationPrincipal Long userId,
-            @PathVariable(name = "loungeId") Long loungeId
+            @PathVariable Long loungeId
     ) {
         loungeFacadeService.deleteLounge(userId, loungeId);
         return ResponseEntity.status(LOUNGE_DELETED_SUCCESS.getHttpStatus())
@@ -132,7 +133,7 @@ public class LoungeController {
     @PostMapping("/validate")
     public ResponseEntity<ApiResponse<Void>> validate(
             @AuthenticationPrincipal Long userId,
-            @RequestBody LoungeDto request
+            @RequestBody LoungeValidateRequestDto request
     ) {
         loungeFacadeService.isLoungeSharer(userId, request);
         return ResponseEntity.ok(new ApiResponse<>(

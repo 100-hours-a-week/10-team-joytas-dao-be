@@ -29,25 +29,27 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/chat/greet")
-    public void enterLeaveMessage(
+    public ResponseEntity<ApiResponse<Void>> enterLeaveMessage(
             @AuthenticationPrincipal Long userId,
             @RequestBody ChatMessageDto messageDto
     ) {
         chatService.sendEnterLeaveMessage(userId, messageDto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @RateLimited(name = "sendMessage", capacity = 20, refillTokens = 5, refillSeconds = 2)
     @PostMapping("/chat")
-    public void sendMessage(
+    public ResponseEntity<ApiResponse<Void>> sendMessage(
             @AuthenticationPrincipal Long userId,
             @RequestBody ChatMessageDto messageDto
     ) {
         chatService.sendMessage(userId, messageDto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/{objetId}/room-token")
     public ResponseEntity<ApiResponse<ChatRoomTokenDto>> getChatRoomToken(
-            @PathVariable(name = "objetId") Long objetId
+            @PathVariable Long objetId
     ) {
         ChatRoomTokenDto roomToken = chatService.getRoomTokenByObjetId(objetId);
         ApiResponse<ChatRoomTokenDto> response = new ApiResponse<>(
@@ -59,25 +61,25 @@ public class ChatController {
 
     @GetMapping("/{roomToken}/messages")
     public ResponseEntity<ApiResponse<ChatMessageResponseDto>> getChatMessages(
-            @PathVariable(value = "roomToken") String token,
+            @PathVariable String roomToken,
             @RequestParam(value = "cursorId", required = false) ObjectId cursorId,
             @RequestParam(defaultValue = "20") int limit
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(
                         "MESSAGES_LOADED_SUCCESS",
-                        chatService.getMessagesByRoomToken(token, cursorId, limit)
+                        chatService.getMessagesByRoomToken(roomToken, cursorId, limit)
                 ));
     }
 
     @GetMapping("/{roomToken}/messages/recent")
     public ResponseEntity<ApiResponse<ChatMessageResponseDto>> getRecentChatMessages(
-            @PathVariable(value = "roomToken") String token
+            @PathVariable String roomToken
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(
                         "MESSAGES_LOADED_SUCCESS",
-                        chatService.getRecentMessagesByRoomToken(token)
+                        chatService.getRecentMessagesByRoomToken(roomToken)
                 ));
     }
 }

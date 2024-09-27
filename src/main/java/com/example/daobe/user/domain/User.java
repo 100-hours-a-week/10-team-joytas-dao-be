@@ -37,19 +37,24 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    // 비활성화 사유
     private String reasons;
 
-    // 비활성화 사유
     @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
 
     @Builder
-    public User(String kakaoId, String profileUrl) {
+    public User(String kakaoId) {
         this.kakaoId = kakaoId;
         this.nickname = DefaultNicknamePolicy.generatedRandomString();
-        this.profileUrl = profileUrl;
         this.status = UserStatus.ACTIVE_FIRST_LOGIN;
+    }
+
+    public User(Long id, String kakaoId, String nickname, String profileUrl, UserStatus status) {
+        this.id = id;
+        this.kakaoId = kakaoId;
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+        this.status = status;
     }
 
     public void updateUserInfo(String nickname, String profileUrl) {
@@ -79,6 +84,5 @@ public class User extends BaseTimeEntity {
                 .toString();
         this.reasonDetail = detail;
         this.status = UserStatus.DELETED;
-        this.updateDeletedTime();
     }
 }

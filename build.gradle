@@ -45,6 +45,7 @@ dependencies {
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    testImplementation 'com.h2database:h2'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

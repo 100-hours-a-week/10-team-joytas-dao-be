@@ -3,7 +3,7 @@ package com.example.daobe.user.domain;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_MATCH_REASON_TYPE;
 
 import com.example.daobe.user.exception.UserException;
-import java.util.Optional;
+import java.util.Arrays;
 
 public enum ReasonType {
     W0001("서비스에 대한 흥미를 잃었어요"),
@@ -24,7 +24,9 @@ public enum ReasonType {
     }
 
     public static ReasonType getReasonTypeByString(String stringValue) {
-        return Optional.of(ReasonType.valueOf(stringValue.toUpperCase()))
+        return Arrays.stream(ReasonType.values())
+                .filter(reasonType -> reasonType.name().equalsIgnoreCase(stringValue))
+                .findFirst()
                 .orElseThrow(() -> new UserException(NOT_MATCH_REASON_TYPE));
     }
 }

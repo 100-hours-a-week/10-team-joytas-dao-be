@@ -9,7 +9,14 @@ import org.springframework.data.repository.query.Param;
 
 public interface ObjetSharerRepository extends JpaRepository<ObjetSharer, Long> {
 
-    List<ObjetSharer> findTop4ByUserIdOrderByIdDesc(Long userId);
+    @Query("""
+            SELECT os FROM ObjetSharer os JOIN FETCH Objet o
+            ON os.objet.id = o.id
+            WHERE o.status = 'ACTIVE' AND os.user.id = :userId
+            ORDER BY o.createdAt DESC
+            LIMIT 4
+            """)
+    List<ObjetSharer> findTop4ByUserIdAndActiveStatus(Long userId);
 
     List<ObjetSharer> findAllByObjetId(Long objetId);
 

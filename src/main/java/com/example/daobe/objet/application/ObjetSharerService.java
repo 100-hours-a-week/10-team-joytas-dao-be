@@ -23,7 +23,7 @@ public class ObjetSharerService {
     private final ApplicationEventPublisher eventPublisher;
 
     public List<ObjetSharer> getRecentObjetSharerList(Long userId) {
-        return objetSharerRepository.findTop4ByUserIdOrderByIdDesc(userId);
+        return objetSharerRepository.findTop4ByUserIdAndActiveStatus(userId);
     }
 
     public void createAndSaveObjetSharer(ObjetCreateRequestDto request, Long userId, Objet objet) {

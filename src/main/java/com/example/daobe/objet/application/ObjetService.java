@@ -13,7 +13,6 @@ import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
-import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.event.ObjetCreateEvent;
 import com.example.daobe.objet.domain.event.ObjetDeleteEvent;
@@ -87,7 +86,6 @@ public class ObjetService {
     public List<ObjetMeResponseDto> getMyObjetList(Long userId) {
         List<ObjetSharer> objetSharerList = objetSharerService.getRecentObjetSharerList(userId);
         return objetSharerList.stream()
-                .filter(objetSharer -> objetSharer.getObjet().getStatus() == ObjetStatus.ACTIVE)
                 .map((objetSharer) -> ObjetMeResponseDto.of(objetSharer.getObjet()))
                 .toList();
     }

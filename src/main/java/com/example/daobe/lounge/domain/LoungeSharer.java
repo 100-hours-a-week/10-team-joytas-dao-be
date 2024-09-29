@@ -50,6 +50,13 @@ public class LoungeSharer {
         this.status = Objects.requireNonNullElse(status, PENDING);
     }
 
+    public LoungeSharer(Long id, User user, Lounge lounge, LoungeSharerStatus status) {
+        this.id = id;
+        this.user = user;
+        this.lounge = lounge;
+        this.status = status;
+    }
+
     public boolean isActive() {
         return status.isActive();
     }

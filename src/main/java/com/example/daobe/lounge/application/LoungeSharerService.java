@@ -61,7 +61,7 @@ public class LoungeSharerService {
     }
 
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {
-        lounge.isSharerOrThrow(userId);
+        validateLoungeSharer(userId, lounge.getId());
         List<LoungeSharer> byUserId = loungeSharerRepository
                 .findByLounge_IdAndUser_NicknameContaining(lounge.getId(), nickname);
         return LoungeSharerInfoResponseDto.of(byUserId);
@@ -83,7 +83,7 @@ public class LoungeSharerService {
     // TODO: 추후 도메인 로직으로 분리
     private void validateInvite(User user, Lounge lounge, Long inviterId) {
         lounge.isActiveOrThrow();
-        lounge.isSharerOrThrow(inviterId);
+        validateLoungeSharer(inviterId, lounge.getId());
 
         if (isExistUserInLounge(user.getId(), lounge.getId())) {
             throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);

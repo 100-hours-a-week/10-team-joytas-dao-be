@@ -41,7 +41,8 @@ public class LoungeFacadeService {
     // 라운지 상세 조회
     public LoungeDetailInfoDto getLoungeDetail(Long userId, Long loungeId) {
         Lounge findLounge = loungeService.getLoungeById(loungeId);
-        return loungeService.getLoungeDetailInfo(userId, findLounge);
+        loungeSharerService.validateLoungeSharer(userId, loungeId);
+        return loungeService.getLoungeDetailInfo(findLounge);
     }
 
     // 라운지 삭제

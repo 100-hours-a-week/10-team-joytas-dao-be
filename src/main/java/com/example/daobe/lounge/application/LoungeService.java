@@ -46,8 +46,8 @@ public class LoungeService {
                 .toList();
     }
 
-    public LoungeDetailInfoDto getLoungeDetailInfo(Long userId, Lounge lounge) {
-        validateLoungeAccess(userId, lounge);
+    public LoungeDetailInfoDto getLoungeDetailInfo(Lounge lounge) {
+        lounge.isActiveOrThrow();
         List<ObjetInfo> objetInfos = lounge.getObjets()
                 .stream()
                 .filter(objet -> objet.getStatus() == ACTIVE)
@@ -64,11 +64,5 @@ public class LoungeService {
     public void deleteLoungeByUserId(User user, Lounge lounge) {
         lounge.softDelete(user.getId());
         eventPublisher.publishEvent(new LoungeDeleteEvent(lounge.getId()));
-    }
-
-    // 조회 가능한 라운지인지  검증
-    private void validateLoungeAccess(Long userId, Lounge lounge) {
-        lounge.isActiveOrThrow();
-        lounge.isSharerOrThrow(userId);
     }
 }

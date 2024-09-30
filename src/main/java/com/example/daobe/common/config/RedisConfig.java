@@ -1,6 +1,6 @@
 package com.example.daobe.common.config;
 
-import com.example.daobe.chat.infrastructure.redis.RedisMessageListener;
+import com.example.daobe.chat.infrastructure.redis.RedisChatMessageListener;
 import com.example.daobe.notification.infrastructure.redis.RedisNotificationMessageListener;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -16,7 +16,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -30,6 +29,7 @@ public class RedisConfig {
     private static final String NOTIFICATION_CHANNEL_TOPIC = "notification:channel";
 
     private final RedisProperties redisProperties;
+    private final RedisChatMessageListener chatMessageListener;
     private final RedisNotificationMessageListener notificationMessageListener;
 
     @Bean
@@ -46,21 +46,14 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer notificationContainer(
-            RedisConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter,
-            ChannelTopic channelTopic
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory connectionFactory
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, channelTopic);
         notificationSubscribe(container);
+        chatSubscribe(container);
         return container;
-    }
-
-    @Bean
-    public MessageListenerAdapter listenerAdapter(RedisMessageListener subscriber) {
-        return new MessageListenerAdapter(subscriber, "onMessage");
     }
 
     @Bean
@@ -72,16 +65,17 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Bean
-    public ChannelTopic channelTopic() {
-        return new ChannelTopic(CHATTING_CHANNEL_TOPIC);
-    }
-
-
     private void notificationSubscribe(RedisMessageListenerContainer container) {
         container.addMessageListener(
                 notificationMessageListener,
                 new ChannelTopic(NOTIFICATION_CHANNEL_TOPIC)
+        );
+    }
+
+    private void chatSubscribe(RedisMessageListenerContainer container) {
+        container.addMessageListener(
+                chatMessageListener,
+                new ChannelTopic(CHATTING_CHANNEL_TOPIC)
         );
     }
 }

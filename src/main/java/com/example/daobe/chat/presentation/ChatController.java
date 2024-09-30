@@ -1,5 +1,6 @@
 package com.example.daobe.chat.presentation;
 
+import com.example.daobe.chat.application.ChatMessageService;
 import com.example.daobe.chat.application.ChatService;
 import com.example.daobe.chat.application.dto.ChatMessageDto;
 import com.example.daobe.chat.application.dto.ChatMessageResponseDto;
@@ -27,23 +28,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
     private final ChatService chatService;
+    private final ChatMessageService chatMessageService;
 
     @PostMapping("/chat/greet")
     public ResponseEntity<ApiResponse<Void>> enterLeaveMessage(
             @AuthenticationPrincipal Long userId,
             @RequestBody ChatMessageDto messageDto
     ) {
-        chatService.sendEnterLeaveMessage(userId, messageDto);
+        chatMessageService.sendEnterLeaveMessage(userId, messageDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @RateLimited(name = "sendMessage", capacity = 20, refillTokens = 5, refillSeconds = 2)
+    @RateLimited(name = "sendMessage", capacity = 10, refillTokens = 4, refillSeconds = 2)
     @PostMapping("/chat")
     public ResponseEntity<ApiResponse<Void>> sendMessage(
             @AuthenticationPrincipal Long userId,
             @RequestBody ChatMessageDto messageDto
     ) {
-        chatService.sendMessage(userId, messageDto);
+        chatMessageService.sendChatMessage(userId, messageDto);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

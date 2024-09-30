@@ -26,17 +26,11 @@ public class ChatMessageService {
 
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
-
-    private final ChatMessagePublisher chatMessagePublisher;
     private final ChatMessageEventPublisher messageEventPublisher;
 
     public void sendChatMessage(Long userId, ChatMessageDto message) {
         ChatMessageInfoDto messageInfoDto = createAndSaveMessage(userId, message);
         messageEventPublisher.execute(messageInfoDto);
-    }
-
-    public void publishChatMessage(ChatMessageInfoDto messageInfoDto) {
-        chatMessagePublisher.execute(messageInfoDto);
     }
 
     public void sendEnterLeaveMessage(Long userId, ChatMessageDto message) {

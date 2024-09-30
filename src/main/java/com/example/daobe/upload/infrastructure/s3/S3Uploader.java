@@ -16,20 +16,22 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @RequiredArgsConstructor
 public class S3Uploader {
 
-    // S3 캐시 30일
-    private static final String CACHE_CONTROL = "max-age=2592000";  // 30 * 24 * 60 * 60 (초)
+    private static final String CACHE_CONTROL_PREFIX = "max-age=";
 
     private final S3Client s3Client;
 
-    public void upload(String bucketName, String key, MultipartFile file) {
+    public void upload(int cacheTimeSeconds, String bucketName, String key, MultipartFile file) {
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .contentType(file.getContentType())
-                .cacheControl(CACHE_CONTROL)
+                .cacheControl(generateCacheControlHeader(cacheTimeSeconds))
                 .build();
-
         putObject(request, file);
+    }
+
+    private String generateCacheControlHeader(int cacheTimeSeconds) {
+        return CACHE_CONTROL_PREFIX + cacheTimeSeconds;
     }
 
     private void putObject(PutObjectRequest request, MultipartFile file) {

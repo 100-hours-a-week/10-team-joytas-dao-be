@@ -1,4 +1,4 @@
-package com.example.daobe.chat.application.event;
+package com.example.daobe.chat.application;
 
 import com.example.daobe.chat.domain.ChatRoom;
 import com.example.daobe.chat.domain.repository.ChatRoomRepository;
@@ -17,6 +17,7 @@ public class ChatRoomEventListener {
 
     @EventListener
     public void handleChatRoomCreated(ObjetCreateEvent event) {
-        chatRoomRepository.save(new ChatRoom(event.objet()));
+        ChatRoom newChatRoom = new ChatRoom(event.objet());
+        chatRoomRepository.save(newChatRoom);
     }
 }

@@ -1,7 +1,10 @@
-package com.example.daobe.chat.application.event;
+package com.example.daobe.chat.application;
+
+import static com.example.daobe.chat.exception.ChatExceptionType.INVALID_CHAT_USER_ID_EXCEPTION;
 
 import com.example.daobe.chat.domain.ChatUser;
 import com.example.daobe.chat.domain.repository.ChatUserRepository;
+import com.example.daobe.chat.exception.ChatException;
 import com.example.daobe.user.domain.event.UserCreateEvent;
 import com.example.daobe.user.domain.event.UserUpdateEvent;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,7 @@ public class ChatUserEventListener {
     @EventListener
     public void handleUserUpdated(UserUpdateEvent event) {
         ChatUser findUser = chatUserRepository.findByUserId(event.userId())
-                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_USER_EXCEPTION"));
+                .orElseThrow(() -> new ChatException(INVALID_CHAT_USER_ID_EXCEPTION));
         findUser.updateUserInfo(event.nickname(), event.profileUrl());
         chatUserRepository.save(findUser);
     }

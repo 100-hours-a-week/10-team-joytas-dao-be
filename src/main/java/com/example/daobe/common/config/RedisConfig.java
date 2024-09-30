@@ -1,6 +1,6 @@
 package com.example.daobe.common.config;
 
-import com.example.daobe.chat.infrastructure.RedisSubscriber;
+import com.example.daobe.chat.infrastructure.redis.RedisMessageListener;
 import com.example.daobe.notification.infrastructure.redis.RedisNotificationMessageListener;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -59,7 +59,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+    public MessageListenerAdapter listenerAdapter(RedisMessageListener subscriber) {
         return new MessageListenerAdapter(subscriber, "onMessage");
     }
 

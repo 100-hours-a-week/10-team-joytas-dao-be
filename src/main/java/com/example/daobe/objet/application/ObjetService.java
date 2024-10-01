@@ -17,9 +17,9 @@ import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.event.ObjetCreateEvent;
 import com.example.daobe.objet.domain.event.ObjetDeleteEvent;
-import com.example.daobe.objet.domain.repository.ObjetListRepository;
+import com.example.daobe.objet.domain.repository.CustomObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
-import com.example.daobe.objet.domain.repository.dto.ObjetListCondition;
+import com.example.daobe.objet.domain.repository.dto.ObjetFindCondition;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
@@ -39,7 +39,7 @@ public class ObjetService {
     private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
 
     private final ApplicationEventPublisher eventPublisher;
-    private final ObjetListRepository objetListRepository;
+    private final CustomObjetRepository customObjetRepository;
     private final ObjetSharerService objetSharerService;
     private final ObjetRepository objetRepository;
     private final LoungeService loungeService;
@@ -77,15 +77,15 @@ public class ObjetService {
     }
 
     public SliceApiResponse<ObjetResponseDto> getObjetListByUserId(Long userId, Long loungeId, Long cursor) {
-        ObjetListCondition condition = new ObjetListCondition(loungeId, userId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
-        Slice<Objet> objetSlice = objetListRepository.getObjetListOfSharerByCondition(condition);
+        ObjetFindCondition condition = ObjetFindCondition.of(loungeId, userId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
+        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
         Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
         return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
     }
 
     public SliceApiResponse<ObjetResponseDto> getObjetList(Long loungeId, Long cursor) {
-        ObjetListCondition condition = new ObjetListCondition(loungeId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
-        Slice<Objet> objetSlice = objetListRepository.getObjetListByCondition(condition);
+        ObjetFindCondition condition = ObjetFindCondition.of(loungeId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
+        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
         Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
         return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
     }
@@ -110,7 +110,6 @@ public class ObjetService {
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
         return ObjetDeleteResponseDto.of(findObjet);
     }
-
 
     private Objet getObjetById(Long objetId) {
         return objetRepository.findByIdAndActiveStatus(objetId)

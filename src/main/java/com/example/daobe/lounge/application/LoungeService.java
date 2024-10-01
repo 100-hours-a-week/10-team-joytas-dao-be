@@ -1,11 +1,9 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
-import static com.example.daobe.objet.domain.ObjetStatus.ACTIVE;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto.ObjetInfo;
 import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeStatus;
@@ -48,12 +46,7 @@ public class LoungeService {
 
     public LoungeDetailInfoDto getLoungeDetailInfo(Lounge lounge) {
         lounge.isActiveOrThrow();
-        List<ObjetInfo> objetInfos = lounge.getObjets()
-                .stream()
-                .filter(objet -> objet.getStatus() == ACTIVE)
-                .map(ObjetInfo::of)
-                .toList();
-        return LoungeDetailInfoDto.of(lounge, objetInfos);
+        return LoungeDetailInfoDto.of(lounge);
     }
 
     public Lounge getLoungeById(Long loungeId) {

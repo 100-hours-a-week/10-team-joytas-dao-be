@@ -2,6 +2,7 @@ package com.example.daobe.objet.application;
 
 import static com.example.daobe.objet.exception.ObjetExceptionType.OBJET_NOT_FOUND_EXCEPTION;
 
+import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -16,13 +17,16 @@ import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.objet.domain.event.ObjetCreateEvent;
 import com.example.daobe.objet.domain.event.ObjetDeleteEvent;
+import com.example.daobe.objet.domain.repository.CustomObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.domain.repository.dto.ObjetFindCondition;
 import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +35,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ObjetService {
 
+    private static final int DEFAULT_VIEW_LIMIT_SIZE = 15;
+    private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
+
     private final ApplicationEventPublisher eventPublisher;
+    private final CustomObjetRepository customObjetRepository;
     private final ObjetSharerService objetSharerService;
     private final ObjetRepository objetRepository;
     private final LoungeService loungeService;
@@ -68,14 +76,18 @@ public class ObjetService {
         return ObjetInfoResponseDto.of(updatedObjet);
     }
 
-    public List<ObjetResponseDto> getObjetListByUserId(Long userId, Long loungeId) {
-        List<Objet> objetList = objetRepository.findActiveObjetListInLoungeOfSharer(userId, loungeId);
-        return ObjetResponseDto.listOf(objetList);
+    public SliceApiResponse<ObjetResponseDto> getObjetListByUserId(Long userId, Long loungeId, Long cursor) {
+        ObjetFindCondition condition = ObjetFindCondition.of(loungeId, userId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
+        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
+        Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
+        return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
     }
 
-    public List<ObjetResponseDto> getObjetList(Long loungeId) {
-        List<Objet> objetList = objetRepository.findActiveObjetListInLounge(loungeId);
-        return ObjetResponseDto.listOf(objetList);
+    public SliceApiResponse<ObjetResponseDto> getObjetList(Long loungeId, Long cursor) {
+        ObjetFindCondition condition = ObjetFindCondition.of(loungeId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
+        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
+        Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
+        return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
     }
 
     public ObjetDetailResponseDto getObjetDetail(Long objetId) {
@@ -98,7 +110,6 @@ public class ObjetService {
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
         return ObjetDeleteResponseDto.of(findObjet);
     }
-
 
     private Objet getObjetById(Long objetId) {
         return objetRepository.findByIdAndActiveStatus(objetId)

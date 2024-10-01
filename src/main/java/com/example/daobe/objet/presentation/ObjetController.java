@@ -1,6 +1,7 @@
 package com.example.daobe.objet.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
+import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.objet.application.ObjetService;
 import com.example.daobe.objet.application.ObjetSharerService;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -51,18 +52,16 @@ public class ObjetController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ObjetResponseDto>>> getAllObjets(
+    public ResponseEntity<SliceApiResponse<ObjetResponseDto>> getAllObjets(
             @AuthenticationPrincipal Long userId,
-            @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("is_owner") boolean isOwner
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "is_owner", required = false, defaultValue = "false") boolean isOwner,
+            @RequestParam("lounge_id") Long loungeId
     ) {
-        List<ObjetResponseDto> responseDto = isOwner ?
-                objetService.getObjetListByUserId(userId, loungeId) :
-                objetService.getObjetList(loungeId);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "OBJET_LIST_LOADED_SUCCESS",
-                responseDto
-        ));
+        SliceApiResponse<ObjetResponseDto> responseDto = isOwner ?
+                objetService.getObjetListByUserId(userId, loungeId, cursor) :
+                objetService.getObjetList(loungeId, cursor);
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/{objetId}")

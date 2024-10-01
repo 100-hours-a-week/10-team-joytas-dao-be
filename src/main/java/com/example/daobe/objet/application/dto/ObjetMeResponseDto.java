@@ -34,8 +34,8 @@ public record ObjetMeResponseDto(
             String profileImage
     ) {
 
-        public static ObjetMeResponseDto.OwnerInfo of(User user) {
-            return new ObjetMeResponseDto.OwnerInfo(user.getNickname(), user.getProfileUrl());
+        public static OwnerInfo of(User user) {
+            return new OwnerInfo(user.getNickname(), user.getProfileUrl());
         }
     }
 }

@@ -13,18 +13,6 @@ public interface ObjetRepository extends JpaRepository<Objet, Long> {
 
     @Query("""
             SELECT o FROM Objet o
-            JOIN ObjetSharer s ON o = s.objet
-            WHERE o.lounge.id = :loungeId
-            AND o.status = 'ACTIVE'
-            AND s.user.id = :userId
-            ORDER BY o.id DESC
-            """)
-    List<Objet> findActiveObjetListInLoungeOfSharer(
-            @Param("userId") Long userId, @Param("loungeId") Long loungeId
-    );
-
-    @Query("""
-            SELECT o FROM Objet o
             WHERE o.lounge.id = :loungeId
             AND o.status = 'ACTIVE'
             ORDER BY o.id DESC

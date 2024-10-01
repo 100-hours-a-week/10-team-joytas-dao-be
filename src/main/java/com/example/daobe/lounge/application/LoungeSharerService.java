@@ -1,7 +1,7 @@
 package com.example.daobe.lounge.application;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_EXISTS_LOUNGE_USER_EXCEPTION;
-import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
+import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_LOUNGE_USER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
 
@@ -108,7 +108,7 @@ public class LoungeSharerService {
     private void validateAlreadyInvited(Long userId, Long loungeId) {
         boolean isAlreadyInvited = loungeSharerRepository.existsLoungeSharerByUserIdAndLoungeId(userId, loungeId);
         if (isAlreadyInvited) {
-            throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
+            throw new LoungeException(ALREADY_INVITED_LOUNGE_USER_EXCEPTION);
         }
     }
 }

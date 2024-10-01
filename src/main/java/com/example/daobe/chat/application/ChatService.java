@@ -46,20 +46,20 @@ public class ChatService {
     }
 
     public ChatMessageResponseDto getMessagesByRoomToken(String roomToken, ObjectId cursorId, int limit) {
-        List<ChatMessage> pagedChatMessages = getPagedChatMessages(roomToken, cursorId, limit);
-        boolean hasNext = checkHasNextPage(pagedChatMessages, limit);
-        List<ChatMessage> chatMessages = getChatMessagesToLimit(pagedChatMessages, hasNext, limit);
-        Map<Long, ChatUser> userInfos = getUserInfoForMessages(chatMessages);
-        return mapMessagesToDto(chatMessages, userInfos, hasNext);
+        List<ChatMessage> pagedChatMessageList = getPagedChatMessages(roomToken, cursorId, limit);
+        boolean hasNext = checkHasNextPage(pagedChatMessageList, limit);
+        List<ChatMessage> chatMessageList = getChatMessagesToLimit(pagedChatMessageList, hasNext, limit);
+        Map<Long, ChatUser> userInfoMap = getUserInfoForMessages(chatMessageList);
+        return mapMessagesToDto(chatMessageList, userInfoMap, hasNext);
     }
 
     public ChatMessageResponseDto getRecentMessagesByRoomToken(String roomToken) {
-        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomTokenOrderByCreatedAtDesc(roomToken)
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByRoomTokenOrderByCreatedAtDesc(roomToken)
                 .stream()
                 .limit(RECENT_MESSAGES_COUNT)
                 .toList();
-        Map<Long, ChatUser> userInfos = getUserInfoForMessages(chatMessages);
-        return mapMessagesToDto(chatMessages, userInfos, false);
+        Map<Long, ChatUser> userInfoMap = getUserInfoForMessages(chatMessageList);
+        return mapMessagesToDto(chatMessageList, userInfoMap, false);
     }
 
     private List<ChatMessage> getPagedChatMessages(String roomToken, ObjectId cursorId, int limit) {
@@ -88,11 +88,11 @@ public class ChatService {
 
     // TODO: Redis 활용한 캐싱 처리 필요
     private Map<Long, ChatUser> getUserInfoForMessages(List<ChatMessage> chatMessages) {
-        Set<Long> userIds = chatMessages.stream()
+        Set<Long> userIdSet = chatMessages.stream()
                 .map(ChatMessage::getSenderId)
                 .collect(Collectors.toSet());
-        List<ChatUser> chatUsers = chatUserRepository.findAllByUserIdIn(userIds);
-        return chatUsers.stream()
+        List<ChatUser> chatUserList = chatUserRepository.findAllByUserIdIn(userIdSet);
+        return chatUserList.stream()
                 .collect(Collectors.toMap(ChatUser::getUserId, Function.identity()));
     }
 
@@ -101,13 +101,13 @@ public class ChatService {
             Map<Long, ChatUser> userInfos,
             boolean hasNext
     ) {
-        List<ChatMessageInfoDto> chatMessageInfoDtos = chatMessages.stream()
+        List<ChatMessageInfoDto> chatMessageInfoDtoList = chatMessages.stream()
                 .map(chatMessage -> {
                     ChatUser chatUser = userInfos.get(chatMessage.getSenderId());
                     return ChatMessageInfoDto.of(chatMessage, chatUser);
                 })
                 .sorted(Comparator.comparing(ChatMessageInfoDto::createdAt))
                 .toList();
-        return ChatMessageResponseDto.of(chatMessageInfoDtos, hasNext);
+        return ChatMessageResponseDto.of(chatMessageInfoDtoList, hasNext);
     }
 }

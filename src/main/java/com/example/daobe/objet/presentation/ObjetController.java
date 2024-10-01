@@ -55,8 +55,8 @@ public class ObjetController {
     public ResponseEntity<SliceApiResponse<ObjetResponseDto>> getAllObjets(
             @AuthenticationPrincipal Long userId,
             @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam("lounge_id") Long loungeId,
-            @RequestParam("is_owner") boolean isOwner
+            @RequestParam(value = "is_owner", required = false, defaultValue = "false") boolean isOwner,
+            @RequestParam("lounge_id") Long loungeId
     ) {
         SliceApiResponse<ObjetResponseDto> responseDto = isOwner ?
                 objetService.getObjetListByUserId(userId, loungeId, cursor) :

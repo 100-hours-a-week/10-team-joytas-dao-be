@@ -1,5 +1,6 @@
 package com.example.daobe.lounge.application;
 
+import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_EXISTS_LOUNGE_USER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.ALREADY_INVITED_USER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION;
@@ -30,7 +31,7 @@ public class LoungeSharerService {
 
     public void createAndSaveLoungeSharer(User user, Lounge lounge) {
         // 라운지 최대 개수를 초과하는지 검증
-        if (isMaximumCountLounge(user.getId())) {
+        if (isOverMaximumCountLounge(user.getId())) {
             throw new LoungeException(MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION);
         }
 
@@ -43,7 +44,7 @@ public class LoungeSharerService {
     }
 
     public void inviteUser(User user, Lounge lounge, Long inviterId) {
-        validateInvite(user, lounge, inviterId);
+        validateInvite(user.getId(), lounge, inviterId);
         LoungeSharer loungeSharer = LoungeSharer.builder()
                 .user(user)
                 .lounge(lounge)
@@ -52,6 +53,7 @@ public class LoungeSharerService {
         eventPublisher.publishEvent(new LoungeInviteEvent(inviterId, loungeSharer));
     }
 
+    // FIXME:
     public void updateInvitedUserStatus(User invitedUser, Lounge lounge) {
         LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUser.getId(), lounge.getId());
         if (!findSharer.isActive()) {
@@ -81,15 +83,16 @@ public class LoungeSharerService {
     }
 
     // TODO: 추후 도메인 로직으로 분리
-    private void validateInvite(User user, Lounge lounge, Long inviterId) {
+    private void validateInvite(Long userId, Lounge lounge, Long inviterId) {
         lounge.isActiveOrThrow();
         validateLoungeSharer(inviterId, lounge.getId());
+        validateAlreadyInvited(userId, lounge.getId());
 
-        if (isExistUserInLounge(user.getId(), lounge.getId())) {
-            throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
+        if (isExistUserInLounge(userId, lounge.getId())) {
+            throw new LoungeException(ALREADY_EXISTS_LOUNGE_USER_EXCEPTION);
         }
 
-        if (isMaximumCountLounge(user.getId())) {
+        if (isOverMaximumCountLounge(userId)) {
             throw new LoungeException(MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION);
         }
     }
@@ -98,7 +101,14 @@ public class LoungeSharerService {
         return loungeSharerRepository.existsActiveLoungeSharerByUserIdAndLoungeId(userId, loungeId);
     }
 
-    private boolean isMaximumCountLounge(Long userId) {
-        return loungeSharerRepository.countActiveLoungeSharerByUserId(userId) == MAX_LOUNGE_COUNT;
+    private boolean isOverMaximumCountLounge(Long userId) {
+        return loungeSharerRepository.countActiveLoungeSharerByUserId(userId) >= MAX_LOUNGE_COUNT;
+    }
+
+    private void validateAlreadyInvited(Long userId, Long loungeId) {
+        boolean isAlreadyInvited = loungeSharerRepository.existsLoungeSharerByUserIdAndLoungeId(userId, loungeId);
+        if (isAlreadyInvited) {
+            throw new LoungeException(ALREADY_INVITED_USER_EXCEPTION);
+        }
     }
 }

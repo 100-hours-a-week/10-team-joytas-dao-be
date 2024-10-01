@@ -6,7 +6,6 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ALLOW_L
 
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,9 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,12 +52,6 @@ public class Lounge extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
-
-    @OneToMany(mappedBy = "lounge")
-    private List<Objet> objets;
-
-    @OneToMany(mappedBy = "lounge")
-    private List<LoungeSharer> loungeSharers;
 
     @Builder
     public Lounge(User user, String name, LoungeType type, LoungeStatus status) {

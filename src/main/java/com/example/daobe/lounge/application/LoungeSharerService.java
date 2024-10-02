@@ -30,7 +30,6 @@ public class LoungeSharerService {
     private final LoungeSharerRepository loungeSharerRepository;
 
     public void createAndSaveLoungeSharer(User user, Lounge lounge) {
-        // 라운지 최대 개수를 초과하는지 검증
         if (isOverMaximumCountLounge(user.getId())) {
             throw new LoungeException(MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION);
         }
@@ -54,12 +53,18 @@ public class LoungeSharerService {
     }
 
     // FIXME:
-    public void updateInvitedUserStatus(User invitedUser, Lounge lounge) {
-        LoungeSharer findSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUser.getId(), lounge.getId());
-        if (!findSharer.isActive()) {
-            findSharer.updateStatusActive();
-            loungeSharerRepository.save(findSharer);
+    public void updateInvitedUserStatus(Long invitedUserId, Long loungeId) {
+        LoungeSharer loungeSharer = loungeSharerRepository.findByUserIdAndLoungeId(invitedUserId, loungeId)
+                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION));
+        if (loungeSharer.isActive()) {
+            throw new LoungeException(ALREADY_EXISTS_LOUNGE_USER_EXCEPTION);
         }
+
+        if (isOverMaximumCountLounge(invitedUserId)) {
+            throw new LoungeException(MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION);
+        }
+        loungeSharer.updateStatusActive();
+        loungeSharerRepository.save(loungeSharer);
     }
 
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {

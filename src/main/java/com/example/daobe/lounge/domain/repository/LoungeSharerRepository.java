@@ -2,6 +2,7 @@ package com.example.daobe.lounge.domain.repository;
 
 import com.example.daobe.lounge.domain.LoungeSharer;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,5 +43,5 @@ public interface LoungeSharerRepository extends JpaRepository<LoungeSharer, Long
 
     void deleteByUserIdAndLoungeId(Long userId, Long loungeId);
 
-    LoungeSharer findByUserIdAndLoungeId(Long userId, Long loungeId);
+    Optional<LoungeSharer> findByUserIdAndLoungeId(Long userId, Long loungeId);
 }

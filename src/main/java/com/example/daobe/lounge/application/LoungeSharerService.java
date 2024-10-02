@@ -10,6 +10,7 @@ import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.LoungeSharerStatus;
 import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
+import com.example.daobe.lounge.domain.event.LoungeWithdrawEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
@@ -78,6 +79,7 @@ public class LoungeSharerService {
         lounge.isActiveOrThrow();
         lounge.isPossibleToWithdrawOrThrow(user.getId());
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
+        eventPublisher.publishEvent(new LoungeWithdrawEvent(user.getId(), lounge.getId()));
     }
 
     public void validateLoungeSharer(Long userId, Long loungeId) {

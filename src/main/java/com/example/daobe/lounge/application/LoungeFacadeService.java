@@ -66,7 +66,7 @@ public class LoungeFacadeService {
     public void updateInvitedUserStatus(Long userId, Long loungeId) {
         User invitedUser = userService.getUserById(userId);
         Lounge findLounge = loungeService.getLoungeById(loungeId);
-        loungeSharerService.updateInvitedUserStatus(invitedUser, findLounge);
+        loungeSharerService.updateInvitedUserStatus(invitedUser.getId(), findLounge.getId());
     }
 
     // 라운지 내 유저 검색

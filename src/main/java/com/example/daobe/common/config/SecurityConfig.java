@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -29,6 +30,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private static final int ACTUATOR_PORT = 9876;
 
     private final OAuthSuccessHandler oAuthSuccessHandler;
     private final CustomAccessDeniedHandler accessDeniedHandler;
@@ -60,7 +63,10 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/api/v1/health"),
                         new AntPathRequestMatcher("/api/v1/auth/reissue"),
                         new AntPathRequestMatcher("/oauth2/authorization/kakao"),
-                        new AntPathRequestMatcher("/ws/init")
+                        new AntPathRequestMatcher("/ws/init"),
+                        new AndRequestMatcher(request -> request.getLocalPort() == ACTUATOR_PORT &&
+                                request.getRequestURI().startsWith("/actuator/")
+                        )
                 )
         );
     }
@@ -77,10 +83,14 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(request -> request.getLocalPort() == ACTUATOR_PORT &&
+                                request.getRequestURI().startsWith("/actuator/")
+                        ).permitAll()
                         .requestMatchers("/api/v1/health").permitAll()
                         .requestMatchers("/api/v1/auth/reissue").permitAll()
                         .requestMatchers("/oauth2/authorization/kakao").permitAll()
                         .requestMatchers("/ws/init").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

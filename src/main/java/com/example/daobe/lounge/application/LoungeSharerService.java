@@ -79,7 +79,7 @@ public class LoungeSharerService {
         lounge.isActiveOrThrow();
         lounge.isPossibleToWithdrawOrThrow(user.getId());
         loungeSharerRepository.deleteByUserIdAndLoungeId(user.getId(), lounge.getId());
-        eventPublisher.publishEvent(new LoungeWithdrawEvent(lounge.getId()));
+        eventPublisher.publishEvent(new LoungeWithdrawEvent(user.getId(), lounge.getId()));
     }
 
     public void validateLoungeSharer(Long userId, Long loungeId) {

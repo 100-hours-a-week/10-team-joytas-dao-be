@@ -9,6 +9,7 @@ import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeSharer;
 import com.example.daobe.lounge.domain.LoungeSharerStatus;
+import com.example.daobe.lounge.domain.event.LoungeInviteAcceptedEvent;
 import com.example.daobe.lounge.domain.event.LoungeInvitedEvent;
 import com.example.daobe.lounge.domain.event.LoungeWithdrawEvent;
 import com.example.daobe.lounge.domain.repository.LoungeSharerRepository;
@@ -50,7 +51,7 @@ public class LoungeSharerService {
                 .lounge(lounge)
                 .build();
         loungeSharerRepository.save(loungeSharer);
-        eventPublisher.publishEvent(new LoungeInvitedEvent(lounge.getId(), inviterId, loungeSharer));
+        eventPublisher.publishEvent(new LoungeInvitedEvent(inviterId, loungeSharer));
     }
 
     // FIXME:
@@ -66,6 +67,7 @@ public class LoungeSharerService {
         }
         loungeSharer.updateStatusActive();
         loungeSharerRepository.save(loungeSharer);
+        eventPublisher.publishEvent(new LoungeInviteAcceptedEvent(invitedUserId, loungeId));
     }
 
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {

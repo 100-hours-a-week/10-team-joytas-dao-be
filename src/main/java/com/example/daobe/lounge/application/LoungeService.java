@@ -10,7 +10,7 @@ import com.example.daobe.lounge.application.dto.LoungeInfoDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeStatus;
 import com.example.daobe.lounge.domain.LoungeType;
-import com.example.daobe.lounge.domain.event.LoungeDeleteEvent;
+import com.example.daobe.lounge.domain.event.LoungeDeletedEvent;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.user.domain.User;
@@ -63,6 +63,6 @@ public class LoungeService {
 
     public void deleteLoungeByUserId(User user, Lounge lounge) {
         lounge.softDelete(user.getId());
-        eventPublisher.publishEvent(new LoungeDeleteEvent(lounge.getId()));
+        eventPublisher.publishEvent(new LoungeDeletedEvent(lounge.getId()));
     }
 }

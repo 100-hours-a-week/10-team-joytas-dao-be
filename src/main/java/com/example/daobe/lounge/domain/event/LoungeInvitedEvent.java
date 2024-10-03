@@ -1,17 +1,18 @@
 package com.example.daobe.lounge.domain.event;
 
+import static com.example.daobe.lounge.exception.LoungeExceptionType.LOUNGE_NOT_CREATED_EXCEPTION_MESSAGE;
+
 import com.example.daobe.common.domain.DomainEvent;
 import com.example.daobe.lounge.domain.LoungeSharer;
+import com.example.daobe.lounge.exception.LoungeException;
 
-public class LoungeInviteEvent implements DomainEvent {
-
-    private static final String LOUNGE_NOT_CREATED_EXCEPTION_MESSAGE = "아직 생성되지 않은 라운지";
+public class LoungeInvitedEvent implements DomainEvent {
 
     private final Long domainId;
     private final Long sendUserId;
     private final Long receiveUserId;
 
-    public LoungeInviteEvent(Long sendUserId, LoungeSharer loungeSharer) {
+    public LoungeInvitedEvent(Long sendUserId, LoungeSharer loungeSharer) {
         validate(loungeSharer);
         this.domainId = loungeSharer.getLounge().getId();
         this.sendUserId = sendUserId;
@@ -20,7 +21,7 @@ public class LoungeInviteEvent implements DomainEvent {
 
     private void validate(LoungeSharer loungeSharer) {
         if (loungeSharer.getId() == null) {
-            throw new RuntimeException(LOUNGE_NOT_CREATED_EXCEPTION_MESSAGE);
+            throw new LoungeException(LOUNGE_NOT_CREATED_EXCEPTION_MESSAGE);
         }
     }
 
@@ -37,5 +38,9 @@ public class LoungeInviteEvent implements DomainEvent {
     @Override
     public Long getReceiveUserId() {
         return receiveUserId;
+    }
+
+    public Long getLoungeId() {
+        return loungeId;
     }
 }

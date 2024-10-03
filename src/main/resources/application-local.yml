@@ -1,7 +1,4 @@
 management:
-  server:
-    port: 9876
-
   endpoints:
     web:
       exposure:
@@ -59,6 +56,10 @@ spring:
     open-in-view: false
 
   security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
     oauth2:
       success-redirect: http://localhost:5173
       client:

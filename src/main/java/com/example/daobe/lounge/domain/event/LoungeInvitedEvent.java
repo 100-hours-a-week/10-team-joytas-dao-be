@@ -39,8 +39,4 @@ public class LoungeInvitedEvent implements DomainEvent {
     public Long getReceiveUserId() {
         return receiveUserId;
     }
-
-    public Long getLoungeId() {
-        return loungeId;
-    }
 }

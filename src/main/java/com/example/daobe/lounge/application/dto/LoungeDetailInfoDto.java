@@ -1,39 +1,20 @@
 package com.example.daobe.lounge.application.dto;
 
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.objet.domain.Objet;
-import java.util.List;
 
 public record LoungeDetailInfoDto(
         Long loungeId,
         String name,
         String type,
-        Long userId,
-        List<ObjetInfo> objets
+        Long userId
 ) {
 
-    public static LoungeDetailInfoDto of(Lounge lounge, List<ObjetInfo> objetInfos) {
+    public static LoungeDetailInfoDto of(Lounge lounge) {
         return new LoungeDetailInfoDto(
                 lounge.getId(),
                 lounge.getName(),
                 lounge.getType().getTypeName(),
-                lounge.getUser().getId(),
-                objetInfos
+                lounge.getUser().getId()
         );
-    }
-
-    public record ObjetInfo(
-            Long objetId,
-            String objetType,
-            String name
-    ) {
-
-        public static ObjetInfo of(Objet objet) {
-            return new ObjetInfo(
-                    objet.getId(),
-                    objet.getType().getType(),
-                    objet.getName()
-            );
-        }
     }
 }

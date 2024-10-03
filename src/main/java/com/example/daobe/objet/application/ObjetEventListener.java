@@ -1,6 +1,6 @@
 package com.example.daobe.objet.application;
 
-import com.example.daobe.lounge.domain.event.LoungeDeleteEvent;
+import com.example.daobe.lounge.domain.event.LoungeDeletedEvent;
 import com.example.daobe.lounge.domain.event.LoungeWithdrawEvent;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
@@ -27,7 +27,7 @@ public class ObjetEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void loungeDeletedListener(LoungeDeleteEvent event) {
+    public void loungeDeletedListener(LoungeDeletedEvent event) {
         List<Objet> objetList = objetRepository.findActiveObjetListInLounge(event.loungeId());
         objetList.forEach(Objet::updateStatusDeleted);
         objetRepository.saveAll(objetList);

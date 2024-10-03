@@ -3,7 +3,7 @@ package com.example.daobe.notification.domain.convert;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_ID_EXCEPTION;
 
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.lounge.domain.event.LoungeInviteEvent;
+import com.example.daobe.lounge.domain.event.LoungeInvitedEvent;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
@@ -20,7 +20,7 @@ public class LoungeInviteEventConvert implements DomainEventConvert {
 
     @Override
     public String supportNameToLowerCase() {
-        return LoungeInviteEvent.class.getName().toLowerCase();
+        return LoungeInvitedEvent.class.getName().toLowerCase();
     }
 
     @Override

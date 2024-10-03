@@ -13,7 +13,9 @@ public enum LoungeExceptionType implements BaseExceptionType {
     ALREADY_INVITED_LOUNGE_USER_EXCEPTION("이미 라운지에 초대된 유저입니다.", HttpStatus.CONFLICT),
     ALREADY_DELETED_LOUNGE_EXCEPTION("이미 삭제된 라운지입니다.", HttpStatus.NOT_FOUND),
     MAXIMUM_LOUNGE_LIMIT_EXCEEDED_EXCEPTION("라운지 개수는 최대 4개를 초과할 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION("라운지 생성자는 탈퇴할 수 없습니다.", HttpStatus.BAD_REQUEST);
+    NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION("라운지 생성자는 탈퇴할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    LOUNGE_NOT_CREATED_EXCEPTION_MESSAGE("아직 생성되지 않은 라운지입니다.", HttpStatus.NOT_FOUND),
+    ;
 
     private final String message;
     private final HttpStatus status;

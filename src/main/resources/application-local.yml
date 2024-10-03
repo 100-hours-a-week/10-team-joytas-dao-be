@@ -1,3 +1,9 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+
 spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
@@ -50,6 +56,10 @@ spring:
     open-in-view: false
 
   security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
     oauth2:
       success-redirect: http://localhost:5173
       client:

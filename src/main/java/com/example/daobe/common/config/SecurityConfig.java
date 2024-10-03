@@ -1,17 +1,19 @@
 package com.example.daobe.common.config;
 
+import com.example.daobe.auth.infrastructure.security.BasicAuthenticationProvider;
 import com.example.daobe.auth.infrastructure.security.JwtAuthenticationFilter;
 import com.example.daobe.auth.infrastructure.security.JwtAuthenticationProvider;
 import com.example.daobe.auth.infrastructure.security.handler.CustomAccessDeniedHandler;
 import com.example.daobe.auth.infrastructure.security.handler.CustomAuthenticationEntryPoint;
 import com.example.daobe.auth.infrastructure.security.oauth.CustomAuthorizationRequestRepository;
 import com.example.daobe.auth.infrastructure.security.oauth.OAuthSuccessHandler;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +22,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -33,20 +36,23 @@ public class SecurityConfig {
     private final OAuthSuccessHandler oAuthSuccessHandler;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final BasicAuthenticationProvider basicAuthenticationProvider;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration
-    ) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(Arrays.asList(jwtAuthenticationProvider, basicAuthenticationProvider));
+    }
+
+    @Bean
+    public BasicAuthenticationFilter basicAuthenticationFilter(AuthenticationManager authenticationManager) {
+        return new BasicAuthenticationFilter(authenticationManager, authenticationEntryPoint);
     }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
-        RequestMatcher requestMatcher = generatedRequestMatcher();
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(requestMatcher);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(generatedRequestMatcher());
         filter.setAuthenticationManager(authenticationManager);
         filter.setAuthenticationFailureHandler(
                 new AuthenticationEntryPointFailureHandler(authenticationEntryPoint)
@@ -57,6 +63,7 @@ public class SecurityConfig {
     private RequestMatcher generatedRequestMatcher() {
         return new NegatedRequestMatcher(
                 new OrRequestMatcher(
+                        new AntPathRequestMatcher("/actuator/**"),
                         new AntPathRequestMatcher("/api/v1/health"),
                         new AntPathRequestMatcher("/api/v1/auth/reissue"),
                         new AntPathRequestMatcher("/oauth2/authorization/kakao"),
@@ -66,43 +73,38 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
+    public SecurityFilterChain securityFilterChainJwt(
             HttpSecurity http,
-            AuthenticationManager authenticationManager
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            BasicAuthenticationFilter basicAuthenticationFilter
     ) throws Exception {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+                        .requestMatchers("/ws/init").permitAll()
                         .requestMatchers("/api/v1/health").permitAll()
                         .requestMatchers("/api/v1/auth/reissue").permitAll()
                         .requestMatchers("/oauth2/authorization/kakao").permitAll()
-                        .requestMatchers("/ws/init").permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(new DefaultOAuth2UserService())
                         )
-                        .authorizationEndpoint(
-                                authorizationEndpointConfig -> authorizationEndpointConfig.authorizationRequestRepository(
-                                        customAuthorizationRequestRepository))
+                        .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig
+                                .authorizationRequestRepository(customAuthorizationRequestRepository)
+                        )
                         .successHandler(oAuthSuccessHandler)
                 )
-                .addFilterBefore(
-                        jwtAuthenticationFilter(authenticationManager),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .exceptionHandling(handler -> handler
-                        .accessDeniedHandler(accessDeniedHandler)
-                )
-                .authenticationProvider(jwtAuthenticationProvider)
+                .addFilterAt(basicAuthenticationFilter, BasicAuthenticationFilter.class)
+                .addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handler -> handler.accessDeniedHandler(accessDeniedHandler))
+                .authenticationManager(authenticationManager())
                 .build();
     }
 }

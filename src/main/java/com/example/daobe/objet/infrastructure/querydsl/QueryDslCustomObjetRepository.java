@@ -4,6 +4,7 @@ import static com.example.daobe.objet.domain.QObjet.objet;
 import static com.example.daobe.objet.domain.QObjetSharer.objetSharer;
 
 import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharerStatus;
 import com.example.daobe.objet.domain.ObjetStatus;
 import com.example.daobe.objet.domain.repository.CustomObjetRepository;
 import com.example.daobe.objet.domain.repository.dto.ObjetFindCondition;
@@ -35,7 +36,10 @@ public class QueryDslCustomObjetRepository implements CustomObjetRepository {
 
         List<Objet> result = (condition.userId() != null)
                 ? query.join(objetSharer).on(objetSharer.objet.eq(objet))
-                .where(objetSharer.user.id.eq(condition.userId())).fetch()
+                .where(
+                        objetSharer.user.id.eq(condition.userId()),
+                        objetSharer.status.eq(ObjetSharerStatus.ACTIVE)
+                ).fetch()
                 : query.fetch();
 
         boolean hasNext = false;

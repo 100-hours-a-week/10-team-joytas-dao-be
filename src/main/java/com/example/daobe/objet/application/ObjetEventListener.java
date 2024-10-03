@@ -1,8 +1,11 @@
 package com.example.daobe.objet.application;
 
 import com.example.daobe.lounge.domain.event.LoungeDeletedEvent;
+import com.example.daobe.lounge.domain.event.LoungeWithdrawEvent;
 import com.example.daobe.objet.domain.Objet;
+import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
+import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +22,26 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class ObjetEventListener {
 
     private final ObjetRepository objetRepository;
+    private final ObjetSharerRepository objetSharerRepository;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void loungeDeletedListener(LoungeDeletedEvent event) {
         List<Objet> objetList = objetRepository.findActiveObjetListInLounge(event.loungeId());
-        objetList.forEach(Objet::updateDeleteStatus);
+        objetList.forEach(Objet::updateStatusDeleted);
         objetRepository.saveAll(objetList);
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void loungeWithdrawListener(LoungeWithdrawEvent event) {
+        List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserIdAndLoungeId(
+                event.userId(),
+                event.loungeId()
+        );
+        objetSharerList.forEach(ObjetSharer::updateStatusDeleted);
+        objetSharerRepository.saveAll(objetSharerList);
     }
 }

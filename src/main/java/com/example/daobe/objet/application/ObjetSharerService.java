@@ -72,7 +72,7 @@ public class ObjetSharerService {
 
     @Transactional
     public ObjetSharerResponseDto getObjetSharerList(Long objetId) {
-        List<ObjetSharer> objetSharerList = objetSharerRepository.findAllByObjetId(objetId);
+        List<ObjetSharer> objetSharerList = objetSharerRepository.findAllByObjetIdAndActiveStatus(objetId);
         return ObjetSharerResponseDto.of(objetSharerList);
     }
 

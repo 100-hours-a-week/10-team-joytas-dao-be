@@ -95,7 +95,7 @@ public class Objet extends BaseTimeEntity {
         this.status = ObjetStatus.DELETED;
     }
 
-    public void updateDeleteStatus() {
+    public void updateStatusDeleted() {
         this.status = ObjetStatus.DELETED;
     }
 

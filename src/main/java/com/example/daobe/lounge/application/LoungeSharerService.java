@@ -50,7 +50,7 @@ public class LoungeSharerService {
                 .lounge(lounge)
                 .build();
         loungeSharerRepository.save(loungeSharer);
-        eventPublisher.publishEvent(new LoungeInvitedEvent(inviterId, loungeSharer));
+        eventPublisher.publishEvent(new LoungeInvitedEvent(lounge.getId(), inviterId, loungeSharer));
     }
 
     // FIXME:

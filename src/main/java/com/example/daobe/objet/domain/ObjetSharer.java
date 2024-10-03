@@ -1,8 +1,13 @@
 package com.example.daobe.objet.domain;
 
+import static com.example.daobe.objet.domain.ObjetSharerStatus.ACTIVE;
+import static com.example.daobe.objet.domain.ObjetSharerStatus.DELETED;
+
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,9 +39,25 @@ public class ObjetSharer {
     @ManyToOne(fetch = FetchType.LAZY)
     private Objet objet;
 
+    @Enumerated(EnumType.STRING)
+    private ObjetSharerStatus status;
+
     @Builder
     public ObjetSharer(User user, Objet objet) {
         this.user = user;
         this.objet = objet;
+        this.status = ACTIVE;
+    }
+
+    public boolean isActive() {
+        return status.isActive();
+    }
+
+    public void updateStatusActive() {
+        this.status = ACTIVE;
+    }
+
+    public void updateStatusDeleted() {
+        this.status = DELETED;
     }
 }

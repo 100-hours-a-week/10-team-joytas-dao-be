@@ -6,7 +6,7 @@ import com.example.daobe.user.domain.User;
 
 public class LoungeFixtures {
 
-    private static final String FAKE_LOUNGE_NAME = "Test Lounge";
+    private static final String FAKE_LOUNGE_NAME = "TestLounge";
     private static final String FAKE_LOUNGE_TYPE = "L0001";
     private static final LoungeStatus ACTIVE_STATUS = LoungeStatus.ACTIVE;
     private static final LoungeStatus DELETED_STATUS = LoungeStatus.DELETED;

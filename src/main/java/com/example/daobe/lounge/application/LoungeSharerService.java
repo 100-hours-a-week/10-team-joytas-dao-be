@@ -73,7 +73,7 @@ public class LoungeSharerService {
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Lounge lounge) {
         validateLoungeSharer(userId, lounge.getId());
         List<LoungeSharer> byUserId = loungeSharerRepository
-                .findByLounge_IdAndUser_NicknameContaining(lounge.getId(), nickname);
+                .findActiveSharersByLoungeIdAndNickname(lounge.getId(), nickname);
         return LoungeSharerInfoResponseDto.of(byUserId);
     }
 

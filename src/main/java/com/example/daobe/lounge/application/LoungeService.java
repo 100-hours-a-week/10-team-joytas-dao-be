@@ -6,8 +6,6 @@ import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeDetailResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeInfoResponseDto;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.lounge.domain.LoungeStatus;
-import com.example.daobe.lounge.domain.LoungeType;
 import com.example.daobe.lounge.domain.event.LoungeDeletedEvent;
 import com.example.daobe.lounge.domain.repository.LoungeRepository;
 import com.example.daobe.lounge.exception.LoungeException;
@@ -30,8 +28,7 @@ public class LoungeService {
         Lounge lounge = Lounge.builder()
                 .user(user)
                 .name(request.name())
-                .type(LoungeType.from(request.type()))
-                .status(LoungeStatus.ACTIVE)
+                .type(request.type())
                 .build();
         loungeRepository.save(lounge);
         return lounge;
@@ -39,7 +36,7 @@ public class LoungeService {
 
     public List<LoungeInfoResponseDto> getLoungeInfosByUserId(Long userId) {
         return loungeRepository.findLoungeByUserId(userId).stream()
-                .filter(lounge -> lounge.getStatus().isActive())
+                .filter(Lounge::isActive)
                 .map(LoungeInfoResponseDto::of)
                 .toList();
     }
@@ -54,8 +51,8 @@ public class LoungeService {
                 .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_ID_EXCEPTION));
     }
 
-    public void deleteLoungeByUserId(User user, Lounge lounge) {
-        lounge.softDelete(user.getId());
+    public void deleteLoungeByUserId(Long userId, Lounge lounge) {
+        lounge.softDelete(userId);
         eventPublisher.publishEvent(new LoungeDeletedEvent(lounge.getId()));
     }
 }

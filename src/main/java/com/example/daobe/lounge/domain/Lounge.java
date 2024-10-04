@@ -54,18 +54,18 @@ public class Lounge extends BaseTimeEntity {
     private String reasonDetail;
 
     @Builder
-    public Lounge(User user, String name, LoungeType type, LoungeStatus status) {
+    public Lounge(User user, String name, String type) {
         this.user = user;
         this.name = name;
-        this.type = type;
-        this.status = status;
+        this.type = LoungeType.from(type);
+        this.status = LoungeStatus.ACTIVE;
     }
 
-    public Lounge(Long id, User user, String name, LoungeType type, LoungeStatus status) {
+    public Lounge(Long id, User user, String name, String type, LoungeStatus status) {
         this.id = id;
         this.user = user;
         this.name = name;
-        this.type = type;
+        this.type = LoungeType.from(type);
         this.status = status;
     }
 
@@ -75,15 +75,13 @@ public class Lounge extends BaseTimeEntity {
         this.status = LoungeStatus.DELETED;
     }
 
+    public boolean isActive() {
+        return status.isActive();
+    }
+
     public void isActiveOrThrow() {
         if (!status.isActive()) {
             throw new LoungeException(NOT_ACTIVE_LOUNGE_EXCEPTION);
-        }
-    }
-
-    public void isOwnerOrThrow(Long userId) {
-        if (userId != user.getId()) {
-            throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
     }
 
@@ -91,6 +89,12 @@ public class Lounge extends BaseTimeEntity {
         isActiveOrThrow();
         if (userId == user.getId()) {
             throw new LoungeException(NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION);
+        }
+    }
+
+    private void isOwnerOrThrow(Long userId) {
+        if (userId != user.getId()) {
+            throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
     }
 }

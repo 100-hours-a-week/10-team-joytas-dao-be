@@ -2,13 +2,12 @@ package com.example.daobe.common.fixtures;
 
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.lounge.domain.LoungeStatus;
-import com.example.daobe.lounge.domain.LoungeType;
 import com.example.daobe.user.domain.User;
 
 public class LoungeFixtures {
 
     private static final String FAKE_LOUNGE_NAME = "Test Lounge";
-    private static final LoungeType FAKE_LOUNGE_TYPE = LoungeType.L0001;
+    private static final String FAKE_LOUNGE_TYPE = "L0001";
     private static final LoungeStatus ACTIVE_STATUS = LoungeStatus.ACTIVE;
     private static final LoungeStatus DELETED_STATUS = LoungeStatus.DELETED;
 

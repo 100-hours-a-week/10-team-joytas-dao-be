@@ -56,10 +56,6 @@ spring:
     open-in-view: false
 
   security:
-    user:
-      name: admin
-      password: admin
-      roles: ADMIN
     oauth2:
       success-redirect: http://localhost:5173
       client:
@@ -81,6 +77,11 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
+  actuator:
+    username: actuator
+    password: actuator
+    role: ACTUATOR
 
 security:
   jwt:

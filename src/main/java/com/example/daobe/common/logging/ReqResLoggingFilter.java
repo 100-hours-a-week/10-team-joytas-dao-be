@@ -62,12 +62,14 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String requestUrl = getRequestUrl(request.getRequestURI(), request.getQueryString());
         String statusCode = HttpStatus.valueOf(status).toString();
+        String remoteAddr = request.getRemoteAddr();
         String totalQueryCount = getTotalQueryCount();
 
         StringBuilder logMessage = new StringBuilder();
 
         logMessage.append("|\n| [REQUEST] (").append(method).append(") ").append(requestUrl);
         logMessage.append("\n| >> STATUS_CODE: ").append(statusCode);
+        logMessage.append("\n| >> IPV4_ADDRESS: ").append(remoteAddr);
 
         getRequestBody(request).ifPresent(v -> logMessage.append("\n| >> REQUEST_BODY: ").append(v));
         getResponseBody(response).ifPresent(v -> logMessage.append("\n| >> RESPONSE_BODY: ").append(v));

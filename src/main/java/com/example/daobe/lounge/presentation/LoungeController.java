@@ -13,9 +13,9 @@ import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import java.util.List;
@@ -46,11 +46,14 @@ public class LoungeController {
     ) {
         LoungeCreateResponseDto response = loungeFacadeService.createLounge(request, userId);
         return ResponseEntity.status(LOUNGE_CREATED_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_CREATED_SUCCESS.name(), response));
+                .body(new ApiResponse<>(
+                        LOUNGE_CREATED_SUCCESS.name(),
+                        response)
+                );
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LoungeInfoDto>>> getAllLounges(
+    public ResponseEntity<ApiResponse<List<LoungeInfoResponseDto>>> getAllLounges(
             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.status(LOUNGE_LIST_LOADED_SUCCESS.getHttpStatus())
@@ -61,7 +64,7 @@ public class LoungeController {
     }
 
     @GetMapping("/{loungeId}")
-    public ResponseEntity<ApiResponse<LoungeDetailInfoDto>> getLoungeDetail(
+    public ResponseEntity<ApiResponse<LoungeDetailResponseDto>> getLoungeDetail(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "loungeId") Long loungeId
     ) {
@@ -72,7 +75,6 @@ public class LoungeController {
                 );
     }
 
-    // TODO: 비활성화된 라운지 탈퇴 요청시 예외 발생하는지 확인하기
     @DeleteMapping("/{loungeId}")
     public ResponseEntity<ApiResponse<Void>> deleteLounge(
             @AuthenticationPrincipal Long userId,
@@ -80,17 +82,23 @@ public class LoungeController {
     ) {
         loungeFacadeService.deleteLounge(userId, loungeId);
         return ResponseEntity.status(LOUNGE_DELETED_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_DELETED_SUCCESS.name(), null));
+                .body(new ApiResponse<>(
+                        LOUNGE_DELETED_SUCCESS.name(),
+                        null)
+                );
     }
 
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<Void>> inviteUser(
             @AuthenticationPrincipal Long userId,
-            @RequestBody LoungeInviteDto request
+            @RequestBody LoungeInviteRequestDto request
     ) {
         loungeFacadeService.inviteUser(request, userId);
         return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_INVITE_SUCCESS.name(), null));
+                .body(new ApiResponse<>(
+                        LOUNGE_INVITE_SUCCESS.name(),
+                        null)
+                );
     }
 
     @PatchMapping("/{loungeId}/invite/accept")
@@ -100,9 +108,11 @@ public class LoungeController {
     ) {
         loungeFacadeService.updateInvitedUserStatus(userId, loungeId);
         return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())
-                .body(new ApiResponse<>(LOUNGE_INVITE_ACCEPTED_SUCCESS.name(), null));
+                .body(new ApiResponse<>(
+                        LOUNGE_INVITE_ACCEPTED_SUCCESS.name(),
+                        null)
+                );
     }
-
 
     @GetMapping("/{loungeId}/search")
     public ResponseEntity<ApiResponse<List<LoungeSharerInfoResponseDto>>> searchLoungeSharer(
@@ -137,8 +147,8 @@ public class LoungeController {
     ) {
         loungeFacadeService.isLoungeSharer(userId, request);
         return ResponseEntity.ok(new ApiResponse<>(
-                "AUTHENTICATION_SUCCESS", null
+                "AUTHENTICATION_SUCCESS",
+                null
         ));
-
     }
 }

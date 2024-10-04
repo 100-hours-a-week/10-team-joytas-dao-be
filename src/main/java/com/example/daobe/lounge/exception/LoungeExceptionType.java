@@ -4,6 +4,9 @@ import com.example.daobe.common.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum LoungeExceptionType implements BaseExceptionType {
+
+    LOUNGE_NAME_LENGTH_EXCEPTION("라운지 이름은 2글자 이상 10글자 이하여야 합니다.", HttpStatus.BAD_REQUEST),
+    LOUNGE_NAME_REGEX_EXCEPTION("라운지 이름 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_LOUNGE_ID_EXCEPTION("유효하지 않은 라운지 ID입니다.", HttpStatus.NOT_FOUND),
     INVALID_LOUNGE_TYPE_EXCEPTION("유효하지 않은 라운지 타입입니다.", HttpStatus.BAD_REQUEST),
     NOT_ACTIVE_LOUNGE_EXCEPTION("활성 상태가 아닌 라운지입니다.", HttpStatus.NOT_FOUND),

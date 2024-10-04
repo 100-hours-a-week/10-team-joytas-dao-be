@@ -48,9 +48,9 @@ public class LoungeFacadeService {
     // 라운지 삭제
     @Transactional
     public void deleteLounge(Long userId, Long loungeId) {
-        User findUser = userService.getUserById(userId);
-        Lounge findLounge = loungeService.getLoungeById(loungeId);
-        loungeService.deleteLoungeByUserId(findUser, findLounge);
+        userService.getUserById(userId);
+        Lounge lounge = loungeService.getLoungeById(loungeId);
+        loungeService.deleteLoungeByUserId(userId, lounge);
     }
 
     // 라운지 초대

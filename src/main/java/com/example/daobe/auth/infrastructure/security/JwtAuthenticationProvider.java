@@ -23,7 +23,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         return JwtAuthenticationToken.afterOf(userId);
     }
 
-    // `AuthenticationProvider` 가 처리할 수 있는 객체 타입 지정
     @Override
     public boolean supports(Class<?> authentication) {
         return JwtAuthenticationToken.class

@@ -13,9 +13,9 @@ import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.lounge.application.LoungeFacadeService;
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import java.util.List;
@@ -53,7 +53,7 @@ public class LoungeController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LoungeInfoDto>>> getAllLounges(
+    public ResponseEntity<ApiResponse<List<LoungeInfoResponseDto>>> getAllLounges(
             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.status(LOUNGE_LIST_LOADED_SUCCESS.getHttpStatus())
@@ -64,7 +64,7 @@ public class LoungeController {
     }
 
     @GetMapping("/{loungeId}")
-    public ResponseEntity<ApiResponse<LoungeDetailInfoDto>> getLoungeDetail(
+    public ResponseEntity<ApiResponse<LoungeDetailResponseDto>> getLoungeDetail(
             @AuthenticationPrincipal Long userId,
             @PathVariable(name = "loungeId") Long loungeId
     ) {
@@ -91,7 +91,7 @@ public class LoungeController {
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<Void>> inviteUser(
             @AuthenticationPrincipal Long userId,
-            @RequestBody LoungeInviteDto request
+            @RequestBody LoungeInviteRequestDto request
     ) {
         loungeFacadeService.inviteUser(request, userId);
         return ResponseEntity.status(LOUNGE_INVITE_SUCCESS.getHttpStatus())

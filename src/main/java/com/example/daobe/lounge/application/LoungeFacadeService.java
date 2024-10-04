@@ -2,9 +2,9 @@ package com.example.daobe.lounge.application;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
 import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import com.example.daobe.lounge.domain.Lounge;
@@ -34,12 +34,12 @@ public class LoungeFacadeService {
     }
 
     // 라운지 목록 조회
-    public List<LoungeInfoDto> getAllLounges(Long userId) {
+    public List<LoungeInfoResponseDto> getAllLounges(Long userId) {
         return loungeService.getLoungeInfosByUserId(userId);
     }
 
     // 라운지 상세 조회
-    public LoungeDetailInfoDto getLoungeDetail(Long userId, Long loungeId) {
+    public LoungeDetailResponseDto getLoungeDetail(Long userId, Long loungeId) {
         Lounge findLounge = loungeService.getLoungeById(loungeId);
         loungeSharerService.validateLoungeSharer(userId, loungeId);
         return loungeService.getLoungeDetailInfo(findLounge);
@@ -55,7 +55,7 @@ public class LoungeFacadeService {
 
     // 라운지 초대
     @Transactional
-    public void inviteUser(LoungeInviteDto request, Long inviterId) {
+    public void inviteUser(LoungeInviteRequestDto request, Long inviterId) {
         User findUser = userService.getUserById(request.userId());
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         loungeSharerService.inviteUser(findUser, findLounge, inviterId);

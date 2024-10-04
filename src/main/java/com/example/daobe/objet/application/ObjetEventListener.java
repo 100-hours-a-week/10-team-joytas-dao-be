@@ -1,9 +1,11 @@
 package com.example.daobe.objet.application;
 
 import com.example.daobe.lounge.domain.event.LoungeDeletedEvent;
+import com.example.daobe.lounge.domain.event.LoungeInviteAcceptedEvent;
 import com.example.daobe.lounge.domain.event.LoungeWithdrawEvent;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
+import com.example.daobe.objet.domain.ObjetSharerStatus;
 import com.example.daobe.objet.domain.repository.ObjetRepository;
 import com.example.daobe.objet.domain.repository.ObjetSharerRepository;
 import java.util.List;
@@ -39,9 +41,26 @@ public class ObjetEventListener {
     public void loungeWithdrawListener(LoungeWithdrawEvent event) {
         List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserIdAndLoungeId(
                 event.userId(),
-                event.loungeId()
+                event.loungeId(),
+                ObjetSharerStatus.ACTIVE
         );
         objetSharerList.forEach(ObjetSharer::updateStatusDeleted);
+        objetSharerRepository.saveAll(objetSharerList);
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void loungeInviteAcceptedListener(LoungeInviteAcceptedEvent event) {
+        List<ObjetSharer> objetSharerList = objetSharerRepository.findByUserIdAndLoungeId(
+                event.invitedUserId(),
+                event.loungeId(),
+                ObjetSharerStatus.DELETED
+        );
+        if (objetSharerList.isEmpty()) {
+            return;
+        }
+        objetSharerList.forEach(ObjetSharer::updateStatusActive);
         objetSharerRepository.saveAll(objetSharerList);
     }
 }

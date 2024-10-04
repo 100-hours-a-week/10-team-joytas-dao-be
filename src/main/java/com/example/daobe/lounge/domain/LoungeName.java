@@ -6,8 +6,13 @@ import static com.example.daobe.lounge.exception.LoungeExceptionType.LOUNGE_NAME
 import com.example.daobe.lounge.exception.LoungeException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
 @Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LoungeName {
 
     private static final int MIN_LENGTH = 2;
@@ -15,19 +20,12 @@ public class LoungeName {
     private static final String NAME_REGEX = "^(?!.*[^가-힣a-zA-Z0-9\\s])(?!.*\\s{2,}).*$";
 
     @Column(name = "name")
-    private String name;
+    private String value;
 
-    public LoungeName() {
-    }
-
-    public LoungeName(String name) {
-        validateLength(name.length());
-        validatePattern(name);
-        this.name = name.trim();
-    }
-
-    public String getName() {
-        return name;
+    public LoungeName(String value) {
+        validateLength(value.length());
+        validatePattern(value);
+        this.value = value.trim();
     }
 
     private void validateLength(int length) {
@@ -36,8 +34,8 @@ public class LoungeName {
         }
     }
 
-    private void validatePattern(String name) {
-        if (!name.matches(NAME_REGEX)) {
+    private void validatePattern(String value) {
+        if (!value.matches(NAME_REGEX)) {
             throw new LoungeException(LOUNGE_NAME_REGEX_EXCEPTION);
         }
     }

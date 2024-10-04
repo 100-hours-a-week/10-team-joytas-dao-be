@@ -94,7 +94,7 @@ public class Lounge extends BaseTimeEntity {
     }
 
     public String getName() {
-        return name.getName();
+        return name.getValue();
     }
 
     private void isOwnerOrThrow(Long userId) {

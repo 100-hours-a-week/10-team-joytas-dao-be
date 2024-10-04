@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         String accessToken = AuthHeaderExtractor.extract(request)
                 .orElseThrow(() -> new SecurityException(SecurityExceptionType.UNAUTHORIZED));
 
-        // 인증에 필요한 데이터 (인증 전의 토큰 객체)
         JwtAuthenticationToken beforeToken = JwtAuthenticationToken.beforeOf(accessToken);
         return super.getAuthenticationManager().authenticate(beforeToken);
     }
@@ -41,8 +40,6 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             FilterChain filterChain,
             Authentication authResult
     ) throws IOException, ServletException {
-        // 인증 성공시 -> Controller Handler
-        // `SecurityContextHolder` 에 인증된 사용자 정보를 넣어야함
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);

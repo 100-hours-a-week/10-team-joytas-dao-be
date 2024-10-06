@@ -17,7 +17,7 @@ public class LoungeName {
 
     private static final int MIN_LENGTH = 2;
     private static final int MAX_LENGTH = 10;
-    private static final String NAME_REGEX = "^(?!.*[^가-힣a-zA-Z0-9\\s])(?!.*\\s{2,}).*$";
+    private static final String NAME_REGEX = "^(?!.*[^ㄱ-ㅎ가-힣a-zA-Z0-9\\s])(?!.*\\s{2,}).*$";
 
     @Column(name = "name")
     private String value;

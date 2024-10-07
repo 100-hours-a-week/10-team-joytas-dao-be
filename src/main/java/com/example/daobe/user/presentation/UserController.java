@@ -7,6 +7,7 @@ import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
+import com.example.daobe.user.application.dto.UserInquiriesRequestDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
 import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +100,19 @@ public class UserController {
         userService.poke(userId, request);
         return ResponseEntity.ok(new ApiResponse<>(
                 "USER_POKE_SUCCESS",
+                null
+        ));
+    }
+
+    @RateLimited(name = "userInquiries", capacity = 1, refillSeconds = 30)
+    @PostMapping("/inquiries")
+    public ResponseEntity<ApiResponse<Void>> inquiries(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody UserInquiriesRequestDto request
+    ) {
+        userService.inquiries(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "INQUIRIES_SUCCESS",
                 null
         ));
     }

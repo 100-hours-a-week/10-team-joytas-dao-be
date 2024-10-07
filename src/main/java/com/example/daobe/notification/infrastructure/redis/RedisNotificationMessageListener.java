@@ -1,6 +1,6 @@
 package com.example.daobe.notification.infrastructure.redis;
 
-import com.example.daobe.notification.application.NotificationEventListener;
+import com.example.daobe.notification.application.NotificationSubscribeService;
 import com.example.daobe.notification.application.dto.NotificationEventPayloadDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -15,12 +15,12 @@ public class RedisNotificationMessageListener implements MessageListener {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final NotificationEventListener notificationEventListener;
+    private final NotificationSubscribeService notificationSubscribeService;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         NotificationEventPayloadDto payload = deserializeFromBytes(message.getBody());
-        notificationEventListener.publishToClient(payload);
+        notificationSubscribeService.publishToClient(payload);
     }
 
     private NotificationEventPayloadDto deserializeFromBytes(byte[] bytes) {

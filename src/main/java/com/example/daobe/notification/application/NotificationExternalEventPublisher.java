@@ -4,5 +4,5 @@ import com.example.daobe.notification.application.dto.NotificationEventPayloadDt
 
 public interface NotificationEventPublisher {
 
-    void publishNotificationEvent(NotificationEventPayloadDto payload);
+    void execute(NotificationEventPayloadDto payload);
 }

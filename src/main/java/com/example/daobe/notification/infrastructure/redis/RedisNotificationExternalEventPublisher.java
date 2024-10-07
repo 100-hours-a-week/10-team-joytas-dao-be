@@ -1,6 +1,6 @@
 package com.example.daobe.notification.infrastructure.redis;
 
-import com.example.daobe.notification.application.NotificationEventPublisher;
+import com.example.daobe.notification.application.NotificationExternalEventPublisher;
 import com.example.daobe.notification.application.dto.NotificationEventPayloadDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RedisNotificationEventPublisher implements NotificationEventPublisher {
+public class RedisNotificationExternalEventPublisher implements NotificationExternalEventPublisher {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String NOTIFICATION_CHANNEL_TOPIC = "notification:channel";
@@ -20,7 +20,7 @@ public class RedisNotificationEventPublisher implements NotificationEventPublish
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
-    public void publishNotificationEvent(NotificationEventPayloadDto payload) {
+    public void execute(NotificationEventPayloadDto payload) {
         redisTemplate.convertAndSend(
                 NOTIFICATION_CHANNEL_TOPIC,
                 serializeToString(payload)

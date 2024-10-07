@@ -12,7 +12,6 @@ public record LoungeSharerInfoResponseDto(
 
     public static LoungeSharerInfoResponseDto of(LoungeSharer loungeSharer) {
         User user = loungeSharer.getUser();
-
         return new LoungeSharerInfoResponseDto(
                 user.getId(),
                 user.getProfileUrl(),

@@ -4,11 +4,9 @@ import com.example.daobe.common.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum ObjetExceptionType implements BaseExceptionType {
-    INVALID_OBJET_ID_EXCEPTION("유효하지 않은 오브제 ID입니다.", HttpStatus.NOT_FOUND),
-    NO_ACTIVE_OBJET_EXCEPTION("활성화되지 않은 오브제입니다.", HttpStatus.FORBIDDEN),
-    NO_PERMISSIONS_ON_OBJET("오브제에 대한 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
-    INVALID_OBJET_IMAGE_EXTENSIONS("오브제 이미지의 확장자가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_OBJET_IMAGE("오브제 이미지가 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
+    OBJET_NOT_FOUND_EXCEPTION("존재하지 않는 오브제입니다.", HttpStatus.NOT_FOUND),
+    NO_PERMISSIONS_ON_OBJET("오브제에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    NOT_EXISTS_OBJET_TYPE("존재하지 않는 오브제 타입입니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String message;

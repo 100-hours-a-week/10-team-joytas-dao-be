@@ -2,10 +2,11 @@ package com.example.daobe.lounge.application;
 
 import com.example.daobe.lounge.application.dto.LoungeCreateRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeCreateResponseDto;
-import com.example.daobe.lounge.application.dto.LoungeDetailInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInfoDto;
-import com.example.daobe.lounge.application.dto.LoungeInviteDto;
+import com.example.daobe.lounge.application.dto.LoungeDetailResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeInviteRequestDto;
 import com.example.daobe.lounge.application.dto.LoungeSharerInfoResponseDto;
+import com.example.daobe.lounge.application.dto.LoungeValidateRequestDto;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
@@ -23,7 +24,6 @@ public class LoungeFacadeService {
     private final LoungeService loungeService;
     private final LoungeSharerService loungeSharerService;
 
-    // 라운지 생성
     @Transactional
     public LoungeCreateResponseDto createLounge(LoungeCreateRequestDto request, Long userId) {
         User findUser = userService.getUserById(userId);
@@ -32,44 +32,49 @@ public class LoungeFacadeService {
         return LoungeCreateResponseDto.of(createdLounge);
     }
 
-    // 라운지 목록 조회
-    public List<LoungeInfoDto> getAllLounges(Long userId) {
+    public List<LoungeInfoResponseDto> getAllLounges(Long userId) {
         return loungeService.getLoungeInfosByUserId(userId);
     }
 
-    // 라운지 상세 조회
-    public LoungeDetailInfoDto getLoungeDetail(Long userId, Long loungeId) {
+    public LoungeDetailResponseDto getLoungeDetail(Long userId, Long loungeId) {
         Lounge findLounge = loungeService.getLoungeById(loungeId);
-        return loungeService.getLoungeDetailInfo(userId, findLounge);
+        loungeSharerService.validateLoungeSharer(userId, loungeId);
+        return loungeService.getLoungeDetailInfo(findLounge);
     }
 
-    // 라운지 삭제
     @Transactional
     public void deleteLounge(Long userId, Long loungeId) {
-        User findUser = userService.getUserById(userId);
-        Lounge findLounge = loungeService.getLoungeById(loungeId);
-        loungeService.deleteLoungeByUserId(findUser, findLounge);
+        Lounge lounge = loungeService.getLoungeById(loungeId);
+        loungeService.deleteLoungeByUserId(userId, lounge);
     }
 
-    // 라운지 초대
     @Transactional
-    public void inviteUser(LoungeInviteDto request, Long inviterId) {
+    public void inviteUser(LoungeInviteRequestDto request, Long inviterId) {
         User findUser = userService.getUserById(request.userId());
         Lounge findLounge = loungeService.getLoungeById(request.loungeId());
         loungeSharerService.inviteUser(findUser, findLounge, inviterId);
     }
 
-    // 라운지 내 유저 검색
+    @Transactional
+    public void updateInvitedUserStatus(Long userId, Long loungeId) {
+        User invitedUser = userService.getUserById(userId);
+        Lounge findLounge = loungeService.getLoungeById(loungeId);
+        loungeSharerService.updateInvitedUserStatus(invitedUser.getId(), findLounge.getId());
+    }
+
     public List<LoungeSharerInfoResponseDto> searchLoungeSharer(Long userId, String nickname, Long loungeId) {
         Lounge findLounge = loungeService.getLoungeById(loungeId);
         return loungeSharerService.searchLoungeSharer(userId, nickname, findLounge);
     }
 
-    // 라운지 탈퇴
     @Transactional
     public void withdraw(Long userId, Long loungeId) {
         User findUser = userService.getUserById(userId);
         Lounge findLounge = loungeService.getLoungeById(loungeId);
         loungeSharerService.withdraw(findUser, findLounge);
+    }
+
+    public void isLoungeSharer(Long userId, LoungeValidateRequestDto request) {
+        loungeSharerService.validateLoungeSharer(userId, request.loungeId());
     }
 }

@@ -4,7 +4,6 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.example.daobe.auth.application.AuthService;
 import com.example.daobe.auth.application.dto.TokenResponseDto;
-import com.example.daobe.auth.application.dto.WithdrawRequestDto;
 import com.example.daobe.common.presentation.cookie.CookieHandler;
 import com.example.daobe.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,22 +52,6 @@ public class AuthController {
         response.addHeader(SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new ApiResponse<>(
                 "LOGOUT_SUCCESS", null
-        ));
-    }
-
-    @PostMapping("/withdraw")
-    public ResponseEntity<ApiResponse<Void>> withdraw(
-            @AuthenticationPrincipal Long userId,
-            @RequestBody WithdrawRequestDto request,
-            @CookieValue(COOKIE_REFRESH_TOKEN) String refreshToken,
-            HttpServletResponse response
-    ) {
-        authService.withdraw(userId, refreshToken, request);
-        ResponseCookie cookie = cookieHandler.deleteCookie(COOKIE_REFRESH_TOKEN);
-        response.addHeader(SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok(new ApiResponse<>(
-                "WITHDRAW_SUCCESS",
-                null
         ));
     }
 }

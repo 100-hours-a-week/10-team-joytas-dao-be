@@ -2,11 +2,14 @@ package com.example.daobe.user.presentation;
 
 import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.common.response.SliceApiResponse;
+import com.example.daobe.common.throttling.annotation.RateLimited;
 import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
+import com.example.daobe.user.application.dto.UserInquiriesRequestDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
+import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -65,6 +68,18 @@ public class UserController {
         ));
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withdrawUser(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody UserWithdrawRequestDto request
+    ) {
+        userService.withdraw(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "WITHDRAW_SUCCESS",
+                null
+        ));
+    }
+
     @PatchMapping("/profile")
     public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
             @AuthenticationPrincipal Long userId,
@@ -76,6 +91,7 @@ public class UserController {
         ));
     }
 
+    @RateLimited(name = "userPoke", capacity = 3, refillSeconds = 3)
     @PostMapping("/poke")
     public ResponseEntity<ApiResponse<Void>> poke(
             @AuthenticationPrincipal Long userId,
@@ -84,6 +100,19 @@ public class UserController {
         userService.poke(userId, request);
         return ResponseEntity.ok(new ApiResponse<>(
                 "USER_POKE_SUCCESS",
+                null
+        ));
+    }
+
+    @RateLimited(name = "userInquiries", capacity = 1, refillSeconds = 30)
+    @PostMapping("/inquiries")
+    public ResponseEntity<ApiResponse<Void>> inquiries(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody UserInquiriesRequestDto request
+    ) {
+        userService.inquiries(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(
+                "INQUIRIES_SUCCESS",
                 null
         ));
     }

@@ -21,8 +21,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseTimeEntity {
 
-    // TODO: VO 필요함
-
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,19 +37,24 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    // 비활성화 사유
     private String reasons;
 
-    // 비활성화 사유
     @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
 
     @Builder
-    public User(String kakaoId, String profileUrl) {
+    public User(String kakaoId) {
         this.kakaoId = kakaoId;
         this.nickname = DefaultNicknamePolicy.generatedRandomString();
-        this.profileUrl = profileUrl;
         this.status = UserStatus.ACTIVE_FIRST_LOGIN;
+    }
+
+    public User(Long id, String kakaoId, String nickname, String profileUrl, UserStatus status) {
+        this.id = id;
+        this.kakaoId = kakaoId;
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+        this.status = status;
     }
 
     public void updateUserInfo(String nickname, String profileUrl) {
@@ -61,18 +64,6 @@ public class User extends BaseTimeEntity {
         if (profileUrl != null) {
             this.profileUrl = profileUrl;
         }
-        updateActiveStatusIfFirstLogin();
-    }
-
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateProfileUrl(String profileUrl) {
-        this.profileUrl = profileUrl;
-    }
-
-    private void updateActiveStatusIfFirstLogin() {
         if (status.isFirstLogin()) {
             status = UserStatus.ACTIVE;
         }
@@ -82,12 +73,8 @@ public class User extends BaseTimeEntity {
         return status == UserStatus.DELETED;
     }
 
-    public void activateFirstLogin() {
-        updateStatus(UserStatus.ACTIVE_FIRST_LOGIN);
-    }
-
-    private void updateStatus(UserStatus status) {
-        this.status = status;
+    public void updateActiveStatus() {
+        this.status = UserStatus.ACTIVE;
     }
 
     public void withdrawWithAddReason(List<String> stringReasonTypeList, String detail) {

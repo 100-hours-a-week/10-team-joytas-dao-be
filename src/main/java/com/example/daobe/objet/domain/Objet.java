@@ -1,9 +1,10 @@
 package com.example.daobe.objet.domain;
 
-import com.example.daobe.chat.domain.ChatRoom;
+import static com.example.daobe.objet.exception.ObjetExceptionType.NO_PERMISSIONS_ON_OBJET;
+
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.domain.Lounge;
-import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
+import com.example.daobe.objet.exception.ObjetException;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,10 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,13 +41,6 @@ public class Objet extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToMany(mappedBy = "objet")
-    private List<ObjetSharer> objetSharers;
-
-    @OneToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
-
     @Column(name = "name")
     private String name;
 
@@ -67,12 +58,6 @@ public class Objet extends BaseTimeEntity {
     @Column(name = "status")
     private ObjetStatus status;
 
-    @Column(name = "reason")
-    private String reason;
-
-    @Column(columnDefinition = "TEXT", name = "reason_detail")
-    private String reasonDetail;
-
     @Builder
     public Objet(
             Lounge lounge,
@@ -80,9 +65,7 @@ public class Objet extends BaseTimeEntity {
             String name,
             String imageUrl,
             String explanation,
-            ObjetType type,
-            ObjetStatus status,
-            ChatRoom chatRoom
+            ObjetType type
     ) {
         this.lounge = lounge;
         this.user = user;
@@ -91,30 +74,35 @@ public class Objet extends BaseTimeEntity {
         this.explanation = explanation;
         this.type = type;
         this.status = ObjetStatus.ACTIVE;
-        this.chatRoom = chatRoom;
     }
 
-    public ObjetInfoResponseDto toObjetCreateResponseDto() {
-        return new ObjetInfoResponseDto(id);
+
+    public void updateObjetInfo(String name, String explanation, String imageUrl, Long userId) {
+        isOwnerOrThrow(userId);
+        if (name != null) {
+            this.name = name;
+        }
+        if (explanation != null) {
+            this.explanation = explanation;
+        }
+        if (imageUrl != null) {
+            this.imageUrl = imageUrl;
+        }
     }
 
-    public void updateUserObjets(List<ObjetSharer> objetSharers) {
-        this.objetSharers = objetSharers;
+    public void softDelete(Long userId) {
+        isOwnerOrThrow(userId);
+        this.status = ObjetStatus.DELETED;
     }
 
-    public void updateDetails(String name, String description) {
-        this.name = name;
-        this.explanation = description;
+    public void updateStatusDeleted() {
+        this.status = ObjetStatus.DELETED;
     }
 
-    public void updateDetailsWithImage(String name, String description, String imageUrl) {
-        this.name = name;
-        this.explanation = description;
-        this.imageUrl = imageUrl;
-    }
-
-    public void updateStatus(ObjetStatus status) {
-        this.status = status;
+    private void isOwnerOrThrow(Long userId) {
+        if (!user.getId().equals(userId)) {
+            throw new ObjetException(NO_PERMISSIONS_ON_OBJET);
+        }
     }
 
 }

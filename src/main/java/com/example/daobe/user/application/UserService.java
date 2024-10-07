@@ -1,6 +1,5 @@
 package com.example.daobe.user.application;
 
-import static com.example.daobe.user.exception.UserExceptionType.ALREADY_POKE;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
@@ -8,16 +7,19 @@ import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
+import com.example.daobe.user.application.dto.UserInquiriesRequestDto;
 import com.example.daobe.user.application.dto.UserPokeRequestDto;
+import com.example.daobe.user.application.dto.UserWithdrawRequestDto;
 import com.example.daobe.user.domain.User;
 import com.example.daobe.user.domain.event.UserCreateEvent;
+import com.example.daobe.user.domain.event.UserInquiriesEvent;
 import com.example.daobe.user.domain.event.UserPokeEvent;
 import com.example.daobe.user.domain.event.UserUpdateEvent;
-import com.example.daobe.user.domain.repository.UserPokeRepository;
 import com.example.daobe.user.domain.repository.UserRepository;
 import com.example.daobe.user.domain.repository.UserSearchRepository;
 import com.example.daobe.user.domain.repository.dto.UserSearchCondition;
 import com.example.daobe.user.exception.UserException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
@@ -29,16 +31,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
+    // TODO: 리팩토링
+
     private static final int DEFAULT_VIEW_LIMIT_SIZE = 10;
     private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
 
     private final UserRepository userRepository;
-    private final UserPokeRepository userPokeRepository;
     private final UserSearchRepository userSearchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public UserInfoResponseDto getUserInfoWithId(Long userId) {
-        User findUser = userRepository.findById(userId)
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
         return UserInfoResponseDto.of(findUser);
     }
@@ -69,11 +72,6 @@ public class UserService {
     }
 
     public void poke(Long userId, UserPokeRequestDto request) {
-        boolean alreadyPoke = userPokeRepository.existsByUserId(userId);
-        if (alreadyPoke) {
-            throw new UserException(ALREADY_POKE);
-        }
-
         Long receiveUserId = request.userId();
         boolean isExistUser = userRepository.existsById(receiveUserId);
         if (!isExistUser) {
@@ -81,7 +79,6 @@ public class UserService {
         }
 
         UserPokeEvent userPokeEvent = new UserPokeEvent(userId, receiveUserId);
-        userPokeRepository.save(userPokeEvent);
 
         eventPublisher.publishEvent(userPokeEvent);
     }
@@ -95,7 +92,7 @@ public class UserService {
 
     private User activateIfDeleted(User user) {
         if (user.isDeletedUser()) {
-            user.activateFirstLogin();
+            user.updateActiveStatus();
         }
         return user;
     }
@@ -107,9 +104,34 @@ public class UserService {
         return saveUser;
     }
 
+    @Transactional
+    public void withdraw(Long userId, UserWithdrawRequestDto request) {
+        User findUser = userRepository.findByIdAndStatusIsNotDeleted(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        findUser.withdrawWithAddReason(request.reasonTypeList(), request.detail());
+        userRepository.save(findUser);
+    }
+
+    public void inquiries(Long userId, UserInquiriesRequestDto request) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        UserInquiriesEvent event = new UserInquiriesEvent(
+                userId,
+                findUser.getNickname(),
+                request.email(),
+                request.contents()
+        );
+        eventPublisher.publishEvent(event);
+    }
+
     // External Service
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+    }
+
+    // External Service
+    public List<User> getUserListByIdList(List<Long> userIdList) {
+        return userRepository.findAllById(userIdList);
     }
 }

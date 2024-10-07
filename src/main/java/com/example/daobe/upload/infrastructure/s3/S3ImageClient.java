@@ -16,11 +16,11 @@ public class S3ImageClient implements ImageClient {
     @Override
     public String upload(String objectKey, MultipartFile file) {
         String bucketName = properties.bucketName();
-        s3Uploader.upload(bucketName, objectKey, file);
+        int cacheTimeSeconds = properties.cacheTimeSeconds();
+        s3Uploader.upload(cacheTimeSeconds, bucketName, objectKey, file);
         return generatedImageUrl(objectKey);
     }
 
-    // image 가 저장된 URL 생성
     private String generatedImageUrl(String objectKey) {
         return properties.imageUrl() + objectKey;
     }

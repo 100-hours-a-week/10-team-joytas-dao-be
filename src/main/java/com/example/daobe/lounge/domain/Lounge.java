@@ -1,15 +1,14 @@
 package com.example.daobe.lounge.domain;
 
 import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_OWNER_EXCEPTION;
-import static com.example.daobe.lounge.exception.LoungeExceptionType.INVALID_LOUNGE_SHARER_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ACTIVE_LOUNGE_EXCEPTION;
 import static com.example.daobe.lounge.exception.LoungeExceptionType.NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION;
 
 import com.example.daobe.common.domain.BaseTimeEntity;
 import com.example.daobe.lounge.exception.LoungeException;
-import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.user.domain.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,9 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,8 +39,8 @@ public class Lounge extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @Column(name = "name")
-    private String name;
+    @Embedded
+    private LoungeName name;
 
     @Enumerated(EnumType.STRING)
     private LoungeType type;
@@ -57,17 +54,19 @@ public class Lounge extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", name = "reason_detail")
     private String reasonDetail;
 
-    @OneToMany(mappedBy = "lounge")
-    private List<Objet> objets;
-
-    @OneToMany(mappedBy = "lounge")
-    private List<LoungeSharer> loungeSharers;
-
     @Builder
-    public Lounge(User user, String name, LoungeType type, LoungeStatus status) {
+    public Lounge(User user, String name, String type) {
         this.user = user;
-        this.name = name;
-        this.type = type;
+        this.name = new LoungeName(name);
+        this.type = LoungeType.from(type);
+        this.status = LoungeStatus.ACTIVE;
+    }
+
+    public Lounge(Long id, User user, String name, String type, LoungeStatus status) {
+        this.id = id;
+        this.user = user;
+        this.name = new LoungeName(name);
+        this.type = LoungeType.from(type);
         this.status = status;
     }
 
@@ -77,28 +76,30 @@ public class Lounge extends BaseTimeEntity {
         this.status = LoungeStatus.DELETED;
     }
 
+    public boolean isActive() {
+        return status.isActive();
+    }
+
     public void isActiveOrThrow() {
         if (!status.isActive()) {
             throw new LoungeException(NOT_ACTIVE_LOUNGE_EXCEPTION);
         }
     }
 
-    public void isOwnerOrThrow(Long userId) {
-        if (userId != user.getId()) {
-            throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
+    public void isPossibleToWithdrawOrThrow(Long userId) {
+        isActiveOrThrow();
+        if (userId == user.getId()) {
+            throw new LoungeException(NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION);
         }
     }
 
-    public void isSharerOrThrow(Long userId) {
-        loungeSharers.stream()
-                .filter(loungeSharer -> loungeSharer.getUser().getId().equals(userId))
-                .findAny()
-                .orElseThrow(() -> new LoungeException(INVALID_LOUNGE_SHARER_EXCEPTION));
+    public String getName() {
+        return name.getValue();
     }
 
-    public void isPossibleToWithdrawOrThrow(Long userId) {
-        if (userId == user.getId()) {
-            throw new LoungeException(NOT_ALLOW_LOUNGE_WITHDRAW_EXCEPTION);
+    private void isOwnerOrThrow(Long userId) {
+        if (userId != user.getId()) {
+            throw new LoungeException(INVALID_LOUNGE_OWNER_EXCEPTION);
         }
     }
 }

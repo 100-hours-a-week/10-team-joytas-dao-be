@@ -10,5 +10,5 @@ public interface ChatUserRepository extends MongoRepository<ChatUser, String> {
 
     Optional<ChatUser> findByUserId(Long userId);
 
-    List<ChatUser> findAllByUserIdIn(Set<Long> userIds);
+    List<ChatUser> findAllByUserIdIn(Set<Long> userIdSet);
 }

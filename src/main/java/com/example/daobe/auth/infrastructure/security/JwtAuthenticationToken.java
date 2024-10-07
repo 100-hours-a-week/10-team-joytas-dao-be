@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 public class JwtAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
+    private static final String EMPTY_CREDENTIALS = "";
+
     public JwtAuthenticationToken(
             Object principal,
             Object credentials
@@ -21,14 +23,12 @@ public class JwtAuthenticationToken extends UsernamePasswordAuthenticationToken 
         super(principal, credentials, authorities);
     }
 
-    // 인증 전의 토큰 객체 생성
     public static JwtAuthenticationToken beforeOf(String accessToken) {
-        return new JwtAuthenticationToken(accessToken, "");
+        return new JwtAuthenticationToken(accessToken, EMPTY_CREDENTIALS);
     }
 
-    // 인증 후의 토큰 객체 생성
     public static JwtAuthenticationToken afterOf(Long userId) {
-        return new JwtAuthenticationToken(userId, "", null);
+        return new JwtAuthenticationToken(userId, EMPTY_CREDENTIALS, null);
     }
 
     public String getAccessToken() {

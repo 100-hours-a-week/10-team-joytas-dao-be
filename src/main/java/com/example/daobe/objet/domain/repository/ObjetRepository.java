@@ -1,7 +1,6 @@
 package com.example.daobe.objet.domain.repository;
 
 import com.example.daobe.objet.domain.Objet;
-import com.example.daobe.objet.domain.ObjetStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,26 +12,19 @@ import org.springframework.stereotype.Repository;
 public interface ObjetRepository extends JpaRepository<Objet, Long> {
 
     @Query("""
-            SELECT o FROM Objet o 
-            JOIN o.objetSharers s 
+            SELECT o FROM Objet o
             WHERE o.lounge.id = :loungeId
-            AND o.status = :status 
-            AND s.user.id = :userId 
+            AND o.status = 'ACTIVE'
             ORDER BY o.id DESC
             """)
-    List<Objet> findActiveObjetsInLoungeOfSharer(
-            @Param("userId") Long userId, @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
+    List<Objet> findActiveObjetListInLounge(
+            @Param("loungeId") Long loungeId
     );
 
     @Query("""
             SELECT o FROM Objet o
-            WHERE o.lounge.id = :loungeId
-            AND o.status = :status
-            ORDER BY o.id DESC
+            WHERE o.id = :objetId
+            AND o.status = 'ACTIVE'
             """)
-    List<Objet> findActiveObjetsInLounge(
-            @Param("loungeId") Long loungeId, @Param("status") ObjetStatus status
-    );
-
-    Optional<Objet> findByIdAndStatus(Long loungeId, ObjetStatus status);
+    Optional<Objet> findByIdAndActiveStatus(@Param("objetId") Long objetId);
 }

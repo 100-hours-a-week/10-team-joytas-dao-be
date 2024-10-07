@@ -1,19 +1,19 @@
 package com.example.daobe.common.logging;
 
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-
-import com.example.daobe.common.utils.DaoStreamUtils;
+import com.example.daobe.common.utils.DaoStringUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,7 +24,15 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 @RequiredArgsConstructor
 public class ReqResLoggingFilter extends OncePerRequestFilter {
 
+    private static final String QUERY_STRING_FORMAT = "?";
+    private static final String DEFAULT_QUERY_COUNT = "0";
     private static final String QUERY_COUNT_MDC_KEY = "QUERY_COUNT";
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        return Objects.equals(acceptHeader, MediaType.TEXT_EVENT_STREAM_VALUE);
+    }
 
     @Override
     protected void doFilterInternal(
@@ -32,107 +40,78 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String contentType = request.getHeader(CONTENT_TYPE);
-        if (LoggingMediaType.isMatchType(contentType)) {
-            doReqResLogging(request, response, filterChain);
-        } else {
-            filterChain.doFilter(request, response);
-        }
-    }
-
-    private void doReqResLogging(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
         ContentCachingRequestWrapper cachedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper cachedResponse = new ContentCachingResponseWrapper(response);
 
-        // Request Latency (밀리초)
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         filterChain.doFilter(cachedRequest, cachedResponse);
 
         stopWatch.stop();
-        logging(cachedRequest, cachedResponse, stopWatch.getTotalTimeMillis());
+        logRequestAndResponse(cachedRequest, cachedResponse, stopWatch.getTotalTimeMillis());
         cachedResponse.copyBodyToResponse();
     }
 
-    // TODO: 리팩토링
-    private void logging(
+    private void logRequestAndResponse(
             ContentCachingRequestWrapper request,
             ContentCachingResponseWrapper response,
             long requestDuration
     ) {
-        // Request & Response & QueryCount
         int status = response.getStatus();
         String method = request.getMethod();
-        String requestURI = request.getRequestURI();
-        String queryString = request.getQueryString();
+        String requestUrl = getRequestUrl(request.getRequestURI(), request.getQueryString());
         String statusCode = HttpStatus.valueOf(status).toString();
+        String remoteAddr = request.getRemoteAddr();
         String totalQueryCount = getTotalQueryCount();
 
-        // 로그 메시지 생성
         StringBuilder logMessage = new StringBuilder();
 
-        logMessage.append("|\n| [REQUEST] (").append(method).append(") ").append(requestURI);
-
-        getFormattedQueryString(queryString).ifPresent(v ->
-                logMessage.append(v).append(queryString)
-        );
-
+        logMessage.append("|\n| [REQUEST] (").append(method).append(") ").append(requestUrl);
         logMessage.append("\n| >> STATUS_CODE: ").append(statusCode);
+        logMessage.append("\n| >> IPV4_ADDRESS: ").append(remoteAddr);
 
-        getRequestBody(request).ifPresent(v ->
-                logMessage.append("\n| >> REQUEST_BODY: ").append(v)
-        );
-
-        getResponseBody(response).ifPresent(v ->
-                logMessage.append("\n| >> RESPONSE_BODY: ").append(v)
-        );
+        getRequestBody(request).ifPresent(v -> logMessage.append("\n| >> REQUEST_BODY: ").append(v));
+        getResponseBody(response).ifPresent(v -> logMessage.append("\n| >> RESPONSE_BODY: ").append(v));
 
         logMessage.append("\n| >> TOTAL_QUERY_COUNT: ").append(totalQueryCount);
-
         logMessage.append("\n| >> TOTAL_LATENCY_TIME: ").append(requestDuration).append("ms");
 
-        if (status < 500) {
-            log.info(logMessage.toString());
-        } else {
-            log.error(logMessage.toString());
-        }
+        logByStatus(status, logMessage.toString());
     }
 
     private String getTotalQueryCount() {
         String queryCount = MDC.get(QUERY_COUNT_MDC_KEY);
-        if (queryCount == null) {
-            return "0";
+        if (StringUtils.hasText(queryCount)) {
+            return queryCount;
         }
-        return queryCount;
+        return DEFAULT_QUERY_COUNT;
     }
 
-    private Optional<String> getFormattedQueryString(String queryString) {
+    private String getRequestUrl(String requestURI, String queryString) {
         if (StringUtils.hasText(queryString)) {
-            return Optional.of("?");
+            return requestURI + QUERY_STRING_FORMAT + queryString;
         }
-        return Optional.empty();
+        return requestURI;
     }
 
     private Optional<String> getRequestBody(ContentCachingRequestWrapper request) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(request.getContentAsByteArray());
-        String requestBody = DaoStreamUtils.toString(inputStream);
-        if (StringUtils.hasText(requestBody)) {
-            return Optional.of(requestBody);
-        }
-        return Optional.empty();
+        byte[] byteArray = request.getContentAsByteArray();
+        String requestBody = DaoStringUtils.byteArrayToString(byteArray);
+        return DaoStringUtils.optionalOfNonEmpty(requestBody);
     }
 
     private Optional<String> getResponseBody(ContentCachingResponseWrapper response) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(response.getContentAsByteArray());
-        String responseBody = DaoStreamUtils.toString(inputStream);
-        if (StringUtils.hasText(responseBody)) {
-            return Optional.of(responseBody);
+        byte[] byteArray = response.getContentAsByteArray();
+        String responseBody = DaoStringUtils.byteArrayToString(byteArray);
+        return DaoStringUtils.optionalOfNonEmpty(responseBody);
+    }
+
+    private void logByStatus(int status, String logMessage) {
+        if (status < 500) {
+            log.info(logMessage);
+        } else {
+            log.error(logMessage);
         }
-        return Optional.empty();
     }
 }

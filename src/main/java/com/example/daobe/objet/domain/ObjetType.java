@@ -1,13 +1,14 @@
 package com.example.daobe.objet.domain;
 
+import com.example.daobe.objet.exception.ObjetException;
+import com.example.daobe.objet.exception.ObjetExceptionType;
 import java.util.Arrays;
-import lombok.Getter;
 
-@Getter
 public enum ObjetType {
     O0001("O0001"),
     O0002("O0002"),
-    O0003("O0003");
+    O0003("O0003"),
+    ;
 
     private final String type;
 
@@ -15,10 +16,14 @@ public enum ObjetType {
         this.type = type;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public static ObjetType from(String type) {
         return Arrays.stream(values())
                 .filter(ObjetType -> ObjetType.getType().equals(type))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("NOT_EXISTS_LOUNGE_TYPE_EXCEPTION"));
+                .orElseThrow(() -> new ObjetException(ObjetExceptionType.NOT_EXISTS_OBJET_TYPE));
     }
 }

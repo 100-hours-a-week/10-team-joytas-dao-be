@@ -1,4 +1,10 @@
+server:
+  shutdown: graceful
+
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 5s
+
   jackson:
     property-naming-strategy: SNAKE_CASE
 
@@ -72,6 +78,32 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
+  actuator:
+    username: actuator
+    password: actuator
+    role: ACTUATOR
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+
+discord:
+  webhook-url: ${DISCORD_WEBHOOK_URL}
+  message-format: |
+    ### 👥 사용자 정보
+    
+    식별자 : `%s`
+    닉네임 : `%s`
+    이메일 : `%s`
+    
+    ### 🖋 문의 내용
+    
+    ```
+    %s
+    ```
+
 security:
   jwt:
     secret-key: afdakfjlkasjfaioefjklasfmakl;fjaklfmakl;dfaklfadsflka
@@ -85,8 +117,9 @@ logging:
 cloud:
   aws:
     s3:
+      cache-time-seconds: 2592000  # 30일
       bucket-name: ${S3_BUCKET_NAME}
       access-key: ${S3_ACCESS_KEY}
       secret-key: ${S3_SECRET_KEY}
-      region: ${S3_REGION}
       image-url: ${S3_IMAGE_URL}
+      region: ${S3_REGION}

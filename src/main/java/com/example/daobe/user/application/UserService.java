@@ -71,6 +71,7 @@ public class UserService {
         return UpdateProfileResponseDto.of(findUser);
     }
 
+    @Transactional
     public void poke(Long userId, UserPokeRequestDto request) {
         Long receiveUserId = request.userId();
         boolean isExistUser = userRepository.existsById(receiveUserId);

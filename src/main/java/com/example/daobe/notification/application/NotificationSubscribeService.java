@@ -1,8 +1,10 @@
 package com.example.daobe.notification.application;
 
 import com.example.daobe.notification.application.dto.DummyResponseDto;
+import com.example.daobe.notification.application.dto.NotificationEventPayloadDto;
 import com.example.daobe.notification.domain.NotificationEmitter;
 import com.example.daobe.notification.domain.repository.EmitterRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -24,9 +26,14 @@ public class NotificationSubscribeService {
         emitterRepository.save(notificationEmitter);
 
         configurationEmitter(emitter, notificationEmitter.getEmitterId());
-        sendDummyNotification(notificationEmitter);
+        sendToClient(notificationEmitter, DummyResponseDto.of());
 
         return emitter;
+    }
+
+    public void publishToClient(NotificationEventPayloadDto payload) {
+        List<NotificationEmitter> emitterList = emitterRepository.findAllByUserId(payload.receiveUserId());
+        emitterList.forEach(emitter -> sendToClient(emitter, payload.data()));
     }
 
     private void configurationEmitter(SseEmitter emitter, String emitterId) {
@@ -41,11 +48,11 @@ public class NotificationSubscribeService {
         });
     }
 
-    private void sendDummyNotification(NotificationEmitter emitter) {
+    private <T> void sendToClient(NotificationEmitter emitter, T data) {
         try {
-            emitter.sendToClient(DummyResponseDto.of());
+            emitter.sendToClient(data);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            emitterRepository.deleteById(emitter.getEmitterId());
         }
     }
 }

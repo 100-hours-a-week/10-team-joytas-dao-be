@@ -1,8 +1,7 @@
 package com.example.daobe.notification.application;
 
-import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
-
 import com.example.daobe.common.domain.DomainEvent;
+import com.example.daobe.common.outbox.OutboxService;
 import com.example.daobe.notification.application.dto.NotificationEventPayloadDto;
 import com.example.daobe.notification.application.dto.NotificationInfoResponseDto;
 import com.example.daobe.notification.domain.Notification;
@@ -10,40 +9,34 @@ import com.example.daobe.notification.domain.NotificationEventType;
 import com.example.daobe.notification.domain.convert.DomainEventConvertMapper;
 import com.example.daobe.notification.domain.convert.dto.DomainInfo;
 import com.example.daobe.notification.domain.repository.NotificationRepository;
+import com.example.daobe.user.application.UserService;
 import com.example.daobe.user.domain.User;
-import com.example.daobe.user.domain.repository.UserRepository;
-import com.example.daobe.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationDomainEventListener {
+public class NotificationEventMessageListener {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final OutboxService outboxService;
     private final NotificationRepository notificationRepository;
     private final DomainEventConvertMapper domainEventConvertMapper;
-    private final NotificationEventPublisher notificationEventPublisher;
+    private final NotificationExternalEventPublisher notificationExternalEventPublisher;
 
     @Async
-    @TransactionalEventListener(
-            phase = TransactionPhase.AFTER_COMMIT,
-            classes = DomainEvent.class
-    )
+    @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void listenDomainEvent(DomainEvent domainEvent) {
+    public void listenEventMessage(DomainEvent domainEvent) {
         Long sendUserId = domainEvent.getSendUserId();
-        User sendUser = userRepository.findById(sendUserId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        User sendUser = userService.getUserById(sendUserId);
 
         Long receiveUserId = domainEvent.getReceiveUserId();
-        User receiveUser = userRepository.findById(receiveUserId)
-                .orElseThrow(() -> new UserException(NOT_EXIST_USER));
+        User receiveUser = userService.getUserById(receiveUserId);
 
         NotificationEventType eventType = NotificationEventType.getEventTypeByDomainEvent(domainEvent);
 
@@ -57,6 +50,9 @@ public class NotificationDomainEventListener {
 
         DomainInfo domainInfo = domainEventConvertMapper.convert(eventType, domainEvent.getDomainId());
         NotificationInfoResponseDto payload = NotificationInfoResponseDto.of(notification, domainInfo);
-        notificationEventPublisher.publishNotificationEvent(NotificationEventPayloadDto.of(receiveUserId, payload));
+
+        notificationExternalEventPublisher.execute(NotificationEventPayloadDto.of(receiveUserId, payload));
+
+        outboxService.completeEvent(domainEvent.getEventId());
     }
 }

@@ -41,9 +41,11 @@ public class ObjetSharerService {
                 .toList();
 
         objetSharerRepository.saveAll(objetSharerList);
-        objetSharerList.forEach(objetSharer ->
-                eventPublisher.publishEvent(new ObjetInviteEvent(userId, objetSharer))
-        );
+
+        objetSharerList.stream()
+                .filter(objetSharer -> !objetSharer.getUser().getId().equals(userId))
+                .map(objetSharer -> new ObjetInviteEvent(userId, objetSharer))
+                .forEach(eventPublisher::publishEvent);
     }
 
     public void updateObjetSharerList(Objet objet, List<Long> sharerIdList) {

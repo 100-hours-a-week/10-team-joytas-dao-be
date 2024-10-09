@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "outboxs")
+@Table(name = "outboxes")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Outbox {
 

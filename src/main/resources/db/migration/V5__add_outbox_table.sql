@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS outboxs
+CREATE TABLE IF NOT EXISTS outboxes
 (
     noti_outbox_id VARCHAR(128) NOT NULL,
     aggregate_type VARCHAR(255) NOT NULL,

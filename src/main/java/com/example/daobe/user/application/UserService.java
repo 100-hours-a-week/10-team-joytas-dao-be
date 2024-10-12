@@ -3,7 +3,7 @@ package com.example.daobe.user.application;
 import static com.example.daobe.user.exception.UserExceptionType.DUPLICATE_NICKNAME;
 import static com.example.daobe.user.exception.UserExceptionType.NOT_EXIST_USER;
 
-import com.example.daobe.common.response.SliceApiResponse;
+import com.example.daobe.user.application.dto.PagedUserInfoResponseDto;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
@@ -33,7 +33,7 @@ public class UserService {
 
     // TODO: 리팩토링
 
-    private static final int DEFAULT_VIEW_LIMIT_SIZE = 10;
+    private static final int DEFAULT_VIEW_LIMIT_SIZE = 1;
     private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
 
     private final UserRepository userRepository;
@@ -46,11 +46,15 @@ public class UserService {
         return UserInfoResponseDto.of(findUser);
     }
 
-    public SliceApiResponse<UserInfoResponseDto> searchUserByNickname(String nickname, Long cursor) {
+    public PagedUserInfoResponseDto searchUserByNickname(String nickname, Long cursor) {
         UserSearchCondition condition = new UserSearchCondition(nickname, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
         Slice<User> userSlice = userSearchRepository.searchByCondition(condition);
-        Slice<UserInfoResponseDto> sliceUserInfo = userSlice.map(UserInfoResponseDto::of);
-        return SliceApiResponse.of(sliceUserInfo, UserInfoResponseDto::userId);
+        List<User> userList = userSlice.getContent();
+        if (userSlice.hasNext()) {
+            Long nextCursor = userList.get(userList.size() - 1).getId();
+            return PagedUserInfoResponseDto.of(userSlice.hasNext(), nextCursor, userList);
+        }
+        return PagedUserInfoResponseDto.of(userSlice.hasNext(), userList);
     }
 
     public void checkValidateByNickname(String nickname) {

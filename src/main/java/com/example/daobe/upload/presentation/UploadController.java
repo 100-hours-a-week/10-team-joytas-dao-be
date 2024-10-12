@@ -1,6 +1,5 @@
 package com.example.daobe.upload.presentation;
 
-import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.upload.application.UploadService;
 import com.example.daobe.upload.application.dto.UploadImageResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +18,9 @@ public class UploadController {
     private final UploadService uploadService;
 
     @PostMapping("/images")
-    public ResponseEntity<ApiResponse<UploadImageResponseDto>> uploadImage(
+    public ResponseEntity<UploadImageResponseDto> uploadImage(
             @RequestParam("file") MultipartFile file
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "IMAGE_UPLOAD_SUCCESS",
-                uploadService.upload(file)
-        ));
+        return ResponseEntity.ok(uploadService.upload(file));
     }
 }

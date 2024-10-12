@@ -1,9 +1,8 @@
 package com.example.daobe.user.presentation;
 
-import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.common.throttling.annotation.RateLimited;
 import com.example.daobe.user.application.UserService;
+import com.example.daobe.user.application.dto.PagedUserInfoResponseDto;
 import com.example.daobe.user.application.dto.UpdateProfileRequestDto;
 import com.example.daobe.user.application.dto.UpdateProfileResponseDto;
 import com.example.daobe.user.application.dto.UserInfoResponseDto;
@@ -30,27 +29,21 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserInfoResponseDto>> getCurrentUser(
+    public ResponseEntity<UserInfoResponseDto> getCurrentUser(
             @AuthenticationPrincipal Long userId
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "CURRENT_USER_INFO_LOADED_SUCCESS",
-                userService.getUserInfoWithId(userId)
-        ));
+        return ResponseEntity.ok(userService.getUserInfoWithId(userId));
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserInfoResponseDto>> getUserInfo(
+    public ResponseEntity<UserInfoResponseDto> getUserInfo(
             @PathVariable Long userId
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "LOAD_USER_INFO_SUCCESS",
-                userService.getUserInfoWithId(userId)
-        ));
+        return ResponseEntity.ok(userService.getUserInfoWithId(userId));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<SliceApiResponse<UserInfoResponseDto>> searchUser(
+    public ResponseEntity<PagedUserInfoResponseDto> searchUser(
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "nickname", required = false, defaultValue = "") String nickname
     ) {
@@ -58,62 +51,47 @@ public class UserController {
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<ApiResponse<Void>> validateNickname(
+    public ResponseEntity<Void> validateNickname(
             @RequestParam("nickname") String nickname
     ) {
         userService.checkValidateByNickname(nickname);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "NICKNAME_DUPLICATE_CHECK_SUCCESS",
-                null
-        ));
+        return ResponseEntity.ok(null);
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<ApiResponse<Void>> withdrawUser(
+    public ResponseEntity<Void> withdrawUser(
             @AuthenticationPrincipal Long userId,
             @RequestBody UserWithdrawRequestDto request
     ) {
         userService.withdraw(userId, request);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "WITHDRAW_SUCCESS",
-                null
-        ));
+        return ResponseEntity.ok(null);
     }
 
     @PatchMapping("/profile")
-    public ResponseEntity<ApiResponse<UpdateProfileResponseDto>> updateProfile(
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(
             @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequestDto request
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "UPDATE_PROFILE_SUCCESS",
-                userService.updateProfile(userId, request)
-        ));
+        return ResponseEntity.ok(userService.updateProfile(userId, request));
     }
 
     @RateLimited(name = "userPoke", capacity = 3, refillSeconds = 3)
     @PostMapping("/poke")
-    public ResponseEntity<ApiResponse<Void>> poke(
+    public ResponseEntity<Void> poke(
             @AuthenticationPrincipal Long userId,
             @RequestBody UserPokeRequestDto request
     ) {
         userService.poke(userId, request);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "USER_POKE_SUCCESS",
-                null
-        ));
+        return ResponseEntity.ok(null);
     }
 
     @RateLimited(name = "userInquiries", capacity = 1, refillSeconds = 30)
     @PostMapping("/inquiries")
-    public ResponseEntity<ApiResponse<Void>> inquiries(
+    public ResponseEntity<Void> inquiries(
             @AuthenticationPrincipal Long userId,
             @RequestBody UserInquiriesRequestDto request
     ) {
         userService.inquiries(userId, request);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "INQUIRIES_SUCCESS",
-                null
-        ));
+        return ResponseEntity.ok(null);
     }
 }

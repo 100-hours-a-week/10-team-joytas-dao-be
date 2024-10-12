@@ -1,6 +1,5 @@
 package com.example.daobe.objet.presentation;
 
-import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.objet.application.ObjetSignalService;
 import com.example.daobe.objet.application.dto.ObjetCallParticipantsResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +17,9 @@ public class ObjetSignalController {
     private final ObjetSignalService objetSignalService;
 
     @GetMapping("{objetId}/call/participants")
-    public ResponseEntity<ApiResponse<ObjetCallParticipantsResponseDto>> getCallParticipants(
+    public ResponseEntity<ObjetCallParticipantsResponseDto> getCallParticipants(
             @PathVariable(name = "objetId") Long objetId
     ) {
-        ObjetCallParticipantsResponseDto response = objetSignalService.getCallParticipantsByObjetId(objetId);
-        return ResponseEntity.ok(new ApiResponse<>("OBJET_CALL_PARTICIPANTS_LOADED_SUCCESS", response));
+        return ResponseEntity.ok(objetSignalService.getCallParticipantsByObjetId(objetId));
     }
 }

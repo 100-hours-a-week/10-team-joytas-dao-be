@@ -1,9 +1,7 @@
 package com.example.daobe.notification.presentation;
 
-import com.example.daobe.common.response.ApiResponse;
-import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.notification.application.NotificationService;
-import com.example.daobe.notification.application.dto.NotificationInfoResponseDto;
+import com.example.daobe.notification.application.dto.PagedNotificationInfoResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +20,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<SliceApiResponse<NotificationInfoResponseDto>> getNotificationList(
+    public ResponseEntity<PagedNotificationInfoResponseDto> getNotificationList(
             @AuthenticationPrincipal Long userId,
             @RequestParam(value = "cursor", required = false) Long cursor
     ) {
@@ -30,14 +28,11 @@ public class NotificationController {
     }
 
     @PatchMapping("/{notificationId}/read")
-    public ResponseEntity<ApiResponse<Void>> readNotification(
+    public ResponseEntity<Void> readNotification(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long notificationId
     ) {
         notificationService.readNotification(userId, notificationId);
-        return ResponseEntity.ok(new ApiResponse<>(
-                "NOTIFICATION_READ_SUCCESS",
-                null
-        ));
+        return ResponseEntity.ok(null);
     }
 }

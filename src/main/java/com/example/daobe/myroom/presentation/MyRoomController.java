@@ -1,6 +1,5 @@
 package com.example.daobe.myroom.presentation;
 
-import com.example.daobe.common.response.ApiResponse;
 import com.example.daobe.myroom.application.MyRoomService;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomRequestDto;
 import com.example.daobe.myroom.application.dto.CreatedMyRoomResponseDto;
@@ -27,35 +26,26 @@ public class MyRoomController {
     private final MyRoomService myRoomService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<MyRoomInfoResponseDto>> getUserMyRoomInfo(
+    public ResponseEntity<MyRoomInfoResponseDto> getUserMyRoomInfo(
             @RequestParam("user_id") Long userId
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "ROOM_INFO_LOADED_SUCCESS",
-                myRoomService.getMyRoomInfo(userId)
-        ));
+        return ResponseEntity.ok(myRoomService.getMyRoomInfo(userId));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreatedMyRoomResponseDto>> generatedNewMyRoom(
+    public ResponseEntity<CreatedMyRoomResponseDto> generatedNewMyRoom(
             @AuthenticationPrincipal Long userId,
             @RequestBody CreatedMyRoomRequestDto request
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "ROOM_CREATED_SUCCESS",
-                myRoomService.generatedMyRoom(userId, request)
-        ));
+        return ResponseEntity.ok(myRoomService.generatedMyRoom(userId, request));
     }
 
     @PatchMapping("/{myRoomId}")
-    public ResponseEntity<ApiResponse<UpdateMyRoomResponseDto>> updateMyRoomInfo(
+    public ResponseEntity<UpdateMyRoomResponseDto> updateMyRoomInfo(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long myRoomId,
             @RequestBody UpdateMyRoomRequestDto request
     ) {
-        return ResponseEntity.ok(new ApiResponse<>(
-                "ROOM_INFO_UPDATED_SUCCESS",
-                myRoomService.updateMyRoomInfo(userId, myRoomId, request)
-        ));
+        return ResponseEntity.ok(myRoomService.updateMyRoomInfo(userId, myRoomId, request));
     }
 }

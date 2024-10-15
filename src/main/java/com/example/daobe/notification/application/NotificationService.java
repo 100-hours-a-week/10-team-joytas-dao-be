@@ -13,12 +13,10 @@ import com.example.daobe.notification.domain.repository.dto.NotificationFindCond
 import com.example.daobe.notification.exception.NotificationException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -40,7 +38,7 @@ public class NotificationService {
                 .map(this::convertNotificationDomainInfo)
                 .toList();
         if (notificationSlice.hasNext()) {
-            Long nextCursor = notificationInfoList.get(notificationSlice.getSize() - 1).notificationId();
+            Long nextCursor = notificationInfoList.get(notificationInfoList.size() - 1).notificationId();
             return PagedNotificationInfoResponseDto.of(notificationSlice.hasNext(), nextCursor, notificationInfoList);
         }
         return PagedNotificationInfoResponseDto.of(notificationSlice.hasNext(), notificationInfoList);

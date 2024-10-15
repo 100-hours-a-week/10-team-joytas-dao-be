@@ -4,7 +4,6 @@ import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetType;
 import com.example.daobe.user.domain.User;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public record ObjetResponseDto(
         Long objetId,
@@ -28,13 +27,8 @@ public record ObjetResponseDto(
         );
     }
 
-    public static List<ObjetResponseDto> listOf(List<Objet> objetList) {
-        return objetList.stream()
-                .map(ObjetResponseDto::of)
-                .toList();
-    }
-
-    public record OwnerInfo(
+    // Nested
+    private record OwnerInfo(
             String nickname,
             String profileImage
     ) {

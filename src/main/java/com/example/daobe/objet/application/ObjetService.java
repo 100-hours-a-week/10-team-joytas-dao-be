@@ -2,7 +2,6 @@ package com.example.daobe.objet.application;
 
 import static com.example.daobe.objet.exception.ObjetExceptionType.OBJET_NOT_FOUND_EXCEPTION;
 
-import com.example.daobe.common.response.SliceApiResponse;
 import com.example.daobe.lounge.application.LoungeService;
 import com.example.daobe.lounge.domain.Lounge;
 import com.example.daobe.objet.application.dto.ObjetCreateRequestDto;
@@ -10,8 +9,8 @@ import com.example.daobe.objet.application.dto.ObjetDeleteResponseDto;
 import com.example.daobe.objet.application.dto.ObjetDetailResponseDto;
 import com.example.daobe.objet.application.dto.ObjetInfoResponseDto;
 import com.example.daobe.objet.application.dto.ObjetMeResponseDto;
-import com.example.daobe.objet.application.dto.ObjetResponseDto;
 import com.example.daobe.objet.application.dto.ObjetUpdateRequestDto;
+import com.example.daobe.objet.application.dto.PagedObjetResponseDto;
 import com.example.daobe.objet.domain.Objet;
 import com.example.daobe.objet.domain.ObjetSharer;
 import com.example.daobe.objet.domain.ObjetType;
@@ -76,18 +75,14 @@ public class ObjetService {
         return ObjetInfoResponseDto.of(updatedObjet);
     }
 
-    public SliceApiResponse<ObjetResponseDto> getObjetListByUserId(Long userId, Long loungeId, Long cursor) {
+    public PagedObjetResponseDto getObjetListByUserId(Long userId, Long loungeId, Long cursor) {
         ObjetFindCondition condition = ObjetFindCondition.of(loungeId, userId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
-        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
-        Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
-        return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
+        return getPagedObjetByCondition(condition);
     }
 
-    public SliceApiResponse<ObjetResponseDto> getObjetList(Long loungeId, Long cursor) {
+    public PagedObjetResponseDto getObjetList(Long loungeId, Long cursor) {
         ObjetFindCondition condition = ObjetFindCondition.of(loungeId, cursor, DEFAULT_EXECUTE_LIMIT_SIZE);
-        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
-        Slice<ObjetResponseDto> sliceObjetList = objetSlice.map(ObjetResponseDto::of);
-        return SliceApiResponse.of(sliceObjetList, ObjetResponseDto::objetId);
+        return getPagedObjetByCondition(condition);
     }
 
     public ObjetDetailResponseDto getObjetDetail(Long objetId) {
@@ -109,6 +104,16 @@ public class ObjetService {
         objetRepository.save(findObjet);
         eventPublisher.publishEvent(new ObjetDeleteEvent(findObjet.getId()));
         return ObjetDeleteResponseDto.of(findObjet);
+    }
+
+    private PagedObjetResponseDto getPagedObjetByCondition(ObjetFindCondition condition) {
+        Slice<Objet> objetSlice = customObjetRepository.getObjetListByCondition(condition);
+        List<Objet> objetList = objetSlice.getContent();
+        if (objetSlice.hasNext()) {
+            Long nextCursor = objetList.get(objetList.size() - 1).getId();
+            return PagedObjetResponseDto.of(objetSlice.hasNext(), nextCursor, objetList);
+        }
+        return PagedObjetResponseDto.of(objetSlice.hasNext(), objetList);
     }
 
     private Objet getObjetById(Long objetId) {

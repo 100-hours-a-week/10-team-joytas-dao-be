@@ -25,7 +25,8 @@ public record NotificationInfoResponseDto(
         );
     }
 
-    public record UserInfo(
+    // Nested
+    private record UserInfo(
             @JsonProperty("user_id") Long userId,
             String nickname
     ) {

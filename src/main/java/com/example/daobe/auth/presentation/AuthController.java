@@ -5,7 +5,6 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import com.example.daobe.auth.application.AuthService;
 import com.example.daobe.auth.application.dto.TokenResponseDto;
 import com.example.daobe.common.presentation.cookie.CookieHandler;
-import com.example.daobe.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -27,22 +26,20 @@ public class AuthController {
     private final CookieHandler cookieHandler;
 
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<TokenResponseDto>> reissue(
+    public ResponseEntity<TokenResponseDto> reissue(
             @CookieValue(COOKIE_REFRESH_TOKEN) String refreshToken,
             HttpServletResponse response
     ) {
-        TokenResponseDto tokenPair = authService.reissueTokenPair(refreshToken);
+        TokenResponseDto tokenPairResponse = authService.reissueTokenPair(refreshToken);
         ResponseCookie cookie = cookieHandler.createCookie(
-                COOKIE_REFRESH_TOKEN, tokenPair.refreshToken()
+                COOKIE_REFRESH_TOKEN, tokenPairResponse.refreshToken()
         );
         response.addHeader(SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok(new ApiResponse<>(
-                "REISSUE_SUCCESS", tokenPair
-        ));
+        return ResponseEntity.ok(tokenPairResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
+    public ResponseEntity<Void> logout(
             @AuthenticationPrincipal Long userId,
             @CookieValue(COOKIE_REFRESH_TOKEN) String refreshToken,
             HttpServletResponse response
@@ -50,8 +47,6 @@ public class AuthController {
         authService.logout(userId, refreshToken);
         ResponseCookie cookie = cookieHandler.deleteCookie(COOKIE_REFRESH_TOKEN);
         response.addHeader(SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok(new ApiResponse<>(
-                "LOGOUT_SUCCESS", null
-        ));
+        return ResponseEntity.ok(null);
     }
 }

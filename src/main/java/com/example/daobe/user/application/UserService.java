@@ -33,7 +33,7 @@ public class UserService {
 
     // TODO: 리팩토링
 
-    private static final int DEFAULT_VIEW_LIMIT_SIZE = 1;
+    private static final int DEFAULT_VIEW_LIMIT_SIZE = 10;
     private static final int DEFAULT_EXECUTE_LIMIT_SIZE = DEFAULT_VIEW_LIMIT_SIZE + 1;
 
     private final UserRepository userRepository;

@@ -31,7 +31,8 @@ public class ReqResLoggingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        return Objects.equals(acceptHeader, MediaType.TEXT_EVENT_STREAM_VALUE);
+        return Objects.equals(acceptHeader, MediaType.TEXT_EVENT_STREAM_VALUE) ||
+                request.getRequestURI().startsWith("/actuator");
     }
 
     @Override
